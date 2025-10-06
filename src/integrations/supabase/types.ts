@@ -14,7 +14,260 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          password_hash: string
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          password_hash: string
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          password_hash?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      contact_products: {
+        Row: {
+          contact_id: string
+          product_id: string
+        }
+        Insert: {
+          contact_id: string
+          product_id: string
+        }
+        Update: {
+          contact_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_products_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          additional_info: string | null
+          age: number | null
+          concerns: string[] | null
+          conversation_id: string | null
+          created_at: string | null
+          discount_code: string | null
+          email: string | null
+          email_clicked_at: string | null
+          email_opened_at: string | null
+          email_sent: boolean | null
+          id: string
+          name: string | null
+          phone: string | null
+          photo_url: string | null
+          product_type: string | null
+          skin_type: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          age?: number | null
+          concerns?: string[] | null
+          conversation_id?: string | null
+          created_at?: string | null
+          discount_code?: string | null
+          email?: string | null
+          email_clicked_at?: string | null
+          email_opened_at?: string | null
+          email_sent?: boolean | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          product_type?: string | null
+          skin_type?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          age?: number | null
+          concerns?: string[] | null
+          conversation_id?: string | null
+          created_at?: string | null
+          discount_code?: string | null
+          email?: string | null
+          email_clicked_at?: string | null
+          email_opened_at?: string | null
+          email_sent?: boolean | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          product_type?: string | null
+          skin_type?: string | null
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          duration: number | null
+          id: string
+          messages: Json[] | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          messages?: Json[] | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          messages?: Json[] | null
+        }
+        Relationships: []
+      }
+      email_logs: {
+        Row: {
+          clicked: boolean | null
+          clicked_at: string | null
+          created_at: string | null
+          email_type: string
+          id: string
+          opened: boolean | null
+          opened_at: string | null
+          recipient_email: string
+          recipient_name: string | null
+          sent: boolean | null
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          clicked?: boolean | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type: string
+          id?: string
+          opened?: boolean | null
+          opened_at?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          sent?: boolean | null
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          clicked?: boolean | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type?: string
+          id?: string
+          opened?: boolean | null
+          opened_at?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          sent?: boolean | null
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean | null
+          brand: string | null
+          category: string
+          concerns_treated: string[] | null
+          created_at: string | null
+          description_long: string | null
+          description_short: string | null
+          how_to_use: string | null
+          id: string
+          image_url: string | null
+          inci: string | null
+          key_ingredients: string[] | null
+          name: string
+          price: number
+          product_url: string
+          skin_types: string[] | null
+          step: string | null
+          times_clicked: number | null
+          times_recommended: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          brand?: string | null
+          category: string
+          concerns_treated?: string[] | null
+          created_at?: string | null
+          description_long?: string | null
+          description_short?: string | null
+          how_to_use?: string | null
+          id?: string
+          image_url?: string | null
+          inci?: string | null
+          key_ingredients?: string[] | null
+          name: string
+          price: number
+          product_url: string
+          skin_types?: string[] | null
+          step?: string | null
+          times_clicked?: number | null
+          times_recommended?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          brand?: string | null
+          category?: string
+          concerns_treated?: string[] | null
+          created_at?: string | null
+          description_long?: string | null
+          description_short?: string | null
+          how_to_use?: string | null
+          id?: string
+          image_url?: string | null
+          inci?: string | null
+          key_ingredients?: string[] | null
+          name?: string
+          price?: number
+          product_url?: string
+          skin_types?: string[] | null
+          step?: string | null
+          times_clicked?: number | null
+          times_recommended?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
