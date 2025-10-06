@@ -3,11 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, ShoppingCart, RotateCcw } from "lucide-react";
+import { ExternalLink, ShoppingCart, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getRecommendedProducts, getPersonalizedMessage, type Product } from "@/lib/productRecommendations";
-import { useToast } from "@/hooks/use-toast";
-import { getUserFriendlyError, logError } from "@/lib/errorHandler";
+import { logError } from "@/lib/errorHandler";
+import { AIAdvisorChat } from "./AIAdvisorChat";
 
 interface ResultsPageProps {
   userData: {
@@ -29,7 +29,7 @@ interface ResultsPageProps {
 export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   
   const discountCode = `ALMA15${userData.name.toUpperCase()}`;
 
@@ -68,11 +68,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
       }
     } catch (error) {
       logError(error, 'loadRecommendations');
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare i prodotti raccomandati",
-        variant: "destructive"
-      });
+      // Fail silently to not disrupt user experience
     } finally {
       setLoading(false);
     }
@@ -80,7 +76,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
   const saveAnalysis = async (recommendedProducts: Product[]) => {
     try {
-      // Create contact
+      // Create contact silently
       const { data: contact, error: contactError } = await supabase
         .from('contacts')
         .insert({
@@ -99,7 +95,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
       if (contactError) {
         logError(contactError, 'saveAnalysis-contact');
-        throw contactError;
+        return; // Fail silently
       }
 
       // Link products to contact
@@ -115,22 +111,24 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
         if (productsError) {
           logError(productsError, 'saveAnalysis-products');
-          throw productsError;
         }
       }
-
-      toast({
-        title: "Analisi salvata! ✓",
-        description: "Riceverai presto un'email con i dettagli"
-      });
     } catch (error: any) {
       logError(error, 'saveAnalysis');
-      toast({
-        title: "Errore",
-        description: getUserFriendlyError(error),
-        variant: "destructive"
-      });
+      // Fail silently, don't show error to user
     }
+  };
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
   };
 
   const totalValue = products.reduce((sum, p) => sum + p.price, 0);
@@ -183,8 +181,8 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-background via-secondary to-accent/10">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <Card className="p-8 text-center space-y-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
+        <Card className="p-8 text-center space-y-4 animate-fade-in">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary animate-scale-in">
             ✨ Ecco la tua Routine Alma personalizzata, {userData.name}! ✨
           </h1>
           
@@ -206,7 +204,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
               )}
               {userData.skinScores && (
                 <div className="md:col-span-2 mt-2 pt-3 border-t">
-                  <p className="font-semibold mb-2">🔬 Analisi AI della pelle (Gemini):</p>
+                  <p className="font-semibold mb-2">🔬 Analisi AI della pelle:</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                     <div>💧 Idratazione: {userData.skinScores.idratazione}/10</div>
                     <div>🎯 Elasticità: {userData.skinScores.elasticita}/10</div>
@@ -262,166 +260,170 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           )}
           
           <div className="space-y-8">
-            {sortedCategories.map(category => (
-              <div key={category}>
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-                    <span className="text-2xl">
-                      {category === "Detergente" && "🧴"}
-                      {category === "Tonico" && "💧"}
-                      {category === "Siero" && "✨"}
-                      {category === "Contorno Occhi" && "👁️"}
-                      {category === "Crema Viso" && "🌸"}
-                      {category === "Protezione Solare" && "☀️"}
-                      {category === "Maschera" && "🎭"}
-                      {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
-                    </span>
-                    {category}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {category === "Detergente" && "Pulisci e prepara la pelle"}
-                    {category === "Tonico" && "Riequilibra e tonifica"}
-                    {category === "Siero" && "Trattamenti intensivi mirati"}
-                    {category === "Contorno Occhi" && "Cura specifica per la zona delicata"}
-                    {category === "Crema Viso" && "Idrata e protegge"}
-                    {category === "Protezione Solare" && "Proteggi dai raggi UV"}
-                    {category === "Maschera" && "Trattamenti intensivi settimanali"}
-                  </p>
-                </div>
-
-                <div className="grid gap-4">
-                  {groupedProducts[category].map((product, index) => (
-                    <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        {product.image_url && (
-                          <div className="flex-shrink-0">
-                            <img 
-                              src={product.image_url} 
-                              alt={product.name}
-                              className="w-full md:w-48 h-48 object-cover rounded-lg bg-secondary/30"
-                            />
-                          </div>
-                        )}
-                        
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <Badge variant="secondary" className="mb-2">
-                                ⭐ PERFETTO PER TE
-                              </Badge>
-                              <p className="text-xs text-muted-foreground">{product.step}</p>
-                              <h3 className="text-xl font-bold text-foreground mt-1">{product.name}</h3>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                            </div>
-                          </div>
-
-                          {product.description_short && (
-                            <p className="text-sm text-muted-foreground">{product.description_short}</p>
-                          )}
-
-                          {product.key_ingredients && product.key_ingredients.length > 0 && (
-                            <div>
-                              <p className="font-semibold text-sm mb-1">🧪 INGREDIENTI CHIAVE:</p>
-                              <ul className="text-sm text-muted-foreground space-y-1">
-                                {product.key_ingredients.slice(0, 3).map((ing, i) => (
-                                  <li key={i}>• {ing}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {product.concerns_treated && product.concerns_treated.length > 0 && (
-                            <div>
-                              <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
-                              <ul className="text-sm text-muted-foreground space-y-1">
-                                {product.concerns_treated.slice(0, 4).map((concern, i) => (
-                                  <li key={i}>• {concern}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {product.how_to_use && (
-                            <div>
-                              <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
-                              <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
-                            </div>
-                          )}
-
-                          <div className="flex gap-3 pt-2">
-                            <Button asChild className="flex-1">
-                              <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                <ShoppingCart className="w-4 h-4 mr-2" />
-                                ACQUISTA ORA
-                              </a>
-                            </Button>
-                            <Button asChild variant="outline">
-                              <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                MAGGIORI INFO
-                              </a>
-                            </Button>
-                          </div>
-                        </div>
+            {sortedCategories.map(category => {
+              const isExpanded = expandedCategories.has(category);
+              const categoryProducts = groupedProducts[category];
+              
+              return (
+                <div key={category} className="animate-fade-in">
+                  <Button
+                    variant="ghost"
+                    onClick={() => toggleCategory(category)}
+                    className="w-full justify-between p-4 h-auto hover:bg-secondary/50 mb-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">
+                        {category === "Detergente" && "🧴"}
+                        {category === "Tonico" && "💧"}
+                        {category === "Siero" && "✨"}
+                        {category === "Contorno Occhi" && "👁️"}
+                        {category === "Crema Viso" && "🌸"}
+                        {category === "Protezione Solare" && "☀️"}
+                        {category === "Maschera" && "🎭"}
+                        {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
+                      </span>
+                      <div className="text-left">
+                        <h3 className="text-xl font-bold text-primary">{category}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {category === "Detergente" && "Pulisci e prepara la pelle"}
+                          {category === "Tonico" && "Riequilibra e tonifica"}
+                          {category === "Siero" && "Trattamenti intensivi mirati"}
+                          {category === "Contorno Occhi" && "Cura specifica per la zona delicata"}
+                          {category === "Crema Viso" && "Idrata e protegge"}
+                          {category === "Protezione Solare" && "Proteggi dai raggi UV"}
+                          {category === "Maschera" && "Trattamenti intensivi settimanali"}
+                        </p>
                       </div>
-                    </Card>
-                  ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{categoryProducts.length}</Badge>
+                      {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </div>
+                  </Button>
+
+                  {isExpanded && (
+                    <div className="grid gap-4 animate-fade-in">
+                      {categoryProducts.map((product, index) => (
+                        <Card key={product.id} className="p-6 hover:shadow-lg transition-all hover-scale">
+                          <div className="flex flex-col md:flex-row gap-6">
+                            {product.image_url && (
+                              <div className="flex-shrink-0">
+                                <img 
+                                  src={product.image_url} 
+                                  alt={product.name}
+                                  className="w-full md:w-48 h-48 object-cover rounded-lg bg-secondary/30"
+                                />
+                              </div>
+                            )}
+                            
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <Badge variant="secondary" className="mb-2">
+                                    ⭐ PERFETTO PER TE
+                                  </Badge>
+                                  <p className="text-xs text-muted-foreground">{product.step}</p>
+                                  <h3 className="text-xl font-bold text-foreground mt-1">{product.name}</h3>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                </div>
+                              </div>
+
+                              {product.description_short && (
+                                <p className="text-sm text-muted-foreground">{product.description_short}</p>
+                              )}
+
+                              {product.key_ingredients && product.key_ingredients.length > 0 && (
+                                <div>
+                                  <p className="font-semibold text-sm mb-1">🧪 INGREDIENTI CHIAVE:</p>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    {product.key_ingredients.slice(0, 3).map((ing, i) => (
+                                      <li key={i}>• {ing}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {product.concerns_treated && product.concerns_treated.length > 0 && (
+                                <div>
+                                  <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    {product.concerns_treated.slice(0, 4).map((concern, i) => (
+                                      <li key={i}>• {concern}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {product.how_to_use && (
+                                <div>
+                                  <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
+                                  <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
+                                </div>
+                              )}
+
+                              <div className="flex gap-3 pt-2">
+                                <Button asChild className="flex-1 hover-scale">
+                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+                                    <ShoppingCart className="w-4 h-4 mr-2" />
+                                    ACQUISTA ORA
+                                  </a>
+                                </Button>
+                                <Button asChild variant="outline" className="hover-scale">
+                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    INFO
+                                  </a>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
+        {/* AI Advisor Chat */}
+        <AIAdvisorChat userData={userData} recommendedProducts={products} />
+
         {/* Discount & CTA */}
-        <Card className="p-8 text-center space-y-4 bg-gradient-to-br from-primary/10 to-accent/10">
+        <Card className="p-8 text-center space-y-4 bg-gradient-to-br from-primary/10 to-accent/10 animate-fade-in">
           <div className="space-y-2">
             <p className="text-lg">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
             <p className="text-2xl font-bold text-primary">
               🎁 CON IL TUO CODICE SCONTO 15%: €{discountedValue.toFixed(2)}
             </p>
             <p className="text-green-600 font-semibold">RISPARMI: €{savings.toFixed(2)}</p>
+            <div className="mt-4">
+              <Badge variant="secondary" className="text-lg py-2 px-4">
+                Codice: <strong className="ml-2">{discountCode}</strong>
+              </Badge>
+            </div>
           </div>
 
           <Separator />
 
-          <div className="space-y-3">
-            <h3 className="text-xl font-bold">💌 RICEVI LA TUA ROUTINE VIA EMAIL</h3>
-            <p className="text-sm">La tua analisi completa ti è stata inviata a: <strong>{userData.email}</strong></p>
-            
-            <div className="bg-background/50 p-4 rounded-lg text-sm text-left space-y-1">
-              <p>✓ Riepilogo completo della tua analisi</p>
-              <p>✓ Lista prodotti raccomandati con link diretti</p>
-              <p>✓ Codice sconto 15%: <strong className="text-primary">{discountCode}</strong></p>
-              <p>✓ Guida step-by-step alla routine</p>
-              <p>✓ Consigli personalizzati</p>
-            </div>
-
-            <Button size="lg" asChild className="w-full">
-              <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
-                VAI ALLO SHOP ALMA 🛍️
-              </a>
-            </Button>
-          </div>
+          <Button size="lg" asChild className="w-full hover-scale">
+            <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              VAI ALLO SHOP ALMA 🛍️
+            </a>
+          </Button>
         </Card>
 
         {/* Actions */}
         <div className="flex flex-col md:flex-row gap-4 justify-center">
-          <Button variant="outline" onClick={onRestart}>
+          <Button variant="outline" onClick={onRestart} className="hover-scale">
             <RotateCcw className="w-4 h-4 mr-2" />
             🔄 Ricomincia Analisi
           </Button>
         </div>
-
-        {/* Footer */}
-        <Card className="p-6 text-center text-sm text-muted-foreground">
-          <p>Hai altre domande o dubbi sui prodotti? Scrivimi pure!</p>
-          <p className="mt-2">
-            Per assistenza diretta: <a href="mailto:info@almanaturalbeauty.it" className="text-primary underline">info@almanaturalbeauty.it</a>
-          </p>
-          <p className="mt-4 text-primary">Grazie per aver scelto Alma Natural Beauty! 🌸</p>
-        </Card>
       </div>
     </div>
   );

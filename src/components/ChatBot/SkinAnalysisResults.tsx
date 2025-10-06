@@ -93,7 +93,7 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
           <div>
             <p className="font-semibold text-lg">Analisi in corso...</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Sto analizzando la tua pelle con Gemini AI ✨
+              La nostra AI sta analizzando la tua pelle ✨
             </p>
           </div>
         </div>
