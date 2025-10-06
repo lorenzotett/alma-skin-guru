@@ -174,8 +174,12 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         {/* Products */}
         <div>
           <h2 className="text-2xl font-bold text-primary mb-6 text-center">
-            🌸 I TUOI PRODOTTI ALMA PERSONALIZZATI
+            🌸 LA TUA ROUTINE ALMA PERSONALIZZATA
           </h2>
+          
+          <p className="text-center text-muted-foreground mb-6">
+            Segui questi passaggi nell'ordine indicato per ottenere i migliori risultati! ✨
+          </p>
           
           <div className="grid gap-6">
             {products.map((product, index) => (
@@ -217,6 +221,24 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                             <li key={i}>• {ing}</li>
                           ))}
                         </ul>
+                      </div>
+                    )}
+
+                    {product.concerns_treated && product.concerns_treated.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          {product.concerns_treated.slice(0, 4).map((concern, i) => (
+                            <li key={i}>• {concern}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {product.how_to_use && (
+                      <div>
+                        <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
+                        <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
                       </div>
                     )}
 
