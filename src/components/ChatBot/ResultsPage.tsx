@@ -303,77 +303,96 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
                   {isExpanded && (
                     <div className="grid gap-4 animate-fade-in">
-                      {categoryProducts.map((product, index) => (
-                        <Card key={product.id} className="p-6 hover:shadow-lg transition-all hover-scale">
+                       {categoryProducts.map((product, index) => (
+                        <Card key={product.id} className="p-6 hover:shadow-xl transition-all hover-scale bg-gradient-to-br from-card to-secondary/20 border-2 border-primary/10">
                           <div className="flex flex-col md:flex-row gap-6">
                             {product.image_url && (
-                              <div className="flex-shrink-0">
+                              <div className="flex-shrink-0 relative group">
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <img 
                                   src={product.image_url} 
                                   alt={product.name}
-                                  className="w-full md:w-48 h-48 object-cover rounded-lg bg-secondary/30"
+                                  className="w-full md:w-56 h-56 object-cover rounded-lg bg-secondary/30 shadow-md"
                                 />
                               </div>
                             )}
                             
-                            <div className="flex-1 space-y-3">
+                            <div className="flex-1 space-y-4">
                               <div className="flex items-start justify-between gap-4">
-                                <div>
-                                  <Badge variant="secondary" className="mb-2">
-                                    ⭐ PERFETTO PER TE
+                                <div className="space-y-2">
+                                  <Badge variant="secondary" className="mb-2 bg-primary/20 text-primary border-primary/30">
+                                    ⭐ RACCOMANDATO PER TE
                                   </Badge>
-                                  <p className="text-xs text-muted-foreground">{product.step}</p>
-                                  <h3 className="text-xl font-bold text-foreground mt-1">{product.name}</h3>
+                                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">{product.step}</p>
+                                  <h3 className="text-2xl font-bold text-foreground bg-gradient-to-r from-primary to-accent bg-clip-text">{product.name}</h3>
                                 </div>
-                                <div className="text-right">
-                                  <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                <div className="text-right bg-gradient-to-br from-primary/10 to-accent/10 p-4 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1">Prezzo</p>
+                                  <p className="text-3xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                  <p className="text-xs text-green-600 font-semibold mt-1">-15% con ALMA15</p>
                                 </div>
                               </div>
 
                               {product.description_short && (
-                                <p className="text-sm text-muted-foreground">{product.description_short}</p>
+                                <p className="text-sm text-muted-foreground leading-relaxed bg-secondary/30 p-3 rounded-lg">
+                                  {product.description_short}
+                                </p>
                               )}
 
-                              {product.key_ingredients && product.key_ingredients.length > 0 && (
-                                <div>
-                                  <p className="font-semibold text-sm mb-1">🧪 INGREDIENTI CHIAVE:</p>
-                                  <ul className="text-sm text-muted-foreground space-y-1">
-                                    {product.key_ingredients.slice(0, 3).map((ing, i) => (
-                                      <li key={i}>• {ing}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                              <div className="grid md:grid-cols-2 gap-4">
+                                {product.key_ingredients && product.key_ingredients.length > 0 && (
+                                  <div className="bg-gradient-to-br from-accent/5 to-primary/5 p-4 rounded-lg border border-primary/10">
+                                    <p className="font-bold text-sm mb-2 flex items-center gap-2">
+                                      <span className="text-lg">🧪</span> INGREDIENTI CHIAVE
+                                    </p>
+                                    <ul className="text-xs text-muted-foreground space-y-1.5">
+                                      {product.key_ingredients.slice(0, 3).map((ing, i) => (
+                                        <li key={i} className="flex items-start gap-2">
+                                          <span className="text-primary">•</span>
+                                          <span>{ing}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
 
-                              {product.concerns_treated && product.concerns_treated.length > 0 && (
-                                <div>
-                                  <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
-                                  <ul className="text-sm text-muted-foreground space-y-1">
-                                    {product.concerns_treated.slice(0, 4).map((concern, i) => (
-                                      <li key={i}>• {concern}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                                {product.concerns_treated && product.concerns_treated.length > 0 && (
+                                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-4 rounded-lg border border-primary/10">
+                                    <p className="font-bold text-sm mb-2 flex items-center gap-2">
+                                      <span className="text-lg">✓</span> PROBLEMATICHE RISOLTE
+                                    </p>
+                                    <ul className="text-xs text-muted-foreground space-y-1.5">
+                                      {product.concerns_treated.slice(0, 4).map((concern, i) => (
+                                        <li key={i} className="flex items-start gap-2">
+                                          <span className="text-primary">✓</span>
+                                          <span>{concern}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
 
                               {product.how_to_use && (
-                                <div>
-                                  <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
-                                  <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
+                                <div className="bg-secondary/40 p-4 rounded-lg border-l-4 border-primary">
+                                  <p className="font-bold text-sm mb-2 flex items-center gap-2 text-primary">
+                                    <span className="text-lg">💡</span> COME USARLO
+                                  </p>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">{product.how_to_use}</p>
                                 </div>
                               )}
 
                               <div className="flex gap-3 pt-2">
-                                <Button asChild className="flex-1 hover-scale">
+                                <Button asChild className="flex-1 hover-scale bg-gradient-to-r from-primary to-primary/80 shadow-md">
                                   <a href={product.product_url} target="_blank" rel="noopener noreferrer">
                                     <ShoppingCart className="w-4 h-4 mr-2" />
-                                    ACQUISTA ORA
+                                    ACQUISTA ORA CON -15%
                                   </a>
                                 </Button>
-                                <Button asChild variant="outline" className="hover-scale">
+                                <Button asChild variant="outline" className="hover-scale border-primary/30 hover:bg-primary/10">
                                   <a href={product.product_url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="w-4 h-4 mr-2" />
-                                    INFO
+                                    DETTAGLI
                                   </a>
                                 </Button>
                               </div>
@@ -393,37 +412,56 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         <AIAdvisorChat userData={userData} recommendedProducts={products} />
 
         {/* Discount & CTA */}
-        <Card className="p-8 text-center space-y-4 bg-gradient-to-br from-primary/10 to-accent/10 animate-fade-in">
-          <div className="space-y-2">
-            <p className="text-lg">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
-            <p className="text-2xl font-bold text-primary">
-              🎁 CON IL TUO CODICE SCONTO 15%: €{discountedValue.toFixed(2)}
-            </p>
-            <p className="text-green-600 font-semibold">RISPARMI: €{savings.toFixed(2)}</p>
-            <div className="mt-4">
-              <Badge variant="secondary" className="text-lg py-2 px-4">
-                Codice: <strong className="ml-2">{discountCode}</strong>
-              </Badge>
+        <Card className="p-8 text-center space-y-6 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 animate-fade-in border-2 border-primary/30 shadow-xl">
+          <div className="space-y-4">
+            <div className="inline-block bg-card px-6 py-3 rounded-full shadow-md">
+              <p className="text-lg font-semibold">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
+            </div>
+            
+            <div className="bg-gradient-to-r from-primary to-accent p-6 rounded-2xl shadow-lg">
+              <p className="text-white/90 text-sm mb-2 font-medium">🎁 CON IL TUO CODICE SCONTO ESCLUSIVO 15%</p>
+              <p className="text-4xl font-bold text-white mb-2">
+                €{discountedValue.toFixed(2)}
+              </p>
+              <p className="text-green-100 font-bold text-lg">
+                ✨ RISPARMI €{savings.toFixed(2)}!
+              </p>
+            </div>
+
+            <div className="bg-card p-6 rounded-xl shadow-md border-2 border-primary/20">
+              <p className="text-sm text-muted-foreground mb-3">Il tuo codice sconto personale:</p>
+              <div className="relative">
+                <Badge variant="secondary" className="text-2xl py-4 px-8 bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/40">
+                  <strong className="text-primary">{discountCode}</strong>
+                </Badge>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Inseriscilo al checkout su almanaturalbeauty.it
+                </p>
+              </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-primary/20" />
 
-          <Button size="lg" asChild className="w-full hover-scale">
+          <Button size="lg" asChild className="w-full hover-scale bg-gradient-to-r from-primary to-accent shadow-xl text-lg py-6">
             <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              VAI ALLO SHOP ALMA 🛍️
+              <ShoppingCart className="w-6 h-6 mr-3" />
+              ACQUISTA ORA CON -15% 🛍️✨
             </a>
           </Button>
         </Card>
 
-        {/* Actions */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
-          <Button variant="outline" onClick={onRestart} className="hover-scale">
+        {/* Not Found Section */}
+        <Card className="p-8 text-center space-y-4 border-2 border-dashed border-primary/30 animate-fade-in">
+          <h3 className="text-xl font-bold text-primary">🤔 Non hai trovato quello che cercavi?</h3>
+          <p className="text-muted-foreground">
+            Nessun problema! Ricomincia l'analisi per una nuova routine personalizzata
+          </p>
+          <Button onClick={onRestart} size="lg" variant="outline" className="hover-scale">
             <RotateCcw className="w-4 h-4 mr-2" />
-            🔄 Ricomincia Analisi
+            🔄 RICOMINCIA ANALISI
           </Button>
-        </div>
+        </Card>
       </div>
     </div>
   );

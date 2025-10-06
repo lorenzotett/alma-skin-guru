@@ -20,7 +20,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Ciao ${userData.name}! 💚 Sono il tuo consulente beauty personale di Alma. Ti ho preparato una routine su misura basata sulla tua analisi della pelle. Hai domande? Vuoi sapere come usare i prodotti o perché sono perfetti per te?`
+      content: `Ciao ${userData.name}! 💚✨\n\nSono qui per te come la tua consulente beauty personale Alma! Ho creato questa routine su misura analizzando in dettaglio la tua pelle.\n\nPuoi chiedermi qualsiasi cosa:\n• Come e quando usare ogni prodotto\n• Perché ho scelto proprio questi per te\n• Quando vedrai i primi risultati\n• Come personalizzare la tua routine\n• Consigli specifici per le tue problematiche\n\nNon esitare a farmi tutte le domande che vuoi! Sono qui per aiutarti a ottenere i migliori risultati possibili 🌸`
     }
   ]);
   const [input, setInput] = useState('');
@@ -83,39 +83,42 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
   };
 
   const quickQuestions = [
-    "Come uso questi prodotti?",
-    "Perché hai scelto questi prodotti per me?",
-    "Posso usarli tutti insieme?",
-    "Quanto tempo ci vuole per vedere i risultati?",
+    "Come uso questi prodotti nella routine?",
+    "Perché hai scelto proprio questi prodotti per me?",
+    "Posso usarli tutti insieme o ci sono combinazioni da evitare?",
+    "In quanto tempo vedrò i primi risultati?",
+    "Che differenza c'è tra i prodotti giorno e notte?",
+    "Come posso personalizzare la mia routine?"
   ];
 
   return (
-    <Card className="p-6 space-y-4 animate-fade-in">
-      <div className="flex items-center gap-3 mb-4">
-        <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+    <Card className="p-6 space-y-4 animate-fade-in border-2 border-primary/20 shadow-lg">
+      <div className="flex items-center gap-3 mb-4 p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
+        <Sparkles className="w-8 h-8 text-primary animate-pulse" />
         <div>
-          <h3 className="font-bold text-lg">💬 Consulente Beauty AI</h3>
+          <h3 className="font-bold text-xl text-primary">💬 Chat con il tuo Consulente AI</h3>
           <p className="text-sm text-muted-foreground">
-            Chiedimi tutto sui tuoi prodotti e la tua routine!
+            Chiedimi consigli, come usare i prodotti, quando vedere i risultati e molto altro! 🌸
           </p>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="space-y-3 max-h-96 overflow-y-auto pr-2 scroll-smooth">
+      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 scroll-smooth bg-gradient-to-b from-secondary/20 to-transparent p-4 rounded-lg">
         {messages.map((msg, idx) => (
           <div
             key={idx}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-md ${
                 msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-foreground'
+                  ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
+                  : 'bg-card text-foreground border-2 border-primary/10'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              {msg.role === 'assistant' && <span className="text-xl mr-2">💚</span>}
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
             </div>
           </div>
         ))}
@@ -132,8 +135,10 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
 
       {/* Quick Questions */}
       {messages.length <= 2 && (
-        <div className="space-y-2 animate-fade-in">
-          <p className="text-xs text-muted-foreground">Domande frequenti:</p>
+        <div className="space-y-3 animate-fade-in p-4 bg-secondary/20 rounded-lg">
+          <p className="text-sm font-semibold text-primary flex items-center gap-2">
+            <span>💡</span> Domande frequenti che potresti avere:
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {quickQuestions.map((q, idx) => (
               <Button
@@ -144,9 +149,10 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
                   setInput(q);
                   setTimeout(() => sendMessage(), 100);
                 }}
-                className="text-xs h-auto py-2 hover-scale text-left justify-start"
+                className="text-xs h-auto py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5"
                 disabled={isLoading}
               >
+                <span className="mr-2">→</span>
                 {q}
               </Button>
             ))}
@@ -155,20 +161,20 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 p-3 bg-secondary/30 rounded-lg">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Fai una domanda sulla tua routine..."
+          placeholder="💬 Scrivi qui la tua domanda..."
           disabled={isLoading}
-          className="flex-1"
+          className="flex-1 border-primary/20 focus:border-primary"
         />
         <Button
           onClick={sendMessage}
           disabled={isLoading || !input.trim()}
           size="icon"
-          className="hover-scale"
+          className="hover-scale bg-primary hover:bg-primary/90"
         >
           <Send className="w-4 h-4" />
         </Button>
