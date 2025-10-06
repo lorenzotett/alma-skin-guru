@@ -6,11 +6,17 @@ import { PhotoUploadStep } from "@/components/ChatBot/PhotoUploadStep";
 import { SkinTypeStep } from "@/components/ChatBot/SkinTypeStep";
 import { AgeStep } from "@/components/ChatBot/AgeStep";
 import { ConcernsStep } from "@/components/ChatBot/ConcernsStep";
+import { ProductTypeStep } from "@/components/ChatBot/ProductTypeStep";
+import { AdditionalInfoStep } from "@/components/ChatBot/AdditionalInfoStep";
+import { EmailCollectionStep } from "@/components/ChatBot/EmailCollectionStep";
+import { ResultsPage } from "@/components/ChatBot/ResultsPage";
+import { ProductInfoFlow } from "@/components/ChatBot/ProductInfoFlow";
 
 type Step = 
   | "welcome"
   | "name"
   | "initial-choice"
+  | "product-info"
   | "photo-upload"
   | "skin-type"
   | "age"
@@ -20,25 +26,25 @@ type Step =
   | "email-collection"
   | "results";
 
-type SkinType = "secca" | "grassa" | "mista" | "normale" | "asfittica";
-type Concern = string;
-
 interface UserData {
   name?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
   choice?: 'analysis' | 'products' | 'questions';
   photo?: File;
-  skinType?: SkinType;
+  skinType?: string;
   age?: number;
-  concerns?: Concern[];
+  concerns?: string[];
+  productType?: string;
+  additionalInfo?: string;
 }
 
 const Index = () => {
   const [step, setStep] = useState<Step>("welcome");
   const [userData, setUserData] = useState<UserData>({});
 
-  const handleStart = () => {
-    setStep("name");
-  };
+  const handleStart = () => setStep("name");
 
   const handleNameSubmit = (name: string) => {
     setUserData(prev => ({ ...prev, name }));
@@ -49,9 +55,10 @@ const Index = () => {
     setUserData(prev => ({ ...prev, choice }));
     if (choice === 'analysis') {
       setStep("photo-upload");
+    } else if (choice === 'products') {
+      setStep("product-info");
     } else {
-      // TODO: Handle other choices
-      alert(`Funzionalità "${choice}" in sviluppo`);
+      setStep("product-info");
     }
   };
 
@@ -60,7 +67,7 @@ const Index = () => {
     setStep("skin-type");
   };
 
-  const handleSkinType = (skinType: SkinType) => {
+  const handleSkinType = (skinType: string) => {
     setUserData(prev => ({ ...prev, skinType }));
     setStep("age");
   };
@@ -70,11 +77,38 @@ const Index = () => {
     setStep("concerns");
   };
 
-  const handleConcerns = (concerns: Concern[]) => {
+  const handleConcerns = (concerns: string[]) => {
     setUserData(prev => ({ ...prev, concerns }));
-    // TODO: Continue to next steps
-    alert("Dati raccolti! Prossimi step in sviluppo...");
-    console.log("User Data:", { ...userData, concerns });
+    setStep("product-type");
+  };
+
+  const handleProductType = (productType: string) => {
+    setUserData(prev => ({ ...prev, productType }));
+    setStep("additional-info");
+  };
+
+  const handleAdditionalInfo = (info?: string) => {
+    setUserData(prev => ({ ...prev, additionalInfo: info }));
+    setStep("email-collection");
+  };
+
+  const handleEmailCollection = (data: { fullName: string; email: string; phone?: string }) => {
+    setUserData(prev => ({ 
+      ...prev, 
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone
+    }));
+    setStep("results");
+  };
+
+  const handleRestart = () => {
+    setUserData({});
+    setStep("welcome");
+  };
+
+  const handleBackToChoice = () => {
+    setStep("initial-choice");
   };
 
   return (
@@ -84,10 +118,22 @@ const Index = () => {
       {step === "initial-choice" && userData.name && (
         <InitialChoice userName={userData.name} onChoice={handleInitialChoice} />
       )}
+      {step === "product-info" && userData.name && (
+        <ProductInfoFlow userName={userData.name} onBack={handleBackToChoice} />
+      )}
       {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} />}
       {step === "skin-type" && <SkinTypeStep onNext={handleSkinType} />}
       {step === "age" && <AgeStep onNext={handleAge} />}
       {step === "concerns" && <ConcernsStep onNext={handleConcerns} />}
+      {step === "product-type" && <ProductTypeStep onNext={handleProductType} />}
+      {step === "additional-info" && <AdditionalInfoStep onNext={handleAdditionalInfo} />}
+      {step === "email-collection" && <EmailCollectionStep onNext={handleEmailCollection} />}
+      {step === "results" && userData.email && userData.skinType && userData.age && (
+        <ResultsPage 
+          userData={userData as any} 
+          onRestart={handleRestart}
+        />
+      )}
     </>
   );
 };
