@@ -83,14 +83,13 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
               <button
                 key={type.value}
                 onClick={() => toggleType(type.value)}
-                disabled={isDisabled}
                 className={cn(
                   "relative p-4 rounded-lg border-2 text-left transition-all",
                   "hover:scale-[1.02] active:scale-[0.98]",
                   isSelected
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50",
-                  isDisabled && "opacity-50 cursor-not-allowed hover:scale-100"
+                  isDisabled && "opacity-50"
                 )}
               >
                 <div className="flex items-start justify-between gap-2">

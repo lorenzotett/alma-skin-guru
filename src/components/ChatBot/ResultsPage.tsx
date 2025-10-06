@@ -189,11 +189,35 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           </h1>
           
           <Card className="p-6 bg-secondary/50">
-            <h3 className="font-bold text-lg mb-3">📋 IL TUO PROFILO PELLE</h3>
+            <h3 className="font-bold text-lg mb-3">📋 IL TUO PROFILO COMPLETO</h3>
             <div className="grid md:grid-cols-2 gap-3 text-left text-sm">
+              <p>• <strong>Nome:</strong> {userData.fullName || userData.name}</p>
               <p>• <strong>Tipo di pelle:</strong> {userData.skinType}</p>
               <p>• <strong>Età:</strong> {userData.age} anni</p>
+              <p>• <strong>Email:</strong> {userData.email}</p>
               <p className="md:col-span-2">• <strong>Preoccupazioni:</strong> {userData.concerns.join(', ')}</p>
+              {userData.productTypes && userData.productTypes.length > 0 && (
+                <p className="md:col-span-2">
+                  • <strong>Prodotti selezionati:</strong>{' '}
+                  {userData.productTypes.length === 1 && userData.productTypes[0] === "routine_completa" 
+                    ? "Routine Completa" 
+                    : userData.productTypes.map(t => t.replace(/_/g, ' ')).join(', ')}
+                </p>
+              )}
+              {userData.skinScores && (
+                <div className="md:col-span-2 mt-2 pt-3 border-t">
+                  <p className="font-semibold mb-2">🔬 Analisi AI della pelle (Gemini):</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                    <div>💧 Idratazione: {userData.skinScores.idratazione}/10</div>
+                    <div>🎯 Elasticità: {userData.skinScores.elasticita}/10</div>
+                    <div>🌟 Pigmentazione: {userData.skinScores.pigmentazione}/10</div>
+                    <div>✨ Acne: {userData.skinScores.acne}/10</div>
+                    <div>⏱️ Rughe: {userData.skinScores.rughe}/10</div>
+                    <div>🔍 Pori: {userData.skinScores.pori}/10</div>
+                    <div>🌸 Rossore: {userData.skinScores.rossore}/10</div>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
 
@@ -215,21 +239,21 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
               <h3 className="font-bold text-lg mb-4 text-center">🎯 Priorità in base alla tua analisi:</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 {Object.entries(userData.skinScores)
-                  .filter(([_, score]: [string, any]) => score < 50)
+                  .filter(([_, score]: [string, any]) => score < 5)
                   .map(([key, score]: [string, any]) => {
                     const labels: Record<string, string> = {
-                      hydration: "💧 Idratazione",
-                      elasticity: "🎈 Elasticità",
-                      pigmentation: "🎨 Pigmentazione",
+                      idratazione: "💧 Idratazione",
+                      elasticita: "🎈 Elasticità",
+                      pigmentazione: "🎨 Pigmentazione",
                       acne: "🔴 Imperfezioni",
-                      wrinkles: "📏 Anti-età",
-                      pores: "⚫ Pori",
-                      redness: "🌡️ Sensibilità",
+                      rughe: "📏 Anti-età",
+                      pori: "⚫ Pori",
+                      rossore: "🌡️ Sensibilità",
                     };
                     return (
                       <div key={key} className="bg-card p-3 rounded-lg border border-border">
                         <div className="font-semibold">{labels[key]}</div>
-                        <div className="text-xs text-muted-foreground">{score}/100</div>
+                        <div className="text-xs text-muted-foreground">{score}/10</div>
                       </div>
                     );
                   })}
