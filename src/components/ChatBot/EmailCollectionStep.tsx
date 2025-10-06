@@ -21,38 +21,86 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!fullName.trim() || !email.trim()) {
+    // Validate full name
+    const trimmedName = fullName.trim();
+    if (!trimmedName) {
       toast({
-        title: "Campi obbligatori mancanti",
-        description: "Inserisci nome completo ed email",
-        variant: "destructive"
+        title: "Nome richiesto",
+        description: "Inserisci il tuo nome completo",
+        variant: "destructive",
       });
       return;
+    }
+
+    if (trimmedName.length > 100) {
+      toast({
+        title: "Nome troppo lungo",
+        description: "Il nome deve essere al massimo 100 caratteri",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Normalize and validate email
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    if (normalizedEmail.length > 255) {
+      toast({
+        title: "Email troppo lunga",
+        description: "L'email deve essere al massimo 255 caratteri",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // RFC 5322 simplified email regex
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      toast({
+        title: "Email non valida",
+        description: "Inserisci un indirizzo email valido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone if provided
+    if (phone && phone.trim()) {
+      const trimmedPhone = phone.trim();
+      if (trimmedPhone.length > 20) {
+        toast({
+          title: "Telefono troppo lungo",
+          description: "Il numero di telefono deve essere al massimo 20 caratteri",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Basic phone format validation
+      const phoneRegex = /^[+\d\s()-]*$/;
+      if (!phoneRegex.test(trimmedPhone)) {
+        toast({
+          title: "Telefono non valido",
+          description: "Il numero di telefono contiene caratteri non validi",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (!privacyConsent) {
       toast({
-        title: "Privacy Policy",
-        description: "Devi accettare la Privacy Policy per continuare",
-        variant: "destructive"
+        title: "Consenso richiesto",
+        description: "Devi accettare l'informativa sulla privacy per continuare",
+        variant: "destructive",
       });
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast({
-        title: "Email non valida",
-        description: "Inserisci un'email valida",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onNext({ 
-      fullName: fullName.trim(), 
-      email: email.trim(), 
-      phone: phone.trim() || undefined 
+    onNext({
+      fullName: trimmedName,
+      email: normalizedEmail,
+      phone: phone?.trim() || undefined,
     });
   };
 

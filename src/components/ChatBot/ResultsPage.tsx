@@ -7,6 +7,7 @@ import { ExternalLink, ShoppingCart, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getRecommendedProducts, getPersonalizedMessage, type Product } from "@/lib/productRecommendations";
 import { useToast } from "@/hooks/use-toast";
+import { getUserFriendlyError, logError } from "@/lib/errorHandler";
 
 interface ResultsPageProps {
   userData: {
@@ -62,7 +63,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         await saveAnalysis(recommended);
       }
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      logError(error, 'loadRecommendations');
       toast({
         title: "Errore",
         description: "Impossibile caricare i prodotti raccomandati",
@@ -92,7 +93,10 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         .select()
         .single();
 
-      if (contactError) throw contactError;
+      if (contactError) {
+        logError(contactError, 'saveAnalysis-contact');
+        throw contactError;
+      }
 
       // Link products to contact
       if (contact && recommendedProducts.length > 0) {
@@ -101,15 +105,27 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           product_id: p.id
         }));
 
-        await supabase.from('contact_products').insert(contactProducts);
+        const { error: productsError } = await supabase
+          .from('contact_products')
+          .insert(contactProducts);
+
+        if (productsError) {
+          logError(productsError, 'saveAnalysis-products');
+          throw productsError;
+        }
       }
 
       toast({
         title: "Analisi salvata! ✓",
         description: "Riceverai presto un'email con i dettagli"
       });
-    } catch (error) {
-      console.error('Error saving analysis:', error);
+    } catch (error: any) {
+      logError(error, 'saveAnalysis');
+      toast({
+        title: "Errore",
+        description: getUserFriendlyError(error),
+        variant: "destructive"
+      });
     }
   };
 
