@@ -178,22 +178,22 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8 bg-gradient-to-br from-background via-secondary to-accent/10">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         {/* Header */}
-        <Card className="p-8 text-center space-y-4 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary animate-scale-in">
+        <Card className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary animate-scale-in leading-tight">
             ✨ Ecco la tua Routine Alma personalizzata, {userData.name}! ✨
           </h1>
           
-          <Card className="p-6 bg-secondary/50">
-            <h3 className="font-bold text-lg mb-3">📋 IL TUO PROFILO COMPLETO</h3>
-            <div className="grid md:grid-cols-2 gap-3 text-left text-sm">
-              <p>• <strong>Nome:</strong> {userData.fullName || userData.name}</p>
+          <Card className="p-4 sm:p-5 md:p-6 bg-secondary/50">
+            <h3 className="font-bold text-base sm:text-lg mb-3">📋 IL TUO PROFILO COMPLETO</h3>
+            <div className="grid sm:grid-cols-2 gap-2 sm:gap-3 text-left text-xs sm:text-sm">
+              <p className="break-words">• <strong>Nome:</strong> {userData.fullName || userData.name}</p>
               <p>• <strong>Tipo di pelle:</strong> {userData.skinType}</p>
               <p>• <strong>Età:</strong> {userData.age} anni</p>
-              <p>• <strong>Email:</strong> {userData.email}</p>
-              <p className="md:col-span-2">• <strong>Preoccupazioni:</strong> {userData.concerns.join(', ')}</p>
+              <p className="break-all">• <strong>Email:</strong> {userData.email}</p>
+              <p className="sm:col-span-2">• <strong>Preoccupazioni:</strong> {userData.concerns.join(', ')}</p>
               {userData.productTypes && userData.productTypes.length > 0 && (
                 <p className="md:col-span-2">
                   • <strong>Prodotti selezionati:</strong>{' '}
@@ -203,16 +203,16 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                 </p>
               )}
               {userData.skinScores && (
-                <div className="md:col-span-2 mt-2 pt-3 border-t">
-                  <p className="font-semibold mb-2">🔬 Analisi AI della pelle:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                    <div>💧 Idratazione: {userData.skinScores.idratazione}/10</div>
-                    <div>🎯 Elasticità: {userData.skinScores.elasticita}/10</div>
-                    <div>🌟 Pigmentazione: {userData.skinScores.pigmentazione}/10</div>
-                    <div>✨ Acne: {userData.skinScores.acne}/10</div>
-                    <div>⏱️ Rughe: {userData.skinScores.rughe}/10</div>
-                    <div>🔍 Pori: {userData.skinScores.pori}/10</div>
-                    <div>🌸 Rossore: {userData.skinScores.rossore}/10</div>
+                <div className="sm:col-span-2 mt-2 pt-3 border-t">
+                  <p className="font-semibold mb-2 text-xs sm:text-sm">🔬 Analisi AI della pelle:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">💧 Idratazione: {userData.skinScores.idratazione}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">🎯 Elasticità: {userData.skinScores.elasticita}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">🌟 Pigmentazione: {userData.skinScores.pigmentazione}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">✨ Acne: {userData.skinScores.acne}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">⏱️ Rughe: {userData.skinScores.rughe}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">🔍 Pori: {userData.skinScores.pori}/10</div>
+                    <div className="bg-card/50 p-1.5 sm:p-2 rounded">🌸 Rossore: {userData.skinScores.rossore}/10</div>
                   </div>
                 </div>
               )}
@@ -224,18 +224,18 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
         {/* Products Grouped by Category */}
         <div>
-          <h2 className="text-2xl font-bold text-primary mb-6 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-4 sm:mb-6 text-center">
             🌸 LA TUA ROUTINE ALMA PERSONALIZZATA
           </h2>
           
-          <p className="text-center text-muted-foreground mb-6">
+          <p className="text-center text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base px-2">
             I prodotti sono organizzati per categoria per aiutarti a scegliere meglio in base alle tue esigenze! ✨
           </p>
 
           {userData.skinScores && (
-            <Card className="p-6 mb-6 bg-secondary/30">
-              <h3 className="font-bold text-lg mb-4 text-center">🎯 Priorità in base alla tua analisi:</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <Card className="p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 bg-secondary/30">
+              <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 text-center">🎯 Priorità in base alla tua analisi:</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 text-xs sm:text-sm">
                 {Object.entries(userData.skinScores)
                   .filter(([_, score]: [string, any]) => score < 5)
                   .map(([key, score]: [string, any]) => {
@@ -269,10 +269,10 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                   <Button
                     variant="ghost"
                     onClick={() => toggleCategory(category)}
-                    className="w-full justify-between p-4 h-auto hover:bg-secondary/50 mb-2"
+                    className="w-full justify-between p-3 sm:p-4 h-auto hover:bg-secondary/50 mb-2"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <span className="text-2xl sm:text-3xl flex-shrink-0">
                         {category === "Detergente" && "🧴"}
                         {category === "Tonico" && "💧"}
                         {category === "Siero" && "✨"}
@@ -282,9 +282,9 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                         {category === "Maschera" && "🎭"}
                         {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
                       </span>
-                      <div className="text-left">
-                        <h3 className="text-xl font-bold text-primary">{category}</h3>
-                        <p className="text-sm text-muted-foreground">
+                      <div className="text-left min-w-0">
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary">{category}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                           {category === "Detergente" && "Pulisci e prepara la pelle"}
                           {category === "Tonico" && "Riequilibra e tonifica"}
                           {category === "Siero" && "Trattamenti intensivi mirati"}
@@ -295,61 +295,61 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{categoryProducts.length}</Badge>
-                      {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                      <Badge variant="secondary" className="text-xs">{categoryProducts.length}</Badge>
+                      {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" /> : <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </div>
                   </Button>
 
                   {isExpanded && (
-                    <div className="grid gap-4 animate-fade-in">
+                    <div className="grid gap-3 sm:gap-4 animate-fade-in">
                        {categoryProducts.map((product, index) => (
-                        <Card key={product.id} className="p-6 hover:shadow-xl transition-all hover-scale bg-gradient-to-br from-card to-secondary/20 border-2 border-primary/10">
-                          <div className="flex flex-col md:flex-row gap-6">
+                        <Card key={product.id} className="p-3 sm:p-4 md:p-6 hover:shadow-xl transition-all hover-scale bg-gradient-to-br from-card to-secondary/20 border-2 border-primary/10">
+                          <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:gap-6">
                             {product.image_url && (
-                              <div className="flex-shrink-0 relative group">
+                              <div className="flex-shrink-0 relative group w-full md:w-56">
                                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <img 
                                   src={product.image_url} 
                                   alt={product.name}
-                                  className="w-full md:w-56 h-56 object-cover rounded-lg bg-secondary/30 shadow-md"
+                                  className="w-full h-48 sm:h-56 object-cover rounded-lg bg-secondary/30 shadow-md"
                                 />
                               </div>
                             )}
                             
-                            <div className="flex-1 space-y-4">
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="space-y-2">
-                                  <Badge variant="secondary" className="mb-2 bg-primary/20 text-primary border-primary/30">
+                            <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
+                              <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                                <div className="space-y-1.5 sm:space-y-2 min-w-0 w-full sm:w-auto">
+                                  <Badge variant="secondary" className="mb-1 sm:mb-2 bg-primary/20 text-primary border-primary/30 text-[10px] sm:text-xs">
                                     ⭐ RACCOMANDATO PER TE
                                   </Badge>
-                                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">{product.step}</p>
-                                  <h3 className="text-2xl font-bold text-foreground bg-gradient-to-r from-primary to-accent bg-clip-text">{product.name}</h3>
+                                  <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold uppercase tracking-wide">{product.step}</p>
+                                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground bg-gradient-to-r from-primary to-accent bg-clip-text break-words">{product.name}</h3>
                                 </div>
-                                <div className="text-right bg-gradient-to-br from-primary/10 to-accent/10 p-4 rounded-lg">
-                                  <p className="text-xs text-muted-foreground mb-1">Prezzo</p>
-                                  <p className="text-3xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                                  <p className="text-xs text-green-600 font-semibold mt-1">-15% con ALMA15</p>
+                                <div className="text-left sm:text-right bg-gradient-to-br from-primary/10 to-accent/10 p-3 sm:p-4 rounded-lg w-full sm:w-auto flex-shrink-0">
+                                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Prezzo</p>
+                                  <p className="text-2xl sm:text-3xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                  <p className="text-[10px] sm:text-xs text-green-600 font-semibold mt-1">-15% con ALMA15</p>
                                 </div>
                               </div>
 
                               {product.description_short && (
-                                <p className="text-sm text-muted-foreground leading-relaxed bg-secondary/30 p-3 rounded-lg">
+                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed bg-secondary/30 p-2.5 sm:p-3 rounded-lg">
                                   {product.description_short}
                                 </p>
                               )}
 
-                              <div className="grid md:grid-cols-2 gap-4">
+                              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                                 {product.key_ingredients && product.key_ingredients.length > 0 && (
-                                  <div className="bg-gradient-to-br from-accent/5 to-primary/5 p-4 rounded-lg border border-primary/10">
-                                    <p className="font-bold text-sm mb-2 flex items-center gap-2">
-                                      <span className="text-lg">🧪</span> INGREDIENTI CHIAVE
+                                  <div className="bg-gradient-to-br from-accent/5 to-primary/5 p-3 sm:p-4 rounded-lg border border-primary/10">
+                                    <p className="font-bold text-xs sm:text-sm mb-2 flex items-center gap-2">
+                                      <span className="text-base sm:text-lg">🧪</span> INGREDIENTI CHIAVE
                                     </p>
-                                    <ul className="text-xs text-muted-foreground space-y-1.5">
+                                    <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-1 sm:space-y-1.5">
                                       {product.key_ingredients.slice(0, 3).map((ing, i) => (
-                                        <li key={i} className="flex items-start gap-2">
-                                          <span className="text-primary">•</span>
-                                          <span>{ing}</span>
+                                        <li key={i} className="flex items-start gap-1.5 sm:gap-2">
+                                          <span className="text-primary flex-shrink-0">•</span>
+                                          <span className="break-words">{ing}</span>
                                         </li>
                                       ))}
                                     </ul>
@@ -357,15 +357,15 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                                 )}
 
                                 {product.concerns_treated && product.concerns_treated.length > 0 && (
-                                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-4 rounded-lg border border-primary/10">
-                                    <p className="font-bold text-sm mb-2 flex items-center gap-2">
-                                      <span className="text-lg">✓</span> PROBLEMATICHE RISOLTE
+                                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-3 sm:p-4 rounded-lg border border-primary/10">
+                                    <p className="font-bold text-xs sm:text-sm mb-2 flex items-center gap-2">
+                                      <span className="text-base sm:text-lg">✓</span> PROBLEMATICHE RISOLTE
                                     </p>
-                                    <ul className="text-xs text-muted-foreground space-y-1.5">
+                                    <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-1 sm:space-y-1.5">
                                       {product.concerns_treated.slice(0, 4).map((concern, i) => (
-                                        <li key={i} className="flex items-start gap-2">
-                                          <span className="text-primary">✓</span>
-                                          <span>{concern}</span>
+                                        <li key={i} className="flex items-start gap-1.5 sm:gap-2">
+                                          <span className="text-primary flex-shrink-0">✓</span>
+                                          <span className="break-words">{concern}</span>
                                         </li>
                                       ))}
                                     </ul>
@@ -374,25 +374,27 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                               </div>
 
                               {product.how_to_use && (
-                                <div className="bg-secondary/40 p-4 rounded-lg border-l-4 border-primary">
-                                  <p className="font-bold text-sm mb-2 flex items-center gap-2 text-primary">
-                                    <span className="text-lg">💡</span> COME USARLO
+                                <div className="bg-secondary/40 p-3 sm:p-4 rounded-lg border-l-4 border-primary">
+                                  <p className="font-bold text-xs sm:text-sm mb-2 flex items-center gap-2 text-primary">
+                                    <span className="text-base sm:text-lg">💡</span> COME USARLO
                                   </p>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">{product.how_to_use}</p>
+                                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{product.how_to_use}</p>
                                 </div>
                               )}
 
-                              <div className="flex gap-3 pt-2">
-                                <Button asChild className="flex-1 hover-scale bg-gradient-to-r from-primary to-primary/80 shadow-md">
-                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                    <ShoppingCart className="w-4 h-4 mr-2" />
-                                    ACQUISTA ORA CON -15%
+                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
+                                <Button asChild className="flex-1 hover-scale bg-gradient-to-r from-primary to-primary/80 shadow-md text-xs sm:text-sm">
+                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                    <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    <span className="hidden xs:inline">Acquista ora</span>
+                                    <span className="xs:hidden">Acquista</span>
                                   </a>
                                 </Button>
-                                <Button asChild variant="outline" className="hover-scale border-primary/30 hover:bg-primary/10">
-                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    DETTAGLI
+                                <Button asChild variant="outline" className="flex-1 hover-scale text-xs sm:text-sm">
+                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    <span className="hidden xs:inline">Vedi dettagli</span>
+                                    <span className="xs:hidden">Dettagli</span>
                                   </a>
                                 </Button>
                               </div>

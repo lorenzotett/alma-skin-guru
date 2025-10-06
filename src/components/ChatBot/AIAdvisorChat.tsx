@@ -92,41 +92,41 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
   ];
 
   return (
-    <Card className="p-6 space-y-4 animate-fade-in border-2 border-primary/20 shadow-lg">
-      <div className="flex items-center gap-3 mb-4 p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
-        <Sparkles className="w-8 h-8 text-primary animate-pulse" />
-        <div>
-          <h3 className="font-bold text-xl text-primary">💬 Chat con il tuo Consulente AI</h3>
-          <p className="text-sm text-muted-foreground">
+    <Card className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 animate-fade-in border-2 border-primary/20 shadow-lg">
+      <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
+        <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary animate-pulse flex-shrink-0" />
+        <div className="min-w-0">
+          <h3 className="font-bold text-base sm:text-lg md:text-xl text-primary">💬 Chat con il tuo Consulente AI</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Chiedimi consigli, come usare i prodotti, quando vedere i risultati e molto altro! 🌸
           </p>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 scroll-smooth bg-gradient-to-b from-secondary/20 to-transparent p-4 rounded-lg">
+      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth bg-gradient-to-b from-secondary/20 to-transparent p-2 sm:p-3 md:p-4 rounded-lg">
         {messages.map((msg, idx) => (
           <div
             key={idx}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-md ${
+              className={`max-w-[90%] sm:max-w-[85%] rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 shadow-md ${
                 msg.role === 'user'
                   ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
                   : 'bg-card text-foreground border-2 border-primary/10'
               }`}
             >
-              {msg.role === 'assistant' && <span className="text-xl mr-2">💚</span>}
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+              {msg.role === 'assistant' && <span className="text-base sm:text-lg md:text-xl mr-1 sm:mr-2">💚</span>}
+              <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">{msg.content}</p>
             </div>
           </div>
         ))}
         {isLoading && (
           <div className="flex justify-start animate-fade-in">
-            <div className="bg-secondary rounded-2xl px-4 py-3 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Sto pensando...</p>
+            <div className="bg-secondary rounded-2xl px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2">
+              <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-primary" />
+              <p className="text-xs sm:text-sm text-muted-foreground">Sto pensando...</p>
             </div>
           </div>
         )}
@@ -135,8 +135,8 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
 
       {/* Quick Questions */}
       {messages.length <= 2 && (
-        <div className="space-y-3 animate-fade-in p-4 bg-secondary/20 rounded-lg">
-          <p className="text-sm font-semibold text-primary flex items-center gap-2">
+        <div className="space-y-2 sm:space-y-3 animate-fade-in p-3 sm:p-4 bg-secondary/20 rounded-lg">
+          <p className="text-xs sm:text-sm font-semibold text-primary flex items-center gap-1 sm:gap-2">
             <span>💡</span> Domande frequenti che potresti avere:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -149,11 +149,11 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
                   setInput(q);
                   setTimeout(() => sendMessage(), 100);
                 }}
-                className="text-xs h-auto py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5"
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5"
                 disabled={isLoading}
               >
-                <span className="mr-2">→</span>
-                {q}
+                <span className="mr-1 sm:mr-2 flex-shrink-0">→</span>
+                <span className="break-words">{q}</span>
               </Button>
             ))}
           </div>
@@ -161,22 +161,22 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2 p-3 bg-secondary/30 rounded-lg">
+      <div className="flex gap-2 p-2 sm:p-3 bg-secondary/30 rounded-lg">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="💬 Scrivi qui la tua domanda..."
           disabled={isLoading}
-          className="flex-1 border-primary/20 focus:border-primary"
+          className="flex-1 border-primary/20 focus:border-primary text-xs sm:text-sm"
         />
         <Button
           onClick={sendMessage}
           disabled={isLoading || !input.trim()}
           size="icon"
-          className="hover-scale bg-primary hover:bg-primary/90"
+          className="hover-scale bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10"
         >
-          <Send className="w-4 h-4" />
+          <Send className="w-3 h-3 sm:w-4 sm:h-4" />
         </Button>
       </div>
     </Card>
