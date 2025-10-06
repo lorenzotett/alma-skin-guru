@@ -11,12 +11,14 @@ import { AdditionalInfoStep } from "@/components/ChatBot/AdditionalInfoStep";
 import { EmailCollectionStep } from "@/components/ChatBot/EmailCollectionStep";
 import { ResultsPage } from "@/components/ChatBot/ResultsPage";
 import { ProductInfoFlow } from "@/components/ChatBot/ProductInfoFlow";
+import { QuestionsFlow } from "@/components/ChatBot/QuestionsFlow";
 
 type Step = 
   | "welcome"
   | "name"
   | "initial-choice"
   | "product-info"
+  | "questions"
   | "photo-upload"
   | "skin-type"
   | "age"
@@ -57,8 +59,8 @@ const Index = () => {
       setStep("photo-upload");
     } else if (choice === 'products') {
       setStep("product-info");
-    } else {
-      setStep("product-info");
+    } else if (choice === 'questions') {
+      setStep("questions");
     }
   };
 
@@ -120,6 +122,9 @@ const Index = () => {
       )}
       {step === "product-info" && userData.name && (
         <ProductInfoFlow userName={userData.name} onBack={handleBackToChoice} />
+      )}
+      {step === "questions" && userData.name && (
+        <QuestionsFlow userName={userData.name} onBack={handleBackToChoice} />
       )}
       {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} />}
       {step === "skin-type" && <SkinTypeStep onNext={handleSkinType} />}
