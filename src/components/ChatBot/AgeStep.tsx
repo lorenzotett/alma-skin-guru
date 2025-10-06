@@ -28,70 +28,58 @@ export const AgeStep = ({ onNext }: AgeStepProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-2xl w-full p-8 space-y-6 shadow-lg">
-        <div className="space-y-3">
-          <h2 className="text-2xl font-bold text-primary">
-            Quanti anni hai?
-          </h2>
-          <p className="text-muted-foreground">
-            L'età ci aiuta a consigliarti i prodotti più adatti
-          </p>
-        </div>
+    <Card className="p-4 space-y-3">
+      <p className="text-sm text-muted-foreground">Seleziona la tua fascia d'età:</p>
 
-        {!showCustom ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {ageRanges.map((range) => (
-                <Button
-                  key={range.label}
-                  onClick={() => onNext(range.value)}
-                  variant="outline"
-                  size="lg"
-                  className="h-auto py-4 border-2 hover:bg-accent/20 hover:border-primary"
-                >
-                  {range.label}
-                </Button>
-              ))}
-            </div>
-            
-            <div className="pt-4 text-center">
+      {!showCustom ? (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            {ageRanges.map((range) => (
               <Button
-                variant="link"
-                onClick={() => setShowCustom(true)}
-                className="text-primary"
+                key={range.label}
+                onClick={() => onNext(range.value)}
+                variant="outline"
+                className="hover:bg-accent/20 hover:border-primary"
               >
-                Inserisci età manualmente
+                {range.label}
               </Button>
-            </div>
+            ))}
           </div>
-        ) : (
-          <form onSubmit={handleCustomSubmit} className="space-y-4">
-            <div className="flex gap-3">
-              <Input
-                type="number"
-                placeholder="Età..."
-                value={customAge}
-                onChange={(e) => setCustomAge(e.target.value)}
-                min="1"
-                max="120"
-                className="text-lg p-6"
-                autoFocus
-              />
-              <Button type="submit" size="lg" disabled={!customAge}>
-                Continua
-              </Button>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => setShowCustom(false)}
-              className="w-full"
-            >
-              ← Torna alle fasce d'età
+          
+          <Button
+            variant="link"
+            onClick={() => setShowCustom(true)}
+            className="text-primary text-xs w-full"
+          >
+            Inserisci età manualmente
+          </Button>
+        </>
+      ) : (
+        <form onSubmit={handleCustomSubmit} className="space-y-2">
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="Età..."
+              value={customAge}
+              onChange={(e) => setCustomAge(e.target.value)}
+              min="1"
+              max="120"
+              autoFocus
+            />
+            <Button type="submit" disabled={!customAge}>
+              OK
             </Button>
-          </form>
-        )}
-      </Card>
-    </div>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => setShowCustom(false)}
+            size="sm"
+            className="w-full text-xs"
+          >
+            ← Torna alle fasce
+          </Button>
+        </form>
+      )}
+    </Card>
   );
 };

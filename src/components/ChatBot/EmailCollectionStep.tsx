@@ -105,97 +105,94 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-2xl w-full p-8 space-y-6 shadow-lg">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-primary">
-            Perfetto! Sto preparando la tua analisi personalizzata... ✨
-          </h2>
-          <p className="text-foreground">
-            Prima di mostrarti i risultati, lasciami la tua email per inviarti la routine completa 
-            e un <strong className="text-primary">codice sconto esclusivo del 15%</strong> sui prodotti Alma! 💌
-          </p>
+    <Card className="p-4 space-y-3">
+      <div className="space-y-2">
+        <p className="text-sm font-medium">
+          Perfetto! 🎉 Lasciami i tuoi dati per inviarti:
+        </p>
+        <ul className="text-xs text-muted-foreground space-y-1">
+          <li>✓ La tua analisi completa</li>
+          <li>✓ Codice sconto <strong className="text-primary">15%</strong></li>
+        </ul>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="fullName" className="text-xs">Nome completo *</Label>
+          <Input
+            id="fullName"
+            type="text"
+            placeholder="Nome e cognome"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Nome completo *</Label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="Il tuo nome e cognome"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs">Email *</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="tua.email@esempio.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="phone" className="text-xs">Telefono (opzionale)</Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="+39 333 123 4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2 pt-1">
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="marketing"
+              checked={marketingConsent}
+              onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
+            />
+            <Label htmlFor="marketing" className="text-xs leading-tight cursor-pointer">
+              Ricevi offerte esclusive Alma
+            </Label>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="privacy"
+              checked={privacyConsent}
+              onCheckedChange={(checked) => setPrivacyConsent(checked as boolean)}
               required
             />
+            <Label htmlFor="privacy" className="text-xs leading-tight cursor-pointer">
+              Accetto la{" "}
+              <a 
+                href="https://almanaturalbeauty.it/privacy-policy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                Privacy Policy
+              </a> *
+            </Label>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="tua.email@esempio.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefono (opzionale)</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+39 333 123 4567"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="marketing"
-                checked={marketingConsent}
-                onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
-              />
-              <Label htmlFor="marketing" className="text-sm leading-tight cursor-pointer">
-                Accetto di ricevere consigli personalizzati e offerte esclusive da Alma Natural Beauty
-              </Label>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="privacy"
-                checked={privacyConsent}
-                onCheckedChange={(checked) => setPrivacyConsent(checked as boolean)}
-                required
-              />
-              <Label htmlFor="privacy" className="text-sm leading-tight cursor-pointer">
-                Ho letto e accetto la{" "}
-                <a 
-                  href="https://almanaturalbeauty.it/privacy-policy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  Privacy Policy
-                </a> *
-              </Label>
-            </div>
-          </div>
-
-          <Button 
-            type="submit" 
-            size="lg" 
-            className="w-full"
-            disabled={!fullName || !email || !privacyConsent}
-          >
-            RICEVI ANALISI E SCONTO 15% 🎁
-          </Button>
-        </form>
-      </Card>
-    </div>
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={!fullName || !email || !privacyConsent}
+        >
+          RICEVI ANALISI 🎁
+        </Button>
+      </form>
+    </Card>
   );
 };

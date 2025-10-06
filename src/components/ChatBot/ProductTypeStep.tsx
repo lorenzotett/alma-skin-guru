@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type ProductType = 
+export type ProductType = 
   | "routine_completa"
   | "detergente"
   | "tonico"
@@ -15,7 +19,7 @@ type ProductType =
   | "olio_corpo";
 
 interface ProductTypeStepProps {
-  onNext: (productType: ProductType) => void;
+  onNext: (productTypes: ProductType[]) => void;
 }
 
 const productTypes = [
@@ -33,29 +37,90 @@ const productTypes = [
 ];
 
 export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
+  const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
+
+  const toggleType = (type: ProductType) => {
+    // Routine completa is exclusive
+    if (type === "routine_completa") {
+      setSelectedTypes(["routine_completa"]);
+    } else {
+      setSelectedTypes(prev => {
+        // Remove routine_completa if selecting individual products
+        const filtered = prev.filter(t => t !== "routine_completa");
+        
+        if (filtered.includes(type)) {
+          return filtered.filter(t => t !== type);
+        } else {
+          return [...filtered, type];
+        }
+      });
+    }
+  };
+
+  const handleContinue = () => {
+    if (selectedTypes.length > 0) {
+      onNext(selectedTypes);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-3xl w-full p-8 space-y-6 shadow-lg">
-        <div className="space-y-3">
-          <h2 className="text-2xl font-bold text-primary">
-            Vuoi che ti consigli una routine completa o cerchi un tipo di prodotto in particolare?
-          </h2>
+    <div className="space-y-4">
+      <Card className="p-6 space-y-4">
+        <h3 className="font-bold text-lg text-primary">
+          Che tipo di prodotti ti interessano?
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Seleziona una routine completa oppure scegli i prodotti specifici che cerchi. Puoi selezionarne più di uno! 🎯
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {productTypes.map((type) => {
+            const isSelected = selectedTypes.includes(type.value);
+            const isRoutineSelected = selectedTypes.includes("routine_completa");
+            const isDisabled = isRoutineSelected && type.value !== "routine_completa";
+
+            return (
+              <button
+                key={type.value}
+                onClick={() => toggleType(type.value)}
+                disabled={isDisabled}
+                className={cn(
+                  "relative p-4 rounded-lg border-2 text-left transition-all",
+                  "hover:scale-[1.02] active:scale-[0.98]",
+                  isSelected
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-primary/50",
+                  isDisabled && "opacity-50 cursor-not-allowed hover:scale-100"
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-medium text-sm">{type.label}</span>
+                  {isSelected && (
+                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+                {type.recommended && (
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    Consigliato
+                  </Badge>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-3">
-          {productTypes.map((type) => (
-            <Button
-              key={type.value}
-              onClick={() => onNext(type.value)}
-              variant={type.recommended ? "default" : "outline"}
-              size="lg"
-              className={type.recommended ? "border-2 border-primary/30" : "border-2"}
-            >
-              {type.label}
-              {type.recommended && <span className="ml-2 text-xs">(consigliato)</span>}
+        {selectedTypes.length > 0 && (
+          <div className="pt-2">
+            <p className="text-sm text-muted-foreground mb-2">
+              Hai selezionato: <span className="font-medium text-foreground">{selectedTypes.length}</span> {selectedTypes.length === 1 ? "prodotto" : "prodotti"}
+            </p>
+            <Button onClick={handleContinue} size="lg" className="w-full">
+              Continua ✨
             </Button>
-          ))}
-        </div>
+          </div>
+        )}
       </Card>
     </div>
   );

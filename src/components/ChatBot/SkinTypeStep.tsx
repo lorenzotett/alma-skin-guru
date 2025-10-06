@@ -43,39 +43,27 @@ const skinTypes = [
 
 export const SkinTypeStep = ({ onNext }: SkinTypeStepProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-3xl w-full p-8 space-y-6 shadow-lg">
-        <div className="space-y-3">
-          <h2 className="text-2xl font-bold text-primary">
-            Che tipo di pelle hai?
-          </h2>
-          <p className="text-muted-foreground">
-            Seleziona quella che descrive meglio la tua pelle
-          </p>
-        </div>
-
-        <div className="grid gap-4">
-          {skinTypes.map((type) => (
-            <Button
-              key={type.value}
-              onClick={() => onNext(type.value)}
-              variant="outline"
-              className={cn(
-                "h-auto p-6 justify-start text-left hover:bg-accent/20 hover:border-primary transition-all",
-                "border-2"
-              )}
-            >
-              <div className="flex items-start gap-4 w-full">
-                <span className="text-4xl">{type.icon}</span>
-                <div className="flex-1 space-y-1">
-                  <div className="font-bold text-lg text-foreground">{type.title}</div>
-                  <div className="text-sm text-muted-foreground">{type.description}</div>
-                </div>
+    <Card className="p-4 space-y-3">
+      <div className="grid gap-2">
+        {skinTypes.map((type) => (
+          <Button
+            key={type.value}
+            onClick={() => onNext(type.value)}
+            variant="outline"
+            className={cn(
+              "h-auto p-4 justify-start text-left hover:bg-accent/20 hover:border-primary transition-all"
+            )}
+          >
+            <div className="flex items-start gap-3 w-full">
+              <span className="text-2xl">{type.icon}</span>
+              <div className="flex-1 space-y-0.5">
+                <div className="font-bold text-sm text-foreground">{type.title}</div>
+                <div className="text-xs text-muted-foreground">{type.description}</div>
               </div>
-            </Button>
-          ))}
-        </div>
-      </Card>
-    </div>
+            </div>
+          </Button>
+        ))}
+      </div>
+    </Card>
   );
 };

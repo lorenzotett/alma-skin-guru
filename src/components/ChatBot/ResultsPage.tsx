@@ -15,12 +15,13 @@ interface ResultsPageProps {
     skinType: string;
     age: number;
     concerns: string[];
-    productType?: string;
+    productTypes?: string[];
     additionalInfo?: string;
     email: string;
     fullName: string;
     phone?: string;
     photo?: File;
+    skinScores?: any;
   };
   onRestart: () => void;
 }
@@ -47,12 +48,15 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
       if (error) throw error;
 
       if (allProducts) {
+        // If multiple product types selected, get recommendations for each
+        const productTypesToRecommend = userData.productTypes || [];
+        
         const recommended = getRecommendedProducts(
           {
             skinType: userData.skinType,
             age: userData.age,
             concerns: userData.concerns,
-            productType: userData.productType
+            productType: productTypesToRecommend[0] // Use first type for now
           },
           allProducts
         );
@@ -86,7 +90,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           skin_type: userData.skinType,
           age: userData.age,
           concerns: userData.concerns,
-          product_type: userData.productType,
+          product_type: userData.productTypes?.join(', '),
           additional_info: userData.additionalInfo,
           discount_code: discountCode
         })
@@ -137,7 +141,32 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
     skinType: userData.skinType,
     age: userData.age,
     concerns: userData.concerns,
-    productType: userData.productType
+    productType: userData.productTypes?.[0]
+  });
+
+  // Group products by category
+  const groupedProducts = products.reduce((acc, product) => {
+    const category = product.category || "Altri";
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+
+  const categoryOrder = [
+    "Detergente",
+    "Tonico",
+    "Siero",
+    "Contorno Occhi",
+    "Crema Viso",
+    "Protezione Solare",
+    "Maschera",
+    "Altri"
+  ];
+
+  const sortedCategories = Object.keys(groupedProducts).sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a);
+    const indexB = categoryOrder.indexOf(b);
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
   });
 
   if (loading) {
@@ -171,94 +200,152 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           <p className="text-foreground">{personalizedMessage}</p>
         </Card>
 
-        {/* Products */}
+        {/* Products Grouped by Category */}
         <div>
           <h2 className="text-2xl font-bold text-primary mb-6 text-center">
             🌸 LA TUA ROUTINE ALMA PERSONALIZZATA
           </h2>
           
           <p className="text-center text-muted-foreground mb-6">
-            Segui questi passaggi nell'ordine indicato per ottenere i migliori risultati! ✨
+            I prodotti sono organizzati per categoria per aiutarti a scegliere meglio in base alle tue esigenze! ✨
           </p>
+
+          {userData.skinScores && (
+            <Card className="p-6 mb-6 bg-secondary/30">
+              <h3 className="font-bold text-lg mb-4 text-center">🎯 Priorità in base alla tua analisi:</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                {Object.entries(userData.skinScores)
+                  .filter(([_, score]: [string, any]) => score < 50)
+                  .map(([key, score]: [string, any]) => {
+                    const labels: Record<string, string> = {
+                      hydration: "💧 Idratazione",
+                      elasticity: "🎈 Elasticità",
+                      pigmentation: "🎨 Pigmentazione",
+                      acne: "🔴 Imperfezioni",
+                      wrinkles: "📏 Anti-età",
+                      pores: "⚫ Pori",
+                      redness: "🌡️ Sensibilità",
+                    };
+                    return (
+                      <div key={key} className="bg-card p-3 rounded-lg border border-border">
+                        <div className="font-semibold">{labels[key]}</div>
+                        <div className="text-xs text-muted-foreground">{score}/100</div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </Card>
+          )}
           
-          <div className="grid gap-6">
-            {products.map((product, index) => (
-              <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex flex-col md:flex-row gap-6">
-                  {product.image_url && (
-                    <div className="flex-shrink-0">
-                      <img 
-                        src={product.image_url} 
-                        alt={product.name}
-                        className="w-full md:w-48 h-48 object-cover rounded-lg bg-secondary/30"
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <Badge variant="secondary" className="mb-2">
-                          ⭐ PERFETTO PER TE
-                        </Badge>
-                        <p className="text-xs text-muted-foreground">{product.step}</p>
-                        <h3 className="text-xl font-bold text-foreground mt-1">{product.name}</h3>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                      </div>
-                    </div>
-
-                    {product.description_short && (
-                      <p className="text-sm text-muted-foreground">{product.description_short}</p>
-                    )}
-
-                    {product.key_ingredients && product.key_ingredients.length > 0 && (
-                      <div>
-                        <p className="font-semibold text-sm mb-1">🧪 INGREDIENTI CHIAVE:</p>
-                        <ul className="text-sm text-muted-foreground space-y-1">
-                          {product.key_ingredients.slice(0, 3).map((ing, i) => (
-                            <li key={i}>• {ing}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {product.concerns_treated && product.concerns_treated.length > 0 && (
-                      <div>
-                        <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
-                        <ul className="text-sm text-muted-foreground space-y-1">
-                          {product.concerns_treated.slice(0, 4).map((concern, i) => (
-                            <li key={i}>• {concern}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {product.how_to_use && (
-                      <div>
-                        <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
-                        <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3 pt-2">
-                      <Button asChild className="flex-1">
-                        <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          ACQUISTA ORA
-                        </a>
-                      </Button>
-                      <Button asChild variant="outline">
-                        <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          MAGGIORI INFO
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
+          <div className="space-y-8">
+            {sortedCategories.map(category => (
+              <div key={category}>
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                    <span className="text-2xl">
+                      {category === "Detergente" && "🧴"}
+                      {category === "Tonico" && "💧"}
+                      {category === "Siero" && "✨"}
+                      {category === "Contorno Occhi" && "👁️"}
+                      {category === "Crema Viso" && "🌸"}
+                      {category === "Protezione Solare" && "☀️"}
+                      {category === "Maschera" && "🎭"}
+                      {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
+                    </span>
+                    {category}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {category === "Detergente" && "Pulisci e prepara la pelle"}
+                    {category === "Tonico" && "Riequilibra e tonifica"}
+                    {category === "Siero" && "Trattamenti intensivi mirati"}
+                    {category === "Contorno Occhi" && "Cura specifica per la zona delicata"}
+                    {category === "Crema Viso" && "Idrata e protegge"}
+                    {category === "Protezione Solare" && "Proteggi dai raggi UV"}
+                    {category === "Maschera" && "Trattamenti intensivi settimanali"}
+                  </p>
                 </div>
-              </Card>
+
+                <div className="grid gap-4">
+                  {groupedProducts[category].map((product, index) => (
+                    <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {product.image_url && (
+                          <div className="flex-shrink-0">
+                            <img 
+                              src={product.image_url} 
+                              alt={product.name}
+                              className="w-full md:w-48 h-48 object-cover rounded-lg bg-secondary/30"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <Badge variant="secondary" className="mb-2">
+                                ⭐ PERFETTO PER TE
+                              </Badge>
+                              <p className="text-xs text-muted-foreground">{product.step}</p>
+                              <h3 className="text-xl font-bold text-foreground mt-1">{product.name}</h3>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                            </div>
+                          </div>
+
+                          {product.description_short && (
+                            <p className="text-sm text-muted-foreground">{product.description_short}</p>
+                          )}
+
+                          {product.key_ingredients && product.key_ingredients.length > 0 && (
+                            <div>
+                              <p className="font-semibold text-sm mb-1">🧪 INGREDIENTI CHIAVE:</p>
+                              <ul className="text-sm text-muted-foreground space-y-1">
+                                {product.key_ingredients.slice(0, 3).map((ing, i) => (
+                                  <li key={i}>• {ing}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {product.concerns_treated && product.concerns_treated.length > 0 && (
+                            <div>
+                              <p className="font-semibold text-sm mb-1">✓ PROBLEMATICHE CHE RISOLVE:</p>
+                              <ul className="text-sm text-muted-foreground space-y-1">
+                                {product.concerns_treated.slice(0, 4).map((concern, i) => (
+                                  <li key={i}>• {concern}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {product.how_to_use && (
+                            <div>
+                              <p className="font-semibold text-sm mb-1">💡 COME USARLO:</p>
+                              <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
+                            </div>
+                          )}
+
+                          <div className="flex gap-3 pt-2">
+                            <Button asChild className="flex-1">
+                              <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+                                <ShoppingCart className="w-4 h-4 mr-2" />
+                                ACQUISTA ORA
+                              </a>
+                            </Button>
+                            <Button asChild variant="outline">
+                              <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                MAGGIORI INFO
+                              </a>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>

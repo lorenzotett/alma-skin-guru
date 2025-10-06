@@ -54,57 +54,49 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-4xl w-full p-8 space-y-6 shadow-lg">
-        <div className="space-y-3">
-          <h2 className="text-2xl font-bold text-primary">
-            Quali problematiche ha la tua pelle?
-          </h2>
-          <p className="text-muted-foreground">
-            Puoi selezionarne anche più di una
-          </p>
-        </div>
+    <Card className="p-4 space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Seleziona le tue problematiche (anche più di una):
+      </p>
 
-        <div className="grid md:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-2">
-          {concerns.map((concern) => (
-            <div
-              key={concern.value}
-              onClick={() => toggleConcern(concern.value)}
-              className={cn(
-                "flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
-                "hover:bg-accent/20 hover:border-primary",
-                selected.includes(concern.value) && "bg-accent/20 border-primary"
-              )}
-            >
-              <Checkbox
-                checked={selected.includes(concern.value)}
-                onCheckedChange={() => toggleConcern(concern.value)}
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <div className="font-medium flex items-center gap-2 text-foreground">
-                  <span>{concern.icon}</span>
-                  <span>{concern.title}</span>
-                </div>
-                {concern.description && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {concern.description}
-                  </p>
-                )}
+      <div className="grid gap-2 max-h-[400px] overflow-y-auto pr-1">
+        {concerns.map((concern) => (
+          <div
+            key={concern.value}
+            onClick={() => toggleConcern(concern.value)}
+            className={cn(
+              "flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-all",
+              "hover:bg-accent/20 hover:border-primary",
+              selected.includes(concern.value) && "bg-accent/20 border-primary"
+            )}
+          >
+            <Checkbox
+              checked={selected.includes(concern.value)}
+              onCheckedChange={() => toggleConcern(concern.value)}
+              className="mt-0.5"
+            />
+            <div className="flex-1">
+              <div className="font-medium flex items-center gap-1.5 text-sm text-foreground">
+                <span className="text-base">{concern.icon}</span>
+                <span>{concern.title}</span>
               </div>
+              {concern.description && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {concern.description}
+                </p>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        <Button
-          onClick={() => onNext(selected)}
-          size="lg"
-          className="w-full"
-          disabled={selected.length === 0}
-        >
-          Continua ({selected.length} {selected.length === 1 ? "selezionata" : "selezionate"})
-        </Button>
-      </Card>
-    </div>
+      <Button
+        onClick={() => onNext(selected)}
+        className="w-full"
+        disabled={selected.length === 0}
+      >
+        Continua ({selected.length})
+      </Button>
+    </Card>
   );
 };
