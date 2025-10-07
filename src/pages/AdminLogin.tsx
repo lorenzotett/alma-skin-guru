@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, UserPlus } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Email non valida"),
@@ -22,6 +22,7 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const {
     register,
@@ -34,6 +35,24 @@ export default function AdminLogin() {
       password: "",
     },
   });
+
+  const handleCreateAdminUser = async () => {
+    setIsCreatingUser(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-admin-user');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(data.message);
+      }
+    } catch (error: any) {
+      console.error('Error creating admin user:', error);
+      toast.error('Errore nella creazione dell\'utente admin');
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
@@ -89,14 +108,20 @@ export default function AdminLogin() {
           <CardDescription>Accedi con le tue credenziali admin</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+          <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg space-y-3">
             <p className="text-sm text-foreground">
-              <strong>Prima volta?</strong> Devi prima registrarti sulla{" "}
-              <a href="/" className="text-primary font-medium hover:underline">
-                homepage
-              </a>{" "}
-              usando l'email admin, poi torna qui per accedere.
+              <strong>Prima volta?</strong> Clicca qui per creare automaticamente l'utente admin:
             </p>
+            <Button 
+              type="button"
+              variant="outline" 
+              className="w-full"
+              onClick={handleCreateAdminUser}
+              disabled={isCreatingUser}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              {isCreatingUser ? "Creazione in corso..." : "Crea Utente Admin"}
+            </Button>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
