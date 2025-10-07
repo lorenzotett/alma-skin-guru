@@ -183,8 +183,12 @@ const Index = () => {
     <ChatContainer onBack={showBackButton ? handleBack : undefined} showBack={showBackButton}>
       {/* Bot greeting message */}
       <ChatMessage sender="bot">
-        <p className="text-sm">
-          Ciao {userData.name}! 👋 Sono qui per aiutarti a trovare i prodotti Alma perfetti per te.
+        <p className="text-sm sm:text-base">
+          Ciao <strong className="text-primary">{userData.name}</strong>! 👋 
+        </p>
+        <p className="text-sm sm:text-base mt-1">
+          Sono il tuo assistente personale Alma. Ti guiderò passo dopo passo per trovare i prodotti perfetti per la tua pelle. 
+          Rispondi con calma alle mie domande! ✨
         </p>
       </ChatMessage>
 
@@ -202,7 +206,12 @@ const Index = () => {
       {step === "skin-type" && (
         <>
           <ChatMessage sender="bot">
-            <p className="text-sm font-medium mb-2">Che tipo di pelle hai?</p>
+            <p className="text-sm sm:text-base font-medium mb-1">
+              Perfetto! Ora dimmi, che tipo di pelle hai? 🤔
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Questa informazione mi aiuterà a consigliarti i prodotti più adatti.
+            </p>
           </ChatMessage>
           <ChatMessage sender="bot">
             <SkinTypeStep onNext={handleSkinType} />
@@ -214,7 +223,15 @@ const Index = () => {
       {step === "age" && userData.skinType && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm">{userData.skinType}</p>
+            <p className="text-sm sm:text-base font-medium">Pelle {userData.skinType}</p>
+          </ChatMessage>
+          <ChatMessage sender="bot">
+            <p className="text-sm sm:text-base">
+              Ottima scelta! Ora, quanti anni hai? 🎂
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              L'età della pelle è importante per personalizzare al meglio la routine.
+            </p>
           </ChatMessage>
           <ChatMessage sender="bot">
             <AgeStep onNext={handleAge} />
@@ -226,7 +243,15 @@ const Index = () => {
       {step === "concerns" && userData.age && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm">{userData.age} anni</p>
+            <p className="text-sm sm:text-base font-medium">{userData.age} anni</p>
+          </ChatMessage>
+          <ChatMessage sender="bot">
+            <p className="text-sm sm:text-base">
+              Perfetto! Quali sono le tue principali preoccupazioni per la pelle? 🎯
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Puoi selezionare più opzioni - questo mi aiuterà a darti consigli mirati!
+            </p>
           </ChatMessage>
           <ChatMessage sender="bot">
             <ConcernsStep onNext={handleConcerns} />
@@ -238,7 +263,15 @@ const Index = () => {
       {step === "product-type" && userData.concerns && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm">{userData.concerns.join(", ")}</p>
+            <p className="text-sm sm:text-base">{userData.concerns.join(", ")}</p>
+          </ChatMessage>
+          <ChatMessage sender="bot">
+            <p className="text-sm sm:text-base">
+              Benissimo! Che tipo di prodotti ti interessano? 🛍️
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Ti consiglio la routine completa, ma puoi anche scegliere prodotti specifici!
+            </p>
           </ChatMessage>
           <ChatMessage sender="bot">
             <ProductTypeStep onNext={handleProductType} />
@@ -250,10 +283,18 @@ const Index = () => {
       {step === "additional-info" && userData.productTypes && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm">
+            <p className="text-sm sm:text-base">
               {userData.productTypes.length === 1 && userData.productTypes[0] === "routine_completa" 
-                ? "Routine Completa" 
+                ? "✨ Routine Completa" 
                 : `${userData.productTypes.length} prodotti selezionati`}
+            </p>
+          </ChatMessage>
+          <ChatMessage sender="bot">
+            <p className="text-sm sm:text-base">
+              Fantastico! C'è qualcos'altro che vorresti dirmi sulla tua pelle o sulle tue esigenze? 💬
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Ad esempio: allergie, prodotti che ami o che eviti, obiettivi specifici...
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
@@ -267,9 +308,18 @@ const Index = () => {
         <>
           {userData.additionalInfo && (
             <ChatMessage sender="user">
-              <p className="text-sm">{userData.additionalInfo}</p>
+              <p className="text-sm sm:text-base">{userData.additionalInfo}</p>
             </ChatMessage>
           )}
+          <ChatMessage sender="bot">
+            <p className="text-sm sm:text-base">
+              Perfetto! Ora ho tutto quello che mi serve! 🎉
+            </p>
+            <p className="text-sm sm:text-base mt-2">
+              Per inviarti i risultati e uno <strong className="text-primary">sconto esclusivo del 15%</strong>, 
+              ho bisogno dei tuoi dati di contatto. 📧
+            </p>
+          </ChatMessage>
           <ChatMessage sender="bot">
             <EmailCollectionStep onNext={handleEmailCollection} />
           </ChatMessage>

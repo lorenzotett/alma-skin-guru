@@ -28,7 +28,7 @@ const productTypes = [
   { value: "tonico" as ProductType, label: "💧 Tonico Viso" },
   { value: "siero" as ProductType, label: "✨ Siero/Trattamento Specifico" },
   { value: "crema" as ProductType, label: "🌸 Crema Viso" },
-  { value: "crema_mani_piedi" as ProductType, label: "🤲 Crema Mani e Piedi" },
+  { value: "crema_mani_piedi" as ProductType, label: "🤲 Crema Mani e Piedi", unavailable: true },
   { value: "protezione_solare" as ProductType, label: "☀️ Protezione Solare" },
   { value: "contorno_occhi" as ProductType, label: "👁️ Contorno Occhi" },
   { value: "maschera" as ProductType, label: "🎭 Maschera Viso" },
@@ -78,6 +78,26 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
             const isSelected = selectedTypes.includes(type.value);
             const isRoutineSelected = selectedTypes.includes("routine_completa");
             const isDisabled = isRoutineSelected && type.value !== "routine_completa";
+            const isUnavailable = (type as any).unavailable;
+
+            if (isUnavailable) {
+              return (
+                <div
+                  key={type.value}
+                  className="relative p-4 rounded-lg border-2 text-left opacity-60 bg-muted/30 border-border cursor-not-allowed"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-medium text-sm text-muted-foreground">{type.label}</span>
+                  </div>
+                  <Badge variant="secondary" className="mt-2 text-xs bg-muted">
+                    Non disponibile
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Al momento non disponibile. Ti informeremo quando sarà in gamma.
+                  </p>
+                </div>
+              );
+            }
 
             return (
               <button

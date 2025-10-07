@@ -8,42 +8,42 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Alma Natural Beauty Brand Colors */
-    --background: 32 30% 94%;
-    --foreground: 22 40% 15%;
+    /* Alma Natural Beauty Brand Colors - Marrone Ramato #9a4a13 */
+    --background: 30 25% 96%;
+    --foreground: 25 60% 20%;
 
-    --card: 32 40% 97%;
-    --card-foreground: 22 40% 15%;
+    --card: 30 30% 98%;
+    --card-foreground: 25 60% 20%;
 
-    --popover: 32 40% 97%;
-    --popover-foreground: 22 40% 15%;
+    --popover: 30 30% 98%;
+    --popover-foreground: 25 60% 20%;
 
-    --primary: 28 35% 66%;
-    --primary-foreground: 32 40% 97%;
+    --primary: 25 78% 34%;
+    --primary-foreground: 30 30% 98%;
 
-    --secondary: 32 40% 92%;
-    --secondary-foreground: 22 40% 15%;
+    --secondary: 30 35% 90%;
+    --secondary-foreground: 25 60% 20%;
 
-    --muted: 32 30% 90%;
-    --muted-foreground: 22 20% 45%;
+    --muted: 30 25% 88%;
+    --muted-foreground: 25 30% 45%;
 
-    --accent: 28 40% 68%;
-    --accent-foreground: 22 40% 15%;
+    --accent: 25 68% 42%;
+    --accent-foreground: 30 30% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 32 40% 97%;
+    --destructive-foreground: 30 30% 98%;
 
-    --border: 32 25% 85%;
-    --input: 32 25% 85%;
-    --ring: 28 35% 66%;
+    --border: 30 20% 85%;
+    --input: 30 20% 85%;
+    --ring: 25 78% 34%;
 
     --radius: 0.75rem;
     
-    /* Alma gradients and shadows */
-    --gradient-warm: linear-gradient(135deg, hsl(32 40% 92%), hsl(28 40% 88%));
-    --gradient-accent: linear-gradient(135deg, hsl(28 40% 68%), hsl(28 35% 66%));
-    --shadow-soft: 0 4px 20px -5px hsl(28 35% 66% / 0.15);
-    --shadow-glow: 0 0 40px hsl(28 40% 68% / 0.2);
+    /* Alma gradients and shadows with new brand color */
+    --gradient-warm: linear-gradient(135deg, hsl(30 35% 90%), hsl(25 68% 42%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 78% 34%), hsl(25 68% 42%));
+    --shadow-soft: 0 4px 20px -5px hsl(25 78% 34% / 0.15);
+    --shadow-glow: 0 0 40px hsl(25 68% 42% / 0.2);
 
     --sidebar-background: 0 0% 98%;
 
@@ -63,33 +63,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 22 40% 15%;
-    --foreground: 32 40% 97%;
+    --background: 25 40% 15%;
+    --foreground: 30 30% 98%;
 
-    --card: 22 35% 18%;
-    --card-foreground: 32 40% 97%;
+    --card: 25 35% 18%;
+    --card-foreground: 30 30% 98%;
 
-    --popover: 22 35% 18%;
-    --popover-foreground: 32 40% 97%;
+    --popover: 25 35% 18%;
+    --popover-foreground: 30 30% 98%;
 
-    --primary: 28 40% 68%;
-    --primary-foreground: 22 40% 15%;
+    --primary: 25 68% 52%;
+    --primary-foreground: 25 40% 15%;
 
-    --secondary: 22 30% 25%;
-    --secondary-foreground: 32 40% 97%;
+    --secondary: 25 30% 25%;
+    --secondary-foreground: 30 30% 98%;
 
-    --muted: 22 30% 25%;
-    --muted-foreground: 32 20% 65%;
+    --muted: 25 30% 25%;
+    --muted-foreground: 30 20% 65%;
 
-    --accent: 28 35% 66%;
-    --accent-foreground: 32 40% 97%;
+    --accent: 25 78% 44%;
+    --accent-foreground: 30 30% 98%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 32 40% 97%;
+    --destructive-foreground: 30 30% 98%;
 
-    --border: 22 30% 25%;
-    --input: 22 30% 25%;
-    --ring: 28 40% 68%;
+    --border: 25 30% 25%;
+    --input: 25 30% 25%;
+    --ring: 25 68% 52%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -107,6 +107,6 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-montserrat;
   }
 }

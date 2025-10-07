@@ -32,26 +32,61 @@ serve(async (req) => {
           contents: [{
             parts: [
               {
-                text: `Analizza questa foto del viso e fornisci punteggi da 1 a 10 per le seguenti caratteristiche della pelle. 
-                Rispondi SOLO con un oggetto JSON valido nel seguente formato, senza testo aggiuntivo:
-                {
-                  "idratazione": numero da 1 a 10,
-                  "elasticita": numero da 1 a 10,
-                  "pigmentazione": numero da 1 a 10,
-                  "acne": numero da 1 a 10 (10 = nessuna acne),
-                  "rughe": numero da 1 a 10 (10 = nessuna ruga),
-                  "pori": numero da 1 a 10 (10 = pori minimali),
-                  "rossore": numero da 1 a 10 (10 = nessun rossore)
-                }
+                text: `Sei un esperto dermatologo che analizza foto del viso per valutare la salute della pelle.
                 
-                Criteri di valutazione:
-                - Idratazione: valuta la luminosità e l'aspetto rimpolpato della pelle
-                - Elasticità: valuta la tonicità e la compattezza
-                - Pigmentazione: uniformità del tono, assenza di macchie
-                - Acne: presenza di imperfezioni, brufoli, comedoni
-                - Rughe: presenza di linee sottili e rughe profonde
-                - Pori: dimensione e visibilità dei pori
-                - Rossore: presenza di arrossamenti, couperose, irritazioni`
+Analizza attentamente questa foto del viso e fornisci punteggi da 1 a 10 per le seguenti caratteristiche della pelle.
+
+IMPORTANTE: Rispondi SOLO con un oggetto JSON valido, senza testo aggiuntivo o spiegazioni.
+
+Formato richiesto:
+{
+  "idratazione": numero da 1 a 10,
+  "elasticita": numero da 1 a 10,
+  "pigmentazione": numero da 1 a 10,
+  "acne": numero da 1 a 10,
+  "rughe": numero da 1 a 10,
+  "pori": numero da 1 a 10,
+  "rossore": numero da 1 a 10
+}
+
+Criteri di valutazione dettagliati:
+
+IDRATAZIONE (1-10):
+- 1-3: Pelle molto disidratata, opaca, desquamazione evidente
+- 4-6: Pelle normale, leggera disidratazione in alcune zone
+- 7-10: Pelle ben idratata, luminosa, rimpolpata, aspetto sano
+
+ELASTICITÀ (1-10):
+- 1-3: Pelle flaccida, priva di tono, cedimenti evidenti
+- 4-6: Elasticità moderata, alcuni segni di perdita di tono
+- 7-10: Pelle tonica, compatta, elastica, aspetto giovane
+
+PIGMENTAZIONE (1-10):
+- 1-3: Macchie scure diffuse, tono molto irregolare, iperpigmentazione evidente
+- 4-6: Alcune discromie, tono leggermente irregolare
+- 7-10: Tono uniforme, nessuna macchia visibile, colorito omogeneo
+
+ACNE (1-10):
+- 1-3: Acne severa, molti brufoli, comedoni, infiammazioni
+- 4-6: Acne moderata, alcune imperfezioni, punti neri
+- 7-10: Pelle pulita, nessuna imperfezione, al massimo un paio di punti neri
+
+RUGHE (1-10):
+- 1-3: Rughe profonde e diffuse, linee marcate su tutto il viso
+- 4-6: Alcune linee sottili, rughe d'espressione visibili
+- 7-10: Pelle liscia, al massimo linee sottilissime, aspetto giovane
+
+PORI (1-10):
+- 1-3: Pori molto dilatati e visibili su tutto il viso
+- 4-6: Pori moderatamente visibili, soprattutto zona T
+- 7-10: Pori minimali, texture della pelle levigata e fine
+
+ROSSORE (1-10):
+- 1-3: Rossore diffuso, couperose evidente, irritazioni
+- 4-6: Leggero rossore localizzato, qualche capillare visibile
+- 7-10: Nessun rossore, tono uniforme, pelle calma
+
+Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`
               },
               {
                 inline_data: {

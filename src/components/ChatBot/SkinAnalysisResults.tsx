@@ -152,25 +152,36 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
           })}
         </div>
 
-        <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
-          <p className="font-semibold text-sm">🎯 Aree Prioritarie:</p>
-          <ul className="text-sm space-y-1 text-muted-foreground">
-            {Object.entries(scores)
-              .filter(([_, score]) => score < 5)
-              .map(([key, score]) => {
-                const labels: Record<string, string> = {
-                  idratazione: "Idratazione",
-                  elasticita: "Elasticità",
-                  pigmentazione: "Uniformità del tono",
-                  acne: "Imperfezioni",
-                  rughe: "Linee sottili",
-                  pori: "Texture della pelle",
-                  rossore: "Sensibilità",
-                };
-                return <li key={key}>• {labels[key]}</li>;
-              })}
-          </ul>
-        </div>
+        {Object.entries(scores).some(([_, score]) => score < 5) && (
+          <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
+            <p className="font-semibold text-sm">🎯 Aree Prioritarie da migliorare:</p>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              {Object.entries(scores)
+                .filter(([_, score]) => score < 5)
+                .map(([key, score]) => {
+                  const labels: Record<string, string> = {
+                    idratazione: "Idratazione",
+                    elasticita: "Elasticità",
+                    pigmentazione: "Uniformità del tono",
+                    acne: "Imperfezioni",
+                    rughe: "Linee sottili",
+                    pori: "Texture della pelle",
+                    rossore: "Sensibilità",
+                  };
+                  return <li key={key}>• {labels[key]} ({score}/10 - necessita attenzione)</li>;
+                })}
+            </ul>
+          </div>
+        )}
+        
+        {!Object.entries(scores).some(([_, score]) => score < 5) && (
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 space-y-2">
+            <p className="font-semibold text-sm text-green-700 dark:text-green-300">✨ Ottimo risultato!</p>
+            <p className="text-sm text-green-600 dark:text-green-400">
+              La tua pelle è in ottime condizioni. Ti consiglieremo prodotti per mantenerla sempre al meglio!
+            </p>
+          </div>
+        )}
       </Card>
 
       <Button onClick={() => onNext(scores)} size="lg" className="w-full">
