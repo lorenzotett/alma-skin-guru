@@ -285,11 +285,18 @@ function addAntiAgingProducts(routine: Product[], allProducts: Product[]) {
   if (acido && !routine.find(p => p.name.includes('ACIDO IALURONICO'))) {
     routine.push(acido);
   }
-  if (cremaGiorno && !routine.find(p => p.name.includes('GIORNO NO-AGE'))) {
-    routine.push(cremaGiorno);
-  }
-  if (cremaNotte && !routine.find(p => p.name.includes('NOTTE NO-AGE'))) {
-    routine.push(cremaNotte);
+  // Ensure at least one cream is always added
+  const hasCream = routine.some(p => p.category?.toLowerCase().includes('crema'));
+  if (!hasCream) {
+    if (cremaGiorno) routine.push(cremaGiorno);
+    if (cremaNotte) routine.push(cremaNotte);
+  } else {
+    if (cremaGiorno && !routine.find(p => p.name.includes('GIORNO NO-AGE'))) {
+      routine.push(cremaGiorno);
+    }
+    if (cremaNotte && !routine.find(p => p.name.includes('NOTTE NO-AGE'))) {
+      routine.push(cremaNotte);
+    }
   }
 }
 

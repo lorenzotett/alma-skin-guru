@@ -9,12 +9,12 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-[#f5ebe0] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-[#9a4a13] relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-20 h-20 sm:w-32 sm:h-32 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-32 h-32 sm:w-40 sm:h-40 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 sm:w-64 sm:h-64 bg-primary/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-20 h-20 sm:w-32 sm:h-32 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-32 h-32 sm:w-40 sm:h-40 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 sm:w-64 sm:h-64 bg-white/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <Card className="max-w-3xl w-full p-6 sm:p-8 md:p-10 lg:p-12 text-center space-y-6 sm:space-y-8 shadow-2xl bg-[#f9f5f0]/95 backdrop-blur-xl border-primary/20 relative z-10 animate-fade-in">
