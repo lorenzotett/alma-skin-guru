@@ -15,6 +15,11 @@ export function getUserFriendlyError(error: any): string {
     return 'I dati inseriti non sono validi.';
   }
   
+  // Auth errors
+  if (error?.message?.includes('Invalid login credentials') || error?.message?.includes('invalid_credentials')) {
+    return 'Email o password non corretti. Se è la prima volta, registrati prima sulla homepage.';
+  }
+  
   // RLS policy violations
   if (error?.message?.includes('RLS') || error?.message?.includes('policy')) {
     return 'Operazione non consentita.';

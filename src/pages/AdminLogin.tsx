@@ -30,7 +30,7 @@ export default function AdminLogin() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@admin.com",
+      email: "info@almanaturalbeauty.it",
       password: "",
     },
   });
@@ -89,6 +89,15 @@ export default function AdminLogin() {
           <CardDescription>Accedi con le tue credenziali admin</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <p className="text-sm text-foreground">
+              <strong>Prima volta?</strong> Devi prima registrarti sulla{" "}
+              <a href="/" className="text-primary font-medium hover:underline">
+                homepage
+              </a>{" "}
+              usando l'email admin, poi torna qui per accedere.
+            </p>
+          </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -97,7 +106,7 @@ export default function AdminLogin() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@admin.com"
+                  placeholder="info@almanaturalbeauty.it"
                   className="pl-10"
                   {...register("email")}
                 />
