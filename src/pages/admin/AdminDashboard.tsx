@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Users, FileText, Mail, MousePointer } from "lucide-react";
 import { LineChart, Line, PieChart, Pie, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
@@ -127,8 +128,7 @@ export default function AdminDashboard() {
   const kpiCards = [
     { title: "Contatti Totali", value: stats.totalContacts, icon: Users, color: "from-primary to-accent" },
     { title: "Analisi Oggi", value: stats.todayAnalyses, icon: FileText, color: "from-accent to-primary" },
-    { title: "Email Aperte", value: `${stats.emailOpenRate}%`, icon: Mail, color: "from-primary to-accent" },
-    { title: "Click Prodotti", value: `${stats.productClickRate}%`, icon: MousePointer, color: "from-accent to-primary" },
+    { title: "Click Prodotti", value: `${stats.productClickRate}%`, icon: MousePointer, color: "from-primary to-accent" },
   ];
 
   return (
@@ -139,17 +139,17 @@ export default function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {kpiCards.map((card) => (
-          <Card key={card.title} className="overflow-hidden border-primary/10 hover:shadow-lg transition-shadow">
+          <Card key={card.title} className="overflow-hidden border-primary/10 hover:shadow-lg transition-all hover:scale-105">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{card.value}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground font-medium mb-1">{card.title}</p>
+                  <p className="text-3xl sm:text-4xl font-bold text-primary">{card.value}</p>
                 </div>
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
-                  <card.icon className="w-6 h-6 text-white" />
+                <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
+                  <card.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -160,38 +160,65 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Trends Chart */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Analisi Ultimi 7 Giorni</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              Analisi Ultimi 7 Giorni
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <LineChart data={trendsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }} />
-                <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    padding: '8px 12px'
+                  }} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="count" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={3}
+                  dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Skin Type Distribution */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Distribuzione Tipi di Pelle</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              Distribuzione Tipi di Pelle
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={skinTypeData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry) => entry.name}
-                  outerRadius={80}
+                  label={(entry) => `${entry.name}: ${entry.value}`}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -199,51 +226,97 @@ export default function AdminDashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Top Concerns */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Top 5 Concerns</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <MousePointer className="w-5 h-5 text-primary" />
+              Top 5 Preoccupazioni
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart data={concernsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  angle={-15}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="hsl(var(--primary))" 
+                  radius={[8, 8, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Recent Contacts */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Ultimi 10 Contatti</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              Ultimi Contatti
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-[250px] overflow-y-auto">
-              {recentContacts.map((contact) => (
-                <div key={contact.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
-                  <div>
-                    <p className="font-medium text-sm">{contact.name || 'N/A'}</p>
-                    <p className="text-xs text-muted-foreground">{contact.email}</p>
+            <div className="space-y-2 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin">
+              {recentContacts.length > 0 ? (
+                recentContacts.map((contact) => (
+                  <div 
+                    key={contact.id} 
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/70 transition-all cursor-pointer border border-transparent hover:border-primary/20"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{contact.name || 'N/A'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
+                    </div>
+                    <div className="text-right ml-3 flex-shrink-0">
+                      <Badge variant="secondary" className="mb-1">
+                        {contact.skin_type || 'N/A'}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(contact.created_at).toLocaleDateString('it-IT', { 
+                          day: '2-digit', 
+                          month: 'short' 
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs font-medium text-primary">{contact.skin_type || 'N/A'}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(contact.created_at).toLocaleDateString('it-IT')}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nessun contatto recente
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

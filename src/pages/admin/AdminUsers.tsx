@@ -284,67 +284,82 @@ export default function AdminUsers() {
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="shadow-lg">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Utente</TableHead>
-                <TableHead>Contatto</TableHead>
-                <TableHead>Età</TableHead>
-                <TableHead>Tipo Pelle</TableHead>
-                <TableHead>Concerns</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Azioni</TableHead>
+              <TableRow className="bg-secondary/30">
+                <TableHead className="font-semibold">Utente</TableHead>
+                <TableHead className="font-semibold">Contatto</TableHead>
+                <TableHead className="font-semibold hidden sm:table-cell">Età</TableHead>
+                <TableHead className="font-semibold">Tipo Pelle</TableHead>
+                <TableHead className="font-semibold hidden md:table-cell">Concerns</TableHead>
+                <TableHead className="font-semibold hidden lg:table-cell">Data</TableHead>
+                <TableHead className="font-semibold">Email</TableHead>
+                <TableHead className="font-semibold text-right">Azioni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedContacts.map((contact) => (
-                <TableRow key={contact.id} className="cursor-pointer hover:bg-secondary/50">
+                <TableRow key={contact.id} className="cursor-pointer hover:bg-secondary/50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar>
+                      <Avatar className="hidden sm:flex">
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {contact.name?.charAt(0) || 'U'}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium">{contact.name || 'N/A'}</span>
+                      <span className="font-medium text-sm">{contact.name || 'N/A'}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">
-                      <div>{contact.email}</div>
-                      <div className="text-muted-foreground">{contact.phone}</div>
+                    <div className="text-sm space-y-0.5">
+                      <div className="font-medium">{contact.email}</div>
+                      <div className="text-muted-foreground text-xs">{contact.phone || '-'}</div>
                     </div>
                   </TableCell>
-                  <TableCell>{contact.age || 'N/A'}</TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <span className="text-sm">{contact.age || '-'}</span>
+                  </TableCell>
                   <TableCell>
-                    {contact.skin_type && (
-                      <Badge variant="secondary">{contact.skin_type}</Badge>
+                    {contact.skin_type ? (
+                      <Badge variant="secondary" className="text-xs">
+                        {contact.skin_type}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
+                  <TableCell className="hidden md:table-cell">
+                    <div className="flex flex-wrap gap-1 max-w-[200px]">
                       {contact.concerns?.slice(0, 2).map((concern, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
                           {concern}
                         </Badge>
                       ))}
                       {contact.concerns && contact.concerns.length > 2 && (
-                        <Badge variant="outline" className="text-xs">+{contact.concerns.length - 2}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          +{contact.concerns.length - 2}
+                        </Badge>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">
-                    {new Date(contact.created_at).toLocaleDateString('it-IT')}
+                  <TableCell className="text-sm hidden lg:table-cell">
+                    {new Date(contact.created_at).toLocaleDateString('it-IT', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
                   </TableCell>
-                  <TableCell>{getEmailStatusBadge(contact)}</TableCell>
                   <TableCell>
+                    {getEmailStatusBadge(contact)}
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => openDetailDrawer(contact)}
+                      className="hover:bg-primary/10"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
@@ -356,9 +371,9 @@ export default function AdminUsers() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between p-4 border-t">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t gap-4">
           <p className="text-sm text-muted-foreground">
-            Pagina {currentPage} di {totalPages}
+            Pagina {currentPage} di {totalPages} • {filteredContacts.length} utenti totali
           </p>
           <div className="flex gap-2">
             <Button
@@ -386,15 +401,15 @@ export default function AdminUsers() {
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
           {selectedContact && (
             <>
-              <SheetHeader>
+              <SheetHeader className="pb-4 border-b">
                 <SheetTitle className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-lg">
+                  <Avatar className="w-14 h-14">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xl font-bold">
                       {selectedContact.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <div className="text-xl">{selectedContact.name || 'Utente'}</div>
+                  <div className="text-left">
+                    <div className="text-xl font-bold">{selectedContact.name || 'Utente'}</div>
                     <div className="text-sm text-muted-foreground font-normal">
                       {selectedContact.email}
                     </div>
@@ -403,130 +418,138 @@ export default function AdminUsers() {
               </SheetHeader>
 
               <Tabs defaultValue="info" className="mt-6">
-                <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="info">Info</TabsTrigger>
-                  <TabsTrigger value="analysis">Analisi</TabsTrigger>
-                  <TabsTrigger value="email">Email</TabsTrigger>
-                  <TabsTrigger value="products">Prodotti</TabsTrigger>
-                  <TabsTrigger value="chat">Chat</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5 mb-6">
+                  <TabsTrigger value="info" className="text-xs sm:text-sm">Info</TabsTrigger>
+                  <TabsTrigger value="analysis" className="text-xs sm:text-sm">Analisi</TabsTrigger>
+                  <TabsTrigger value="email" className="text-xs sm:text-sm">Email</TabsTrigger>
+                  <TabsTrigger value="products" className="text-xs sm:text-sm">Prodotti</TabsTrigger>
+                  <TabsTrigger value="chat" className="text-xs sm:text-sm">Chat</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="info" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Nome</p>
-                      <p className="font-medium">{selectedContact.name || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{selectedContact.email || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Telefono</p>
-                      <p className="font-medium">{selectedContact.phone || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Età</p>
-                      <p className="font-medium">{selectedContact.age || 'N/A'}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-sm text-muted-foreground">Registrato</p>
-                      <p className="font-medium">
+                <TabsContent value="info" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Nome</p>
+                      <p className="font-semibold text-sm">{selectedContact.name || 'N/A'}</p>
+                    </Card>
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Email</p>
+                      <p className="font-semibold text-sm break-all">{selectedContact.email || 'N/A'}</p>
+                    </Card>
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Telefono</p>
+                      <p className="font-semibold text-sm">{selectedContact.phone || 'N/A'}</p>
+                    </Card>
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Età</p>
+                      <p className="font-semibold text-sm">{selectedContact.age || 'N/A'}</p>
+                    </Card>
+                    <Card className="p-4 bg-secondary/30 sm:col-span-2">
+                      <p className="text-xs text-muted-foreground mb-1">Registrato</p>
+                      <p className="font-semibold text-sm">
                         {new Date(selectedContact.created_at).toLocaleString('it-IT')}
                       </p>
-                    </div>
+                    </Card>
                   </div>
-                  <Button onClick={exportUserJSON} variant="outline" className="w-full gap-2">
+                  <Button onClick={exportUserJSON} variant="outline" className="w-full gap-2 mt-4">
                     <FileDown className="w-4 h-4" />
                     Esporta Dati (JSON)
                   </Button>
                 </TabsContent>
 
-                <TabsContent value="analysis" className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Tipo Pelle</p>
-                    {selectedContact.skin_type && (
-                      <Badge className="text-base px-4 py-1">{selectedContact.skin_type}</Badge>
+                <TabsContent value="analysis" className="space-y-4 mt-4">
+                  <Card className="p-4 bg-secondary/30">
+                    <p className="text-xs text-muted-foreground mb-2">Tipo Pelle</p>
+                    {selectedContact.skin_type ? (
+                      <Badge className="text-base px-4 py-2">{selectedContact.skin_type}</Badge>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">N/A</span>
                     )}
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Concerns</p>
+                  </Card>
+                  <Card className="p-4 bg-secondary/30">
+                    <p className="text-xs text-muted-foreground mb-2">Preoccupazioni</p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedContact.concerns?.map((concern, idx) => (
-                        <Badge key={idx} variant="secondary">{concern}</Badge>
-                      ))}
+                      {selectedContact.concerns && selectedContact.concerns.length > 0 ? (
+                        selectedContact.concerns.map((concern, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-sm">
+                            {concern}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Nessuna</span>
+                      )}
                     </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Prodotto Cercato</p>
-                    <p className="font-medium">{selectedContact.product_type || 'N/A'}</p>
-                  </div>
+                  </Card>
+                  <Card className="p-4 bg-secondary/30">
+                    <p className="text-xs text-muted-foreground mb-2">Prodotto Cercato</p>
+                    <p className="font-semibold text-sm">{selectedContact.product_type || 'N/A'}</p>
+                  </Card>
                   {selectedContact.additional_info && (
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-2">Note</p>
-                      <p className="text-sm bg-secondary/50 p-3 rounded-lg">
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-2">Note Aggiuntive</p>
+                      <p className="text-sm leading-relaxed">
                         {selectedContact.additional_info}
                       </p>
-                    </div>
+                    </Card>
                   )}
                 </TabsContent>
 
-                <TabsContent value="email" className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Status Email</p>
+                <TabsContent value="email" className="space-y-4 mt-4">
+                  <Card className="p-4 bg-secondary/30">
+                    <p className="text-xs text-muted-foreground mb-2">Stato Email</p>
                     {getEmailStatusBadge(selectedContact)}
-                  </div>
+                  </Card>
                   {selectedContact.email_sent && (
                     <>
                       {emailLog?.opened && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Aperta il</p>
-                          <p className="font-medium">
+                        <Card className="p-4 bg-secondary/30">
+                          <p className="text-xs text-muted-foreground mb-1">Email Aperta</p>
+                          <p className="font-semibold text-sm">
                             {emailLog.opened_at && new Date(emailLog.opened_at).toLocaleString('it-IT')}
                           </p>
-                        </div>
+                        </Card>
                       )}
                       {emailLog?.clicked && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Cliccata il</p>
-                          <p className="font-medium">
+                        <Card className="p-4 bg-secondary/30">
+                          <p className="text-xs text-muted-foreground mb-1">Link Cliccato</p>
+                          <p className="font-semibold text-sm">
                             {emailLog.clicked_at && new Date(emailLog.clicked_at).toLocaleString('it-IT')}
                           </p>
-                        </div>
+                        </Card>
                       )}
                       {selectedContact.discount_code && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Codice Sconto</p>
-                          <Badge variant="secondary" className="text-base px-4 py-1">
+                        <Card className="p-4 bg-secondary/30">
+                          <p className="text-xs text-muted-foreground mb-2">Codice Sconto</p>
+                          <Badge variant="secondary" className="text-lg px-6 py-2 font-mono">
                             {selectedContact.discount_code}
                           </Badge>
-                        </div>
+                        </Card>
                       )}
                     </>
                   )}
                 </TabsContent>
 
-                <TabsContent value="products" className="space-y-4">
+                <TabsContent value="products" className="space-y-4 mt-4">
                   {recommendedProducts.length > 0 ? (
                     <>
-                      <p className="text-sm text-muted-foreground">
-                        Prodotti consigliati: {recommendedProducts.length}
+                      <p className="text-sm text-muted-foreground font-medium">
+                        {recommendedProducts.length} prodotti consigliati
                       </p>
                       <div className="space-y-3">
                         {recommendedProducts.map((product) => (
-                          <Card key={product.id} className="p-4">
+                          <Card key={product.id} className="p-4 hover:shadow-md transition-shadow">
                             <div className="flex gap-4">
                               {product.image_url && (
                                 <img
                                   src={product.image_url}
                                   alt={product.name}
-                                  className="w-20 h-20 object-cover rounded-lg"
+                                  className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
                                 />
                               )}
-                              <div className="flex-1">
-                                <p className="font-medium">{product.name}</p>
-                                <p className="text-sm text-muted-foreground">{product.brand}</p>
-                                <p className="text-sm font-medium text-primary mt-1">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm mb-1">{product.name}</p>
+                                <p className="text-xs text-muted-foreground mb-2">{product.brand}</p>
+                                <p className="text-base font-bold text-primary">
                                   €{product.price.toFixed(2)}
                                 </p>
                                 {clickedProducts.has(product.id) && (
@@ -539,31 +562,36 @@ export default function AdminUsers() {
                       </div>
                     </>
                   ) : (
-                    <p className="text-muted-foreground text-center py-8">
-                      Nessun prodotto consigliato
-                    </p>
+                    <Card className="p-8 bg-secondary/30">
+                      <p className="text-muted-foreground text-center">
+                        Nessun prodotto consigliato
+                      </p>
+                    </Card>
                   )}
                 </TabsContent>
 
-                <TabsContent value="chat" className="space-y-3">
+                <TabsContent value="chat" className="mt-4">
                   {conversationMessages.length > 0 ? (
-                    <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                       {conversationMessages.map((msg: any, idx: number) => (
                         <div
                           key={idx}
                           className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}
                         >
                           <div
-                            className={`max-w-[80%] p-3 rounded-lg ${
+                            className={`max-w-[85%] p-3 rounded-2xl ${
                               msg.isBot
-                                ? 'bg-secondary text-foreground'
-                                : 'bg-primary text-primary-foreground'
+                                ? 'bg-secondary/70 text-foreground'
+                                : 'bg-gradient-to-br from-primary to-accent text-white'
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                             {msg.timestamp && (
-                              <p className="text-xs opacity-70 mt-1">
-                                {new Date(msg.timestamp).toLocaleTimeString('it-IT')}
+                              <p className="text-xs opacity-60 mt-1.5">
+                                {new Date(msg.timestamp).toLocaleTimeString('it-IT', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
                               </p>
                             )}
                           </div>
@@ -571,9 +599,11 @@ export default function AdminUsers() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground text-center py-8">
-                      Nessuna conversazione disponibile
-                    </p>
+                    <Card className="p-8 bg-secondary/30">
+                      <p className="text-muted-foreground text-center">
+                        Nessuna conversazione disponibile
+                      </p>
+                    </Card>
                   )}
                 </TabsContent>
               </Tabs>
