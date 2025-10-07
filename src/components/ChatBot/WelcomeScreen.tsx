@@ -45,33 +45,33 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
 
         {/* Features */}
         <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 py-4 sm:py-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent hover:from-primary/20 transition-all hover:scale-105">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white border-2 border-primary/30 shadow-[0_8px_30px_rgb(154,74,19,0.15)] hover:shadow-[0_12px_40px_rgb(154,74,19,0.25)] hover:border-primary/50 transition-all hover:scale-105 hover:-translate-y-1">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary via-[#b55819] to-accent flex items-center justify-center shadow-lg ring-4 ring-primary/10">
+              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-sm sm:text-base text-primary">Analisi AI</p>
-              <p className="text-xs text-muted-foreground">Tecnologia avanzata</p>
+              <p className="font-bold text-base sm:text-lg text-primary mb-1">Analisi AI</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Tecnologia avanzata</p>
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-accent/10 to-transparent hover:from-accent/20 transition-all hover:scale-105">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white border-2 border-accent/30 shadow-[0_8px_30px_rgb(154,74,19,0.15)] hover:shadow-[0_12px_40px_rgb(154,74,19,0.25)] hover:border-accent/50 transition-all hover:scale-105 hover:-translate-y-1">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-accent via-[#b55819] to-primary flex items-center justify-center shadow-lg ring-4 ring-accent/10">
+              <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-sm sm:text-base text-primary">Consulenza AI</p>
-              <p className="text-xs text-muted-foreground">Risposte immediate</p>
+              <p className="font-bold text-base sm:text-lg text-primary mb-1">Consulenza AI</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Risposte immediate</p>
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent hover:from-primary/20 transition-all hover:scale-105">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white border-2 border-primary/30 shadow-[0_8px_30px_rgb(154,74,19,0.15)] hover:shadow-[0_12px_40px_rgb(154,74,19,0.25)] hover:border-primary/50 transition-all hover:scale-105 hover:-translate-y-1">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary via-[#b55819] to-accent flex items-center justify-center shadow-lg ring-4 ring-primary/10">
+              <ShoppingBag className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-sm sm:text-base text-primary">Prodotti Naturali</p>
-              <p className="text-xs text-muted-foreground">Made in Italy</p>
+              <p className="font-bold text-base sm:text-lg text-primary mb-1">Prodotti Naturali</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Made in Italy</p>
             </div>
           </div>
         </div>
