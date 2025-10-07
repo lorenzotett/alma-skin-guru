@@ -43,15 +43,19 @@ const skinTypes = [
 
 export const SkinTypeStep = ({ onNext }: SkinTypeStepProps) => {
   return (
-    <Card className="p-4 space-y-3">
-      <div className="grid gap-2">
+    <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+      <div className="space-y-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary">Che tipo di pelle hai? 🌸</h3>
+        <p className="text-sm text-muted-foreground">Scegli quella che ti rappresenta meglio:</p>
+      </div>
+      <div className="grid gap-2 sm:gap-3">
         {skinTypes.map((type) => (
           <Button
             key={type.value}
             onClick={() => onNext(type.value)}
             variant="outline"
             className={cn(
-              "h-auto p-4 justify-start text-left hover:bg-accent/20 hover:border-primary transition-all"
+              "h-auto p-4 justify-start text-left hover:bg-primary/10 hover:border-primary transition-all hover:shadow-md bg-card/50"
             )}
           >
             <div className="flex items-start gap-3 w-full">

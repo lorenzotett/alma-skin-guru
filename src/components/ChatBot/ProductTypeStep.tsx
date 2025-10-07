@@ -65,13 +65,15 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
 
   return (
     <div className="space-y-4">
-      <Card className="p-6 space-y-4">
-        <h3 className="font-bold text-lg text-primary">
-          Che tipo di prodotti ti interessano?
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Seleziona una routine completa oppure scegli i prodotti specifici che cerchi. Puoi selezionarne più di uno! 🎯
-        </p>
+      <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+        <div className="space-y-2">
+          <h3 className="text-lg sm:text-xl font-bold text-primary">
+            Che tipo di prodotti ti interessano? 🎯
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Seleziona una routine completa oppure scegli i prodotti specifici che cerchi. Puoi selezionarne più di uno!
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {productTypes.map((type) => {
@@ -104,8 +106,8 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
                 key={type.value}
                 onClick={() => toggleType(type.value)}
                 className={cn(
-                  "relative p-4 rounded-lg border-2 text-left transition-all",
-                  "hover:scale-[1.02] active:scale-[0.98]",
+                  "relative p-4 rounded-lg border-2 text-left transition-all bg-card/50",
+                  "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md",
                   isSelected
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50",
@@ -135,7 +137,7 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
             <p className="text-sm text-muted-foreground mb-2">
               Hai selezionato: <span className="font-medium text-foreground">{selectedTypes.length}</span> {selectedTypes.length === 1 ? "prodotto" : "prodotti"}
             </p>
-            <Button onClick={handleContinue} size="lg" className="w-full">
+            <Button onClick={handleContinue} size="lg" className="w-full bg-primary hover:bg-primary/90">
               Continua ✨
             </Button>
           </div>

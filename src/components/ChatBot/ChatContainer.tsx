@@ -13,7 +13,7 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
   return (
     <div className="min-h-screen flex flex-col bg-[#f5ebe0]">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-lg border-b border-border shadow-soft">
+      <div className="sticky top-0 z-10 bg-[#f9f5f0]/95 backdrop-blur-lg border-b border-primary/20 shadow-soft">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3">
           {showBack && onBack && (
             <Button 

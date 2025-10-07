@@ -51,8 +51,8 @@ export const PhotoUploadStep = ({ onNext }: PhotoUploadStepProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-2xl w-full p-8 space-y-6 shadow-lg">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5ebe0]">
+      <Card className="max-w-2xl w-full p-8 space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-primary">
             Carica una Foto (Opzionale) 📸

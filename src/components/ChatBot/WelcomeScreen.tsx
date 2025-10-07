@@ -9,7 +9,7 @@ interface WelcomeScreenProps {
 export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-[#f5ebe0]">
-      <Card className="max-w-2xl w-full p-4 sm:p-6 md:p-8 lg:p-12 text-center space-y-4 sm:space-y-6 md:space-y-8 shadow-xl bg-white/95 backdrop-blur">
+      <Card className="max-w-2xl w-full p-4 sm:p-6 md:p-8 lg:p-12 text-center space-y-4 sm:space-y-6 md:space-y-8 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
         <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
           <img 
             src={logoAlma} 

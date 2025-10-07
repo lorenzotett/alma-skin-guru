@@ -92,7 +92,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
   ];
 
   return (
-    <Card className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 animate-fade-in border-2 border-primary/20 shadow-lg">
+    <Card className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 animate-fade-in border-2 border-primary/30 shadow-xl bg-[#f9f5f0]/95 backdrop-blur">
       <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
         <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary animate-pulse flex-shrink-0" />
         <div className="min-w-0">
@@ -104,7 +104,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       </div>
 
       {/* Messages Area */}
-      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth bg-gradient-to-b from-secondary/20 to-transparent p-2 sm:p-3 md:p-4 rounded-lg">
+      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth bg-white/40 backdrop-blur p-2 sm:p-3 md:p-4 rounded-lg border border-primary/10">
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -161,7 +161,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2 p-2 sm:p-3 bg-secondary/30 rounded-lg">
+      <div className="flex gap-2 p-2 sm:p-3 bg-white/40 backdrop-blur rounded-lg border border-primary/10">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}

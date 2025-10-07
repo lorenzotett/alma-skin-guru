@@ -28,8 +28,11 @@ export const AgeStep = ({ onNext }: AgeStepProps) => {
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <p className="text-sm text-muted-foreground">Seleziona la tua fascia d'età:</p>
+    <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+      <div className="space-y-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary">Qual è la tua età? 🎂</h3>
+        <p className="text-sm text-muted-foreground">Seleziona la tua fascia d'età:</p>
+      </div>
 
       {!showCustom ? (
         <>
@@ -39,7 +42,7 @@ export const AgeStep = ({ onNext }: AgeStepProps) => {
                 key={range.label}
                 onClick={() => onNext(range.value)}
                 variant="outline"
-                className="hover:bg-accent/20 hover:border-primary"
+                className="hover:bg-primary/10 hover:border-primary hover:shadow-md bg-card/50"
               >
                 {range.label}
               </Button>

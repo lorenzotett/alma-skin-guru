@@ -105,18 +105,19 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
   };
 
   return (
-    <Card className="p-4 space-y-3">
+    <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
       <div className="space-y-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary">Perfetto! 🎉</h3>
         <p className="text-sm font-medium">
-          Perfetto! 🎉 Lasciami i tuoi dati per inviarti:
+          Lasciami i tuoi dati per inviarti:
         </p>
         <ul className="text-xs text-muted-foreground space-y-1">
           <li>✓ La tua analisi completa</li>
-          <li>✓ Codice sconto <strong className="text-primary">15%</strong></li>
+          <li>✓ Codice sconto <strong className="text-primary">15% (ALMA15)</strong></li>
         </ul>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="fullName" className="text-xs">Nome completo *</Label>
           <Input
@@ -187,10 +188,10 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
 
         <Button 
           type="submit" 
-          className="w-full"
+          className="w-full bg-primary hover:bg-primary/90"
           disabled={!fullName || !email || !privacyConsent}
         >
-          RICEVI ANALISI 🎁
+          RICEVI ANALISI E SCONTO 15% 🎁
         </Button>
       </form>
     </Card>

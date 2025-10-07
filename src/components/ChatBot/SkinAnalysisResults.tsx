@@ -107,8 +107,8 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
 
   return (
     <div className="space-y-4">
-      <Card className="p-6 space-y-4">
-        <h3 className="font-bold text-lg text-primary flex items-center gap-2">
+      <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+        <h3 className="text-lg sm:text-xl font-bold text-primary flex items-center gap-2">
           <span>🔬</span> Analisi della Pelle Completata
         </h3>
         
@@ -122,6 +122,7 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
           </div>
         )}
 
+        
         <p className="text-sm text-muted-foreground">
           Ho analizzato la tua pelle e questi sono i risultati:
         </p>
@@ -153,7 +154,7 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
         </div>
 
         {Object.entries(scores).some(([_, score]) => score < 5) && (
-          <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
+          <div className="bg-primary/10 backdrop-blur rounded-lg p-4 space-y-2 border border-primary/20">
             <p className="font-semibold text-sm">🎯 Aree Prioritarie da migliorare:</p>
             <ul className="text-sm space-y-1 text-muted-foreground">
               {Object.entries(scores)
@@ -184,7 +185,7 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
         )}
       </Card>
 
-      <Button onClick={() => onNext(scores)} size="lg" className="w-full">
+      <Button onClick={() => onNext(scores)} size="lg" className="w-full bg-primary hover:bg-primary/90">
         Continua con le Domande ✨
       </Button>
     </div>

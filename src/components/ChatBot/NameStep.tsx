@@ -19,7 +19,7 @@ export const NameStep = ({ onNext }: NameStepProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5ebe0]">
-      <Card className="max-w-xl w-full p-8 space-y-6 shadow-xl bg-white/95 backdrop-blur">
+      <Card className="max-w-xl w-full p-8 space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-primary">
             Benvenuta! 🌸

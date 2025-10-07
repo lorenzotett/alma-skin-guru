@@ -31,7 +31,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   
-  const discountCode = `ALMA15${userData.name.toUpperCase()}`;
+  const discountCode = "ALMA15";
 
   useEffect(() => {
     loadRecommendations();
@@ -169,8 +169,8 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary to-accent/10">
-        <Card className="p-8">
+      <div className="min-h-screen flex items-center justify-center bg-[#f5ebe0]">
+        <Card className="p-8 bg-white/95 backdrop-blur shadow-xl">
           <p className="text-lg text-primary">Sto preparando la tua routine personalizzata... ✨</p>
         </Card>
       </div>
@@ -178,15 +178,15 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   }
 
   return (
-    <div className="min-h-screen p-3 sm:p-4 md:p-8 bg-gradient-to-br from-background via-secondary to-accent/10">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8 bg-[#f5ebe0]">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         {/* Header */}
-        <Card className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in">
+        <Card className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-xl">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary animate-scale-in leading-tight">
             ✨ Ecco la tua Routine Alma personalizzata, {userData.name}! ✨
           </h1>
           
-          <Card className="p-4 sm:p-5 md:p-6 bg-secondary/50">
+          <Card className="p-4 sm:p-5 md:p-6 bg-primary/5 backdrop-blur border-primary/20">
             <h3 className="font-bold text-base sm:text-lg mb-3">📋 IL TUO PROFILO COMPLETO</h3>
             <div className="grid sm:grid-cols-2 gap-2 sm:gap-3 text-left text-xs sm:text-sm">
               <p className="break-words">• <strong>Nome:</strong> {userData.fullName || userData.name}</p>
@@ -233,7 +233,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           </p>
 
           {userData.skinScores && (
-            <Card className="p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 bg-secondary/30">
+            <Card className="p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 bg-primary/10 backdrop-blur border-primary/30 shadow-lg">
               <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 text-center">🎯 Priorità in base alla tua analisi:</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 text-xs sm:text-sm">
                 {Object.entries(userData.skinScores)
@@ -414,30 +414,30 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         <AIAdvisorChat userData={userData} recommendedProducts={products} />
 
         {/* Discount & CTA */}
-        <Card className="p-8 text-center space-y-6 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 animate-fade-in border-2 border-primary/30 shadow-xl">
+        <Card className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 animate-fade-in border-2 border-primary/30 shadow-xl backdrop-blur">
           <div className="space-y-4">
-            <div className="inline-block bg-card px-6 py-3 rounded-full shadow-md">
-              <p className="text-lg font-semibold">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
+            <div className="inline-block bg-card/80 backdrop-blur px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-md">
+              <p className="text-base sm:text-lg font-semibold">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
             </div>
             
-            <div className="bg-gradient-to-r from-primary to-accent p-6 rounded-2xl shadow-lg">
-              <p className="text-white/90 text-sm mb-2 font-medium">🎁 CON IL TUO CODICE SCONTO ESCLUSIVO 15%</p>
-              <p className="text-4xl font-bold text-white mb-2">
+            <div className="bg-gradient-to-r from-primary to-accent p-4 sm:p-6 rounded-2xl shadow-lg">
+              <p className="text-white/90 text-xs sm:text-sm mb-2 font-medium">🎁 CON IL CODICE SCONTO ESCLUSIVO 15%</p>
+              <p className="text-3xl sm:text-4xl font-bold text-white mb-2">
                 €{discountedValue.toFixed(2)}
               </p>
-              <p className="text-green-100 font-bold text-lg">
+              <p className="text-green-100 font-bold text-base sm:text-lg">
                 ✨ RISPARMI €{savings.toFixed(2)}!
               </p>
             </div>
 
-            <div className="bg-card p-6 rounded-xl shadow-md border-2 border-primary/20">
-              <p className="text-sm text-muted-foreground mb-3">Il tuo codice sconto personale:</p>
+            <div className="bg-card/80 backdrop-blur p-4 sm:p-6 rounded-xl shadow-md border-2 border-primary/20">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3">Il tuo codice sconto fisso:</p>
               <div className="relative">
-                <Badge variant="secondary" className="text-2xl py-4 px-8 bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/40">
-                  <strong className="text-primary">{discountCode}</strong>
+                <Badge variant="secondary" className="text-xl sm:text-2xl py-3 sm:py-4 px-6 sm:px-8 bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/40">
+                  <strong className="text-primary">ALMA15</strong>
                 </Badge>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Inseriscilo al checkout su almanaturalbeauty.it
+                  Inseriscilo al checkout su almanaturalbeauty.it per avere il 15% di sconto
                 </p>
               </div>
             </div>
@@ -445,16 +445,16 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
           <Separator className="bg-primary/20" />
 
-          <Button size="lg" asChild className="w-full hover-scale bg-gradient-to-r from-primary to-accent shadow-xl text-lg py-6">
+          <Button size="lg" asChild className="w-full hover-scale bg-gradient-to-r from-primary to-accent shadow-xl text-base sm:text-lg py-5 sm:py-6">
             <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
-              <ShoppingCart className="w-6 h-6 mr-3" />
+              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               ACQUISTA ORA CON -15% 🛍️✨
             </a>
           </Button>
         </Card>
 
         {/* Not Found Section */}
-        <Card className="p-8 text-center space-y-4 border-2 border-dashed border-primary/30 animate-fade-in">
+        <Card className="p-6 sm:p-8 text-center space-y-4 border-2 border-dashed border-primary/30 animate-fade-in bg-[#f9f5f0]/95 backdrop-blur">
           <h3 className="text-xl font-bold text-primary">🤔 Non hai trovato quello che cercavi?</h3>
           <p className="text-muted-foreground">
             Nessun problema! Ricomincia l'analisi per una nuova routine personalizzata

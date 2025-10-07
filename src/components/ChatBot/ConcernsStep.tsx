@@ -54,10 +54,13 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Seleziona le tue problematiche (anche più di una):
-      </p>
+    <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+      <div className="space-y-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary">Quali sono le tue preoccupazioni? 💭</h3>
+        <p className="text-sm text-muted-foreground">
+          Seleziona le tue problematiche (anche più di una):
+        </p>
+      </div>
 
       <div className="grid gap-2 max-h-[400px] overflow-y-auto pr-1">
         {concerns.map((concern) => (
@@ -65,9 +68,9 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
             key={concern.value}
             onClick={() => toggleConcern(concern.value)}
             className={cn(
-              "flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-all",
-              "hover:bg-accent/20 hover:border-primary",
-              selected.includes(concern.value) && "bg-accent/20 border-primary"
+              "flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-card/50",
+              "hover:bg-primary/10 hover:border-primary hover:shadow-md",
+              selected.includes(concern.value) && "bg-primary/15 border-primary shadow-md"
             )}
           >
             <Checkbox
