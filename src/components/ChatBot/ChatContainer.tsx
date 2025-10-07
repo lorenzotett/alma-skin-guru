@@ -11,9 +11,9 @@ interface ChatContainerProps {
 
 export const ChatContainer = ({ children, onBack, showBack = true }: ChatContainerProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-secondary to-accent/10">
+    <div className="min-h-screen flex flex-col bg-[#f5ebe0]">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-lg border-b border-border shadow-soft">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-lg border-b border-border shadow-soft">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3">
           {showBack && onBack && (
             <Button 
@@ -50,7 +50,7 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
       </ScrollArea>
 
       {/* Footer hint */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-background/80 to-transparent backdrop-blur-sm py-2 px-3 sm:px-4">
+      <div className="sticky bottom-0 bg-gradient-to-t from-[#f5ebe0]/90 to-transparent backdrop-blur-sm py-2 px-3 sm:px-4">
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
             Tutte le tue informazioni sono sicure e verranno utilizzate solo per consigliarti i prodotti migliori 🔒
