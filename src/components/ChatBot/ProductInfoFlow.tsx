@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ChatContainer } from "./ChatContainer";
+import { ChatMessage } from "./ChatMessage";
+import { Send, Sparkles, Loader2, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ExternalLink, ShoppingCart, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 interface ProductInfoFlowProps {
   userName: string;
@@ -12,169 +19,179 @@ interface ProductInfoFlowProps {
 }
 
 export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
-  const [query, setQuery] = useState("");
-  const [products, setProducts] = useState<any[]>([]);
-  const [searched, setSearched] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: `Ciao ${userName}! 💚✨\n\nSono la tua consulente beauty personale Alma e sono qui per aiutarti a trovare i prodotti perfetti per te!\n\nRaccontami:\n• Che tipo di problemi ha la tua pelle?\n• Cosa vorresti migliorare?\n• Hai già provato qualche prodotto specifico?\n• Cerchi qualcosa per una problematica specifica?\n\nNon preoccuparti, ti guiderò passo dopo passo! 🌸`
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-    
-    setLoading(true);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
+
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('active', true)
-        .or(`name.ilike.%${query}%,category.ilike.%${query}%,description_short.ilike.%${query}%`)
-        .limit(5);
+      const { data, error } = await supabase.functions.invoke('product-advisor', {
+        body: {
+          message: userMessage,
+          conversationHistory: messages,
+          userName
+        }
+      });
 
       if (error) throw error;
 
-      setProducts(data || []);
-      setSearched(true);
-
-      if (!data || data.length === 0) {
-        toast({
-          title: "Nessun prodotto trovato",
-          description: "Prova con una ricerca diversa o fai l'analisi completa della pelle"
-        });
-      }
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: data.response 
+      }]);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('Errore chat prodotti:', error);
       toast({
-        title: "Errore di ricerca",
-        description: "Riprova tra poco",
-        variant: "destructive"
+        title: "Errore",
+        description: "Non riesco a rispondere al momento. Riprova!",
+        variant: "destructive",
       });
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Mi dispiace, ho avuto un problema tecnico. Puoi riprovare? 🙏' 
+      }]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const quickQuestions = [
+    "Ho la pelle grassa, cosa mi consigli?",
+    "Cerco un prodotto anti-età efficace",
+    "Quali prodotti hai per le macchie scure?",
+    "Vorrei una routine completa per pelle secca",
+    "Dove posso comprare i prodotti Alma?",
+    "Quali ingredienti naturali usate?"
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <Card className="max-w-3xl w-full p-8 space-y-6 shadow-lg">
-        <Button variant="ghost" onClick={onBack} className="mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Torna indietro
-        </Button>
+    <ChatContainer onBack={onBack} showBack={true}>
+      {/* Header Info */}
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 backdrop-blur shadow-lg">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md flex-shrink-0">
+            <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-bold text-primary mb-2">Consulenza Prodotti AI</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Chiedimi qualsiasi cosa sui nostri prodotti! Ti aiuterò a trovare quello perfetto per te e ti dirò dove acquistarlo. 💚
+            </p>
+          </div>
+        </div>
+      </Card>
 
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-primary">
-            Perfetto, {userName}!
-          </h2>
-          <p className="text-foreground">
-            Quale prodotto ti interessa nello specifico? Quali informazioni vorresti avere sul prodotto?
+      {/* Messages */}
+      <div className="space-y-3 sm:space-y-4">
+        {messages.map((msg, idx) => (
+          <ChatMessage key={idx} sender={msg.role === 'user' ? 'user' : 'bot'}>
+            <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">{msg.content}</p>
+          </ChatMessage>
+        ))}
+        
+        {isLoading && (
+          <ChatMessage sender="bot">
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <p className="text-xs sm:text-sm">Sto pensando...</p>
+            </div>
+          </ChatMessage>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Quick Questions */}
+      {messages.length <= 2 && (
+        <Card className="p-4 sm:p-5 bg-primary/5 backdrop-blur border-primary/20 shadow-lg">
+          <p className="text-xs sm:text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Domande rapide che potresti fare:
           </p>
-        </div>
-
-        <div className="flex gap-3">
-          <Input
-            placeholder="Es: acido ialuronico, crema viso, detergente..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="text-lg"
-          />
-          <Button onClick={handleSearch} disabled={loading || !query.trim()}>
-            {loading ? "Cerco..." : "Cerca"}
-          </Button>
-        </div>
-
-        {searched && products.length > 0 && (
-          <div className="space-y-4 mt-6">
-            <h3 className="font-bold text-lg">Prodotti trovati:</h3>
-            {products.map((product) => (
-              <Card key={product.id} className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  {product.image_url && (
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name}
-                      className="w-full md:w-32 h-32 object-cover rounded-lg bg-secondary/30"
-                    />
-                  )}
-                  
-                  <div className="flex-1 space-y-2">
-                    <h4 className="font-bold text-lg text-foreground">{product.name}</h4>
-                    <p className="text-2xl font-bold text-primary">€{product.price}</p>
-                    {product.description_short && (
-                      <p className="text-sm text-muted-foreground">{product.description_short}</p>
-                    )}
-                    
-                    {product.key_ingredients && product.key_ingredients.length > 0 && (
-                      <div>
-                        <p className="font-semibold text-sm">🧪 Ingredienti chiave:</p>
-                        <p className="text-sm text-muted-foreground">
-                          {product.key_ingredients.slice(0, 3).join(', ')}
-                        </p>
-                      </div>
-                    )}
-
-                    {product.concerns_treated && product.concerns_treated.length > 0 && (
-                      <div>
-                        <p className="font-semibold text-sm">✓ Problematiche che risolve:</p>
-                        <p className="text-sm text-muted-foreground">
-                          {product.concerns_treated.join(', ')}
-                        </p>
-                      </div>
-                    )}
-
-                    {product.how_to_use && (
-                      <div>
-                        <p className="font-semibold text-sm">💡 Come usarlo:</p>
-                        <p className="text-sm text-muted-foreground">{product.how_to_use}</p>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3 pt-2">
-                      <Button asChild>
-                        <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          ACQUISTA ORA
-                        </a>
-                      </Button>
-                      <Button asChild variant="outline">
-                        <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          MAGGIORI INFO
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {quickQuestions.map((q, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInput(q);
+                  setTimeout(() => sendMessage(), 100);
+                }}
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                disabled={isLoading}
+              >
+                <span className="mr-2">→</span>
+                <span className="break-words">{q}</span>
+              </Button>
             ))}
           </div>
-        )}
+        </Card>
+      )}
 
-        {searched && products.length === 0 && (
-          <Card className="p-6 text-center">
-            <p className="text-muted-foreground">
-              Mi dispiace, non ho trovato questo prodotto. Vuoi che ti mostri i nostri prodotti per categoria? 
-              Oppure preferisci fare l'analisi completa della pelle?
-            </p>
-            <div className="flex gap-3 mt-4 justify-center">
-              <Button onClick={onBack} variant="outline">
-                Analisi Pelle
-              </Button>
-              <Button asChild>
-                <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
-                  Vedi tutti i prodotti
-                </a>
-              </Button>
-            </div>
-          </Card>
-        )}
-
-        {!searched && (
-          <p className="text-sm text-muted-foreground text-center">
-            Hai altre domande su questo o altri prodotti? Oppure vuoi fare l'analisi completa della pelle?
-          </p>
-        )}
+      {/* Discount Code Reminder */}
+      <Card className="p-4 sm:p-5 bg-gradient-to-r from-accent/10 to-primary/10 border-primary/30 text-center backdrop-blur shadow-lg">
+        <p className="text-xs sm:text-sm font-semibold text-primary mb-2">🎁 Ricorda il codice sconto!</p>
+        <div className="bg-white/60 backdrop-blur px-4 py-2 rounded-lg inline-block">
+          <p className="text-lg sm:text-xl font-bold text-primary">ALMA15</p>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">Usa questo codice per avere il 15% di sconto su almanaturalbeauty.it</p>
       </Card>
-    </div>
+
+      {/* Input Area - Fixed at bottom */}
+      <div className="sticky bottom-0 left-0 right-0 bg-[#f5ebe0] pt-4 pb-2 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 border-t border-primary/10">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-2 p-2 sm:p-3 bg-white/60 backdrop-blur rounded-lg border border-primary/20 shadow-md">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="💬 Scrivi qui la tua domanda..."
+              disabled={isLoading}
+              className="flex-1 border-none bg-transparent focus-visible:ring-0 text-xs sm:text-sm"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !input.trim()}
+              size="icon"
+              className="hover-scale bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"
+            >
+              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
+          </div>
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground mt-2">
+            Premi Invio per inviare • Powered by Gemini AI
+          </p>
+        </div>
+      </div>
+    </ChatContainer>
   );
 };

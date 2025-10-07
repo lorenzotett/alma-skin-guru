@@ -1,221 +1,199 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, HelpCircle } from "lucide-react";
+import { ChatContainer } from "./ChatContainer";
+import { ChatMessage } from "./ChatMessage";
+import { Send, Sparkles, Loader2, HelpCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 interface QuestionsFlowProps {
   userName: string;
   onBack: () => void;
 }
 
-interface FAQ {
-  question: string;
-  answer: string;
-  category: string;
-}
-
-const faqs: FAQ[] = [
-  {
-    question: "Come posso capire il mio tipo di pelle?",
-    answer: "Il tuo tipo di pelle si può identificare osservando alcuni segnali: pelle **normale** è equilibrata, né grassa né secca; pelle **secca** tende a tirare e può presentare desquamazione; pelle **grassa** è lucida con pori dilatati; pelle **mista** è grassa nella zona T (fronte, naso, mento) e normale/secca sulle guance. Ti consiglio di fare la nostra analisi completa della pelle per una valutazione più precisa! 🔬",
-    category: "Tipo di Pelle"
-  },
-  {
-    question: "Qual è l'ordine corretto per applicare i prodotti?",
-    answer: "La regola d'oro è: dal più **leggero** al più **pesante**! 🧴\n\n**Mattina:**\n1. Detergente\n2. Tonico\n3. Siero\n4. Contorno occhi\n5. Crema idratante\n6. Protezione solare (fondamentale!)\n\n**Sera:**\n1. Struccante/Detergente\n2. Secondo detergente (doppia pulizia)\n3. Tonico\n4. Siero/Trattamenti specifici\n5. Contorno occhi\n6. Crema notte",
-    category: "Routine"
-  },
-  {
-    question: "Quanto tempo ci vuole per vedere risultati?",
-    answer: "La pelle si rinnova ogni **28 giorni** circa, quindi serve pazienza! ⏰\n\n• **2-4 settimane**: primi miglioramenti (idratazione, texture)\n• **4-8 settimane**: risultati più evidenti (tono uniforme, riduzione imperfezioni)\n• **3 mesi**: miglioramenti duraturi e significativi\n\nRicorda: la costanza è fondamentale! Una routine regolare porta sempre i migliori risultati. 💪",
-    category: "Risultati"
-  },
-  {
-    question: "Posso usare acidi se ho la pelle sensibile?",
-    answer: "Sì, ma con cautela! 🧪\n\nPer pelli sensibili consigliamo:\n• **PHA** (Poliidrossiacidi): i più delicati\n• **Acido Lattico** a bassa concentrazione (5-10%)\n• **Acido Mandelico**: delicato ed efficace\n\n**Evita inizialmente:**\n• Acidi in concentrazioni alte\n• Retinolo troppo forte\n• Combinazioni di attivi\n\nInizia 1-2 volte a settimana e aumenta gradualmente. Se noti rossore persistente, interrompi e consulta un dermatologo.",
-    category: "Ingredienti"
-  },
-  {
-    question: "Quando devo usare il retinolo?",
-    answer: "Il retinolo si usa sempre di **sera** perché:\n• È fotosensibile (la luce lo degrada)\n• Può rendere la pelle più sensibile al sole\n\n**Come iniziare:**\n1. Inizia 1-2 volte a settimana\n2. Applica su pelle asciutta\n3. Usa sempre SPF 50+ di giorno\n4. Aumenta gradualmente la frequenza\n5. Può causare iniziale secchezza/desquamazione (normale!)\n\n**Evita se:**\n• Sei incinta o allatti\n• Hai rosacea severa\n• Usi altri acidi forti contemporaneamente",
-    category: "Ingredienti"
-  },
-  {
-    question: "La protezione solare va messa anche in casa?",
-    answer: "**SÌ! Assolutamente sì!** ☀️\n\nI raggi UVA attraversano:\n• Vetri delle finestre\n• Nuvole\n• Sono presenti anche d'inverno\n\nI raggi UVA causano:\n• Invecchiamento precoce\n• Macchie e discromie\n• Perdita di elasticità\n• Aumentano il rischio di tumori cutanei\n\nApplica **SPF 30-50** ogni mattina, anche se stai in casa! E riapplica ogni 2-3 ore se sei esposta alla luce diretta (vicino a finestre).",
-    category: "Protezione"
-  },
-  {
-    question: "Come tratto l'acne ormonale?",
-    answer: "L'acne ormonale richiede un approccio mirato:\n\n**Ingredienti efficaci:**\n• Acido Salicilico (BHA) 2%\n• Niacinamide 5-10%\n• Retinolo/Retinaldeide\n• Tea Tree Oil\n\n**Routine consigliata:**\n1. Detergente delicato 2 volte al giorno\n2. Tonico con BHA (sera)\n3. Siero niacinamide (mattina)\n4. Crema oil-free\n5. SPF non comedogenico\n\n**Importante:**\n• Consulta un dermatologo per casi severi\n• Potrebbe servire valutazione ormonale\n• Evita di schiacciare i brufoli!\n• Cambia federa ogni 2-3 giorni",
-    category: "Problematiche"
-  },
-  {
-    question: "Quali prodotti Alma sono naturali?",
-    answer: "**Tutti i prodotti Alma Natural Beauty** sono formulati con ingredienti di origine naturale! 🌿\n\nI nostri principi:\n• ✓ Ingredienti vegetali certificati\n• ✓ Estratti biologici quando possibile\n• ✓ Senza parabeni, siliconi, petrolati\n• ✓ Cruelty-free e vegan-friendly\n• ✓ Made in Italy con controllo qualità\n\nOgni prodotto indica la % di naturalità in etichetta. Per conoscere i nostri prodotti, fai l'analisi della pelle o cerca un prodotto specifico! 💚",
-    category: "Alma Products"
-  }
-];
-
 export const QuestionsFlow = ({ userName, onBack }: QuestionsFlowProps) => {
-  const [selectedFAQ, setSelectedFAQ] = useState<FAQ | null>(null);
-  const [customQuestion, setCustomQuestion] = useState("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: `Ciao ${userName}! 💚✨\n\nSono la tua esperta skincare Alma e sono qui per rispondere a tutte le tue domande su bellezza e cura della pelle!\n\nPuoi chiedermi:\n• Consigli sul tuo tipo di pelle\n• Come creare una routine perfetta\n• Informazioni su ingredienti attivi\n• Come trattare problematiche specifiche\n• Ordine di applicazione dei prodotti\n• Compatibilità tra ingredienti\n\nQualsiasi dubbio tu abbia, sono qui per aiutarti! 🌸`
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const categories = Array.from(new Set(faqs.map(faq => faq.category)));
-
-  const handleCustomQuestion = () => {
-    if (!customQuestion.trim()) {
-      toast({
-        title: "Scrivi una domanda",
-        description: "Inserisci la tua domanda prima di inviare",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    toast({
-      title: "Grazie per la tua domanda! 💌",
-      description: "Ti risponderemo via email al più presto. Nel frattempo, guarda le nostre FAQ!"
-    });
-    
-    setCustomQuestion("");
-    setShowCustomInput(false);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  return (
-    <div className="min-h-screen p-4 bg-gradient-to-br from-background via-secondary to-accent/10">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <Card className="p-6">
-          <Button variant="ghost" onClick={onBack} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Torna indietro
-          </Button>
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-          <div className="space-y-3">
-            <h2 className="text-2xl font-bold text-primary">
-              Ciao {userName}! Sono qui per aiutarti 💡
-            </h2>
-            <p className="text-foreground">
-              Seleziona una delle domande più frequenti o scrivimi la tua domanda specifica!
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('questions-advisor', {
+        body: {
+          message: userMessage,
+          conversationHistory: messages,
+          userName
+        }
+      });
+
+      if (error) throw error;
+
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: data.response 
+      }]);
+    } catch (error) {
+      console.error('Errore chat domande:', error);
+      toast({
+        title: "Errore",
+        description: "Non riesco a rispondere al momento. Riprova!",
+        variant: "destructive",
+      });
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Mi dispiace, ho avuto un problema tecnico. Puoi riprovare? 🙏' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const quickQuestions = [
+    "Come capisco il mio tipo di pelle?",
+    "Qual è l'ordine giusto per applicare i prodotti?",
+    "Posso usare retinolo e vitamina C insieme?",
+    "Come tratto l'acne ormonale?",
+    "Devo mettere la protezione solare anche in casa?",
+    "Che differenza c'è tra AHA e BHA?"
+  ];
+
+  return (
+    <ChatContainer onBack={onBack} showBack={true}>
+      {/* Header Info */}
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 backdrop-blur shadow-lg">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md flex-shrink-0">
+            <HelpCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-bold text-primary mb-2">Esperta Skincare AI</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Chiedi qualsiasi cosa su skincare, ingredienti, routine e problematiche della pelle! 💚
             </p>
           </div>
-        </Card>
-
-        {/* FAQ Categories */}
-        <div className="grid gap-4">
-          {categories.map(category => {
-            const categoryFAQs = faqs.filter(faq => faq.category === category);
-            return (
-              <Card key={category} className="p-6">
-                <h3 className="font-bold text-lg text-primary mb-4 flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5" />
-                  {category}
-                </h3>
-                <div className="space-y-3">
-                  {categoryFAQs.map((faq, index) => (
-                    <div key={index}>
-                      <Button
-                        variant={selectedFAQ === faq ? "default" : "outline"}
-                        className="w-full justify-start text-left h-auto py-3 px-4"
-                        onClick={() => setSelectedFAQ(selectedFAQ === faq ? null : faq)}
-                      >
-                        <span className="flex-1">{faq.question}</span>
-                      </Button>
-                      
-                      {selectedFAQ === faq && (
-                        <Card className="mt-3 p-4 bg-accent/10 border-primary/20">
-                          <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
-                            {faq.answer}
-                          </p>
-                        </Card>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            );
-          })}
         </div>
+      </Card>
 
-        {/* Custom Question */}
-        <Card className="p-6">
-          <h3 className="font-bold text-lg text-primary mb-4">
-            Non hai trovato quello che cercavi?
-          </h3>
-          
-          {!showCustomInput ? (
-            <Button 
-              onClick={() => setShowCustomInput(true)}
-              variant="outline"
-              className="w-full"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Scrivi la tua domanda
-            </Button>
-          ) : (
-            <div className="space-y-4">
-              <Input
-                placeholder="Scrivi qui la tua domanda..."
-                value={customQuestion}
-                onChange={(e) => setCustomQuestion(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleCustomQuestion()}
-                className="text-base"
-              />
-              <div className="flex gap-3">
-                <Button 
-                  onClick={handleCustomQuestion}
-                  className="flex-1"
-                  disabled={!customQuestion.trim()}
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Invia Domanda
-                </Button>
-                <Button 
-                  onClick={() => {
-                    setShowCustomInput(false);
-                    setCustomQuestion("");
-                  }}
-                  variant="outline"
-                >
-                  Annulla
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Riceverai una risposta via email entro 24 ore!
-              </p>
+      {/* Messages */}
+      <div className="space-y-3 sm:space-y-4">
+        {messages.map((msg, idx) => (
+          <ChatMessage key={idx} sender={msg.role === 'user' ? 'user' : 'bot'}>
+            <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">{msg.content}</p>
+          </ChatMessage>
+        ))}
+        
+        {isLoading && (
+          <ChatMessage sender="bot">
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <p className="text-xs sm:text-sm">Sto pensando...</p>
             </div>
-          )}
-        </Card>
-
-        {/* CTA Analysis */}
-        <Card className="p-6 text-center bg-gradient-to-br from-primary/10 to-accent/10">
-          <h3 className="font-bold text-xl mb-3">
-            Vuoi una consulenza personalizzata? ✨
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Fai l'analisi completa della pelle e ricevi consigli su misura per te!
-          </p>
-          <Button onClick={onBack} size="lg" className="w-full md:w-auto">
-            Inizia Analisi della Pelle
-          </Button>
-        </Card>
-
-        {/* Contact Info */}
-        <Card className="p-6 text-center text-sm text-muted-foreground">
-          <p>Per assistenza diretta scrivi a:</p>
-          <p className="mt-2">
-            <a href="mailto:info@almanaturalbeauty.it" className="text-primary underline font-medium">
-              info@almanaturalbeauty.it
-            </a>
-          </p>
-          <p className="mt-4 text-primary">Grazie per aver scelto Alma Natural Beauty! 🌸</p>
-        </Card>
+          </ChatMessage>
+        )}
+        <div ref={messagesEndRef} />
       </div>
-    </div>
+
+      {/* Quick Questions */}
+      {messages.length <= 2 && (
+        <Card className="p-4 sm:p-5 bg-primary/5 backdrop-blur border-primary/20 shadow-lg">
+          <p className="text-xs sm:text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Domande frequenti:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {quickQuestions.map((q, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInput(q);
+                  setTimeout(() => sendMessage(), 100);
+                }}
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                disabled={isLoading}
+              >
+                <span className="mr-2">→</span>
+                <span className="break-words">{q}</span>
+              </Button>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* CTA to Analysis */}
+      <Card className="p-4 sm:p-5 bg-gradient-to-r from-accent/10 to-primary/10 border-primary/30 text-center backdrop-blur shadow-lg">
+        <p className="text-xs sm:text-sm font-semibold text-primary mb-2">✨ Vuoi consigli personalizzati?</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          Fai l'analisi completa della pelle per ricevere una routine su misura per te!
+        </p>
+        <Button onClick={onBack} variant="default" size="sm" className="w-full sm:w-auto">
+          Inizia Analisi Pelle
+        </Button>
+      </Card>
+
+      {/* Input Area - Fixed at bottom */}
+      <div className="sticky bottom-0 left-0 right-0 bg-[#f5ebe0] pt-4 pb-2 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 border-t border-primary/10">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-2 p-2 sm:p-3 bg-white/60 backdrop-blur rounded-lg border border-primary/20 shadow-md">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="💬 Scrivi qui la tua domanda..."
+              disabled={isLoading}
+              className="flex-1 border-none bg-transparent focus-visible:ring-0 text-xs sm:text-sm"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !input.trim()}
+              size="icon"
+              className="hover-scale bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"
+            >
+              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
+          </div>
+          <p className="text-center text-[10px] sm:text-xs text-muted-foreground mt-2">
+            Premi Invio per inviare • Powered by Gemini AI
+          </p>
+        </div>
+      </div>
+    </ChatContainer>
   );
 };
