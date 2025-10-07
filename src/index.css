@@ -8,39 +8,39 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Alma Natural Beauty Brand Colors - Marrone Ramato #9a4a13 */
-    --background: 30 25% 96%;
+    /* Alma Natural Beauty Brand Colors - Sfondo beige caldo come il logo */
+    --background: 35 40% 92%;
     --foreground: 25 60% 20%;
 
-    --card: 30 30% 98%;
+    --card: 35 45% 96%;
     --card-foreground: 25 60% 20%;
 
-    --popover: 30 30% 98%;
+    --popover: 35 45% 96%;
     --popover-foreground: 25 60% 20%;
 
     --primary: 25 78% 34%;
-    --primary-foreground: 30 30% 98%;
+    --primary-foreground: 35 45% 96%;
 
-    --secondary: 30 35% 90%;
+    --secondary: 35 35% 88%;
     --secondary-foreground: 25 60% 20%;
 
-    --muted: 30 25% 88%;
+    --muted: 35 30% 85%;
     --muted-foreground: 25 30% 45%;
 
     --accent: 25 68% 42%;
-    --accent-foreground: 30 30% 98%;
+    --accent-foreground: 35 45% 96%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 30 30% 98%;
+    --destructive-foreground: 35 45% 96%;
 
-    --border: 30 20% 85%;
-    --input: 30 20% 85%;
+    --border: 35 25% 82%;
+    --input: 35 25% 82%;
     --ring: 25 78% 34%;
 
     --radius: 0.75rem;
     
     /* Alma gradients and shadows with new brand color */
-    --gradient-warm: linear-gradient(135deg, hsl(30 35% 90%), hsl(25 68% 42%));
+    --gradient-warm: linear-gradient(135deg, hsl(35 40% 92%), hsl(35 35% 88%));
     --gradient-accent: linear-gradient(135deg, hsl(25 78% 34%), hsl(25 68% 42%));
     --shadow-soft: 0 4px 20px -5px hsl(25 78% 34% / 0.15);
     --shadow-glow: 0 0 40px hsl(25 68% 42% / 0.2);
