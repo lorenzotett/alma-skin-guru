@@ -13,17 +13,16 @@ serve(async (req) => {
 
   try {
     const { message, userData, recommendedProducts } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get('GOOGLE_GEMINI_API_KEY');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
-    if (!GEMINI_API_KEY) {
-      throw new Error('GOOGLE_GEMINI_API_KEY non configurata');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY non configurata');
     }
 
     console.log('Richiesta consiglio AI:', message);
 
     // Crea il contesto per l'AI
-    const context = `
-Sei un esperto consulente di bellezza per Alma Natural Beauty, un brand di cosmetici naturali italiani di lusso.
+    const systemPrompt = `Sei un esperto consulente di bellezza per Alma Natural Beauty, un brand di cosmetici naturali italiani di lusso.
 
 PROFILO CLIENTE:
 - Nome: ${userData.name}
@@ -53,47 +52,51 @@ ISTRUZIONI:
 - Mantieni le risposte tra 100-200 parole - né troppo corte né troppo lunghe
 - Non menzionare mai competitor o altri brand
 - Usa un tono entusiasta ma professionale, come se fossi davvero felice di aiutare
-- Quando menzioni i prodotti, usa il loro nome completo e spiega PERCHÉ li hai scelti
+- Quando menzioni i prodotti, usa il loro nome completo e spiega PERCHÉ li hai scelti`;
 
-DOMANDA DEL CLIENTE:
-${message}
-`;
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: context
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 500,
-          }
-        }),
-      }
-    );
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Errore Gemini:', errorText);
-      throw new Error(`Errore API Gemini: ${response.status}`);
+      console.error('Errore Lovable AI:', errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: 'Troppi tentativi, riprova tra poco.' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: 'Servizio non disponibile, contatta il supporto.' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`Errore Lovable AI: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Risposta Gemini ricevuta');
+    console.log('Risposta Lovable AI ricevuta');
 
-    const aiResponse = data.candidates[0]?.content?.parts[0]?.text;
+    const aiResponse = data.choices?.[0]?.message?.content;
     if (!aiResponse) {
-      throw new Error('Nessuna risposta da Gemini');
+      throw new Error('Nessuna risposta da Lovable AI');
     }
 
     return new Response(JSON.stringify({ response: aiResponse }), {

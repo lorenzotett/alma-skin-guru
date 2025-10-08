@@ -13,26 +13,15 @@ serve(async (req) => {
 
   try {
     const { imageBase64 } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get('GOOGLE_GEMINI_API_KEY');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
-    if (!GEMINI_API_KEY) {
-      throw new Error('GOOGLE_GEMINI_API_KEY non configurata');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY non configurata');
     }
 
-    console.log('Analizzando la pelle con Gemini...');
+    console.log('Analizzando la pelle con Lovable AI...');
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: `Sei un esperto dermatologo che analizza foto del viso per valutare la salute della pelle.
+    const prompt = `Sei un esperto dermatologo che analizza foto del viso per valutare la salute della pelle.
                 
 Analizza attentamente questa foto del viso e fornisci punteggi da 1 a 10 per le seguenti caratteristiche della pelle.
 
@@ -86,38 +75,61 @@ ROSSORE (1-10):
 - 4-6: Leggero rossore localizzato, qualche capillare visibile
 - 7-10: Nessun rossore, tono uniforme, pelle calma
 
-Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`
-              },
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: imageBase64
+Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-pro',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              { 
+                type: 'image_url', 
+                image_url: { 
+                  url: `data:image/jpeg;base64,${imageBase64}` 
                 }
               }
             ]
-          }],
-          generationConfig: {
-            temperature: 0.4,
-            topK: 32,
-            topP: 1,
-            maxOutputTokens: 500,
           }
-        }),
-      }
-    );
+        ],
+        max_tokens: 500,
+        temperature: 0.4
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Errore Gemini:', errorText);
-      throw new Error(`Errore API Gemini: ${response.status}`);
+      console.error('Errore Lovable AI:', errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: 'Troppi tentativi, riprova tra poco.' }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: 'Servizio non disponibile, contatta il supporto.' }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`Errore Lovable AI: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Risposta Gemini:', JSON.stringify(data));
+    console.log('Risposta Lovable AI:', JSON.stringify(data));
 
-    const textContent = data.candidates[0]?.content?.parts[0]?.text;
+    const textContent = data.choices?.[0]?.message?.content;
     if (!textContent) {
-      throw new Error('Nessuna risposta da Gemini');
+      throw new Error('Nessuna risposta da Lovable AI');
     }
 
     // Estrai il JSON dalla risposta
