@@ -234,7 +234,7 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
           className="w-full bg-primary hover:bg-primary/90"
           disabled={!fullName || !email || !privacyConsent}
         >
-          RICEVI ANALISI E SCONTO 15% 🎁
+          VISUALIZZA RISULTATI 🎁
         </Button>
       </form>
     </Card>

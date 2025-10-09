@@ -336,8 +336,7 @@ const Index = () => {
               Perfetto! Ora ho tutto quello che mi serve! 🎉
             </p>
             <p className="text-sm sm:text-base mt-2">
-              Per inviarti i risultati e uno <strong className="text-primary">sconto esclusivo del 15%</strong>, 
-              ho bisogno dei tuoi dati di contatto. 📧
+              Per visualizzare i risultati personalizzati, ho bisogno dei tuoi dati di contatto. 📋
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">

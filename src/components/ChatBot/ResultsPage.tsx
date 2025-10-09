@@ -372,21 +372,11 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         {/* AI Advisor Chat */}
         <AIAdvisorChat userData={userData} recommendedProducts={products} />
 
-        {/* Discount & CTA */}
+        {/* CTA */}
         <Card className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 animate-fade-in border-2 border-primary/30 shadow-xl backdrop-blur">
           <div className="space-y-4">
             <div className="inline-block bg-card/80 backdrop-blur px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-md">
               <p className="text-base sm:text-lg font-semibold">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
-            </div>
-            
-            <div className="bg-gradient-to-r from-primary to-accent p-4 sm:p-6 rounded-2xl shadow-lg">
-              <p className="text-white/90 text-xs sm:text-sm mb-2 font-medium">🎁 CON IL CODICE SCONTO ESCLUSIVO 15%</p>
-              <p className="text-3xl sm:text-4xl font-bold text-white mb-2">
-                €{discountedValue.toFixed(2)}
-              </p>
-              <p className="text-green-100 font-bold text-base sm:text-lg">
-                ✨ RISPARMI €{savings.toFixed(2)}!
-              </p>
             </div>
 
             <div className="bg-card/80 backdrop-blur p-4 sm:p-6 rounded-xl shadow-md border-2 border-primary/20">
@@ -402,7 +392,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           <Button size="lg" asChild className="w-full hover-scale bg-gradient-to-r from-primary to-accent shadow-xl text-base sm:text-lg py-5 sm:py-6">
             <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-              ACQUISTA ORA CON -15% 🛍️✨
+              ACQUISTA ORA 🛍️✨
             </a>
           </Button>
         </Card>
