@@ -64,6 +64,49 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
       return;
     }
 
+    // Extract domain from email
+    const emailDomain = normalizedEmail.split('@')[1];
+    
+    // List of common valid email providers
+    const validProviders = [
+      'gmail.com', 'libero.it', 'hotmail.com', 'hotmail.it', 'outlook.com', 'outlook.it',
+      'yahoo.com', 'yahoo.it', 'icloud.com', 'live.com', 'live.it', 'msn.com',
+      'virgilio.it', 'alice.it', 'tin.it', 'tiscali.it', 'fastwebnet.it', 'poste.it',
+      'pec.it', 'aruba.it', 'email.it', 'protonmail.com', 'proton.me'
+    ];
+    
+    // List of known temporary/fake email domains to block
+    const blockedDomains = [
+      'tempmail', 'temp-mail', 'throwaway', 'guerrillamail', 'mailinator',
+      '10minutemail', 'fakeinbox', 'maildrop', 'yopmail', 'getnada',
+      'trashmail', 'sharklasers', 'guerrillamail', 'spam4.me', 'mail.tm'
+    ];
+    
+    // Check if it's a blocked temporary email domain
+    const isBlockedDomain = blockedDomains.some(blocked => emailDomain.includes(blocked));
+    if (isBlockedDomain) {
+      toast({
+        title: "Email non valida",
+        description: "Non sono accettate email temporanee. Usa un'email reale.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check if it's a valid provider OR a business email (has valid TLD)
+    const isValidProvider = validProviders.includes(emailDomain);
+    const validTLDs = ['.com', '.it', '.net', '.org', '.edu', '.gov', '.eu', '.co', '.info', '.biz'];
+    const hasValidTLD = validTLDs.some(tld => emailDomain.endsWith(tld));
+    
+    if (!isValidProvider && !hasValidTLD) {
+      toast({
+        title: "Email non valida",
+        description: "Usa un'email reale (Gmail, Libero, Outlook, etc.) o aziendale",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate phone if provided
     if (phone && phone.trim()) {
       const trimmedPhone = phone.trim();
