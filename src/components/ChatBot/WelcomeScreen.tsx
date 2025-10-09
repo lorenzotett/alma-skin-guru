@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Brain, ShoppingBag, ChevronRight, Check } from "lucide-react";
 import logoAlma from "@/assets/logo-alma.jpg";
+import backgroundTexture from "@/assets/background-texture.png";
 
 interface WelcomeScreenProps {
   onStart: () => void;
@@ -44,7 +45,15 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-[#f5ebe0] via-[#fdf6ed] to-[#f5ebe0] relative overflow-hidden">
+    <div 
+      className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${backgroundTexture})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       {/* Enhanced animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-24 h-24 sm:w-40 sm:h-40 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
