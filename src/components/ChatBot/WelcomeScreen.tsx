@@ -65,11 +65,7 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
         
         {/* Enhanced title section */}
         <div className="space-y-4 px-2">
-          <div className="inline-block px-4 py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20 animate-fade-in">
-            <p className="text-xs sm:text-sm font-semibold text-primary">✨ Powered by AI</p>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in">
             Analisi Pelle AI
           </h1>
           <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary animate-fade-in" style={{ animationDelay: '0.3s' }}>
