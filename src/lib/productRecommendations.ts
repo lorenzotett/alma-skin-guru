@@ -26,37 +26,59 @@ export interface UserProfile {
   productType?: string;
 }
 
-// Mappatura tra concerns dell'utente e nomenclatura database
+// Mappatura tra concerns dell'utente e nomenclatura database prodotti
 const CONCERN_MAP: { [key: string]: string[] } = {
-  'acne': ['Acne', 'Texture uniforme', 'Pori dilatati', 'Oleosità', 'Eccesso di sebo'],
-  'rughe': ['Rughe', 'Elasticità', 'Invecchiamento', 'Perdita di tono'],
-  'rossori': ['Rossori', 'Pelle sensibile o irritata', 'Idratazione'],
+  // Acne e imperfezioni
+  'acne': ['Acne', 'Texture uniforme', 'Pori dilatati', 'Oleosità', 'Eccesso di sebo', 'Impurità'],
+  
+  // Rughe e invecchiamento
+  'rughe': ['Rughe', 'Elasticità', 'Invecchiamento', 'Perdita di tono', 'Pelle poco tonica o rilassata'],
+  
+  // Rossori e sensibilità
+  'rossori': ['Rossori', 'Pelle sensibile o irritata', 'Secchezza cutanea', 'Stanchezza e stress cutaneo'],
+  
+  // Pigmentazione e macchie
   'pigmentazione': ['Pigmentazione', 'Macchie e discromie', 'Viso spento'],
+  
+  // Occhiaie
   'occhiaie': ['Occhiaie'],
+  
+  // Pori dilatati
   'pori_dilatati': ['Pori dilatati', 'Texture uniforme'],
-  'elasticita': ['Elasticità', 'Perdita di tono', 'Pelle poco tonica o rilassata'],
-  'idratazione': ['Idratazione', 'Pelle secca', 'Secchezza cutanea']
+  
+  // Elasticità e tonicità
+  'elasticita': ['Elasticità', 'Perdita di tono', 'Pelle poco tonica o rilassata', 'Perdita di volume e definizione'],
+  
+  // Idratazione
+  'idratazione': ['Idratazione', 'Pelle secca', 'Secchezza cutanea', 'Labbra secche e screpolate'],
+  
+  // Cellulite e ritenzione
+  'cellulite': ['Cellulite', 'Ritenzione idrica e gonfiore', 'Adiposità localizzate'],
+  
+  // Altri
+  'pelle_morta': ['Cellule morte', 'Pelle ruvida'],
+  'danni_solari': ['Danni solari']
 };
 
-// Mappatura tipo di pelle
+// Mappatura tipo di pelle - ora include "Tutte"
 const SKIN_TYPE_MAP: { [key: string]: string[] } = {
-  'secca': ['Secca', 'Normale'],
-  'grassa': ['Grassa', 'Oleosa', 'Acneica'],
-  'mista': ['Mista', 'Normale'],
-  'normale': ['Normale', 'Mista'],
-  'asfittica': ['Asfittica', 'Acneica']
+  'secca': ['Secca', 'Normale', 'Tutte'],
+  'grassa': ['Grassa', 'Oleosa', 'Acneica', 'Tutte'],
+  'mista': ['Mista', 'Normale', 'Tutte'],
+  'normale': ['Normale', 'Mista', 'Secca', 'Tutte'],
+  'asfittica': ['Asfittica', 'Acneica', 'Tutte'],
+  'sensibile': ['Sensibile', 'Tutte'],
+  'matura': ['Matura', 'Tutte']
 };
 
-// Ordine preciso della beauty routine (dalle regole)
+// Ordine preciso della beauty routine (dalle regole del database)
 const ROUTINE_ORDER = [
-  '1. DETERGENTE',
-  '2. TONICO',
-  '3. SIERO',
-  '4. CREMA',
-  '5. MASCHERA',
-  '6. BURRO',
-  '7. OLIO',
-  '8. CONTORNO OCCHI'
+  '1. Detergente',
+  '2. Tonico',
+  '3. Siero',
+  '4. Crema',
+  '5. Maschera',
+  '7. Olio'
 ];
 
 export function getRecommendedProducts(
@@ -163,16 +185,14 @@ function ensureBaseProducts(
   age: number
 ) {
   // Assicura almeno un detergente
-  if (!recommended.some(p => p.step === '1. DETERGENTE' || p.step === '1. DEREGENTE')) {
-    const detergente = available.find(p => 
-      p.step === '1. DETERGENTE' || p.step === '1. DEREGENTE'
-    );
+  if (!recommended.some(p => p.step === '1. Detergente')) {
+    const detergente = available.find(p => p.step === '1. Detergente');
     if (detergente) recommended.unshift(detergente);
   }
   
   // Assicura almeno una crema
-  if (!recommended.some(p => p.step === '4. CREMA')) {
-    const crema = available.find(p => p.step === '4. CREMA');
+  if (!recommended.some(p => p.step === '4. Crema')) {
+    const crema = available.find(p => p.step === '4. Crema');
     if (crema) recommended.push(crema);
   }
 }
