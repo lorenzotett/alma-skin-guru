@@ -120,9 +120,14 @@ export function getRecommendedProducts(
     scoredProducts.sort((a, b) => b.score - a.score);
     
     console.log(`  Migliore prodotto per "${step}": ${scoredProducts[0]?.product.name} (score: ${scoredProducts[0]?.score})`);
+    console.log(`  Altri prodotti disponibili:`, scoredProducts.slice(1, 3).map(sp => `${sp.product.name} (${sp.score})`));
     
-    // Prendi sempre il prodotto migliore, anche con score 0
-    if (scoredProducts.length > 0) {
+    // Prendi il prodotto migliore SOLO se ha uno score decente (> 0.5)
+    if (scoredProducts.length > 0 && scoredProducts[0].score > 0.5) {
+      recommendedProducts.push(scoredProducts[0].product);
+    } else if (scoredProducts.length > 0) {
+      // Se nessun prodotto ha score alto, prendi quello con score migliore comunque
+      console.log(`  ⚠️ Nessun prodotto con score alto per "${step}", prendo il migliore disponibile`);
       recommendedProducts.push(scoredProducts[0].product);
     }
   });
@@ -158,8 +163,10 @@ function calculateConcernMatch(product: Product, userConcerns: string[], userAge
   let score = 0;
   
   if (!product.concerns_treated || product.concerns_treated.length === 0) {
-    return 1; // Score base per prodotti senza concerns specifiche
+    return 0.5; // Score minimo per prodotti senza concerns specifiche
   }
+  
+  let matchCount = 0;
   
   // Per ogni concern dell'utente, verifica se il prodotto la risolve
   userConcerns.forEach(concern => {
@@ -167,25 +174,43 @@ function calculateConcernMatch(product: Product, userConcerns: string[], userAge
     
     // Controlla se il prodotto tratta questa problematica
     const matchesConcern = product.concerns_treated.some(treated =>
-      mappedConcerns.some(mapped => 
-        treated.toLowerCase().includes(mapped.toLowerCase()) ||
-        mapped.toLowerCase().includes(treated.toLowerCase())
-      )
+      mappedConcerns.some(mapped => {
+        const treatedLower = treated.toLowerCase();
+        const mappedLower = mapped.toLowerCase();
+        
+        // Match esatto o parziale
+        return treatedLower.includes(mappedLower) || 
+               mappedLower.includes(treatedLower) ||
+               treatedLower === mappedLower;
+      })
     );
     
     if (matchesConcern) {
-      score += 10; // Peso alto per match diretto delle problematiche
+      matchCount++;
+      score += 15; // Peso molto alto per match diretto delle problematiche
     }
   });
+  
+  // Bonus maggiore se il prodotto tratta TUTTE le concern dell'utente
+  if (matchCount === userConcerns.length && userConcerns.length > 1) {
+    score += 20; // Bonus per copertura completa
+  }
   
   // Bonus per età (prodotti anti-età per over 35)
   if (userAge > 35) {
     const hasAntiAging = product.concerns_treated.some(c => 
       c.toLowerCase().includes('rughe') ||
       c.toLowerCase().includes('elasticità') ||
-      c.toLowerCase().includes('invecchiamento')
+      c.toLowerCase().includes('invecchiamento') ||
+      c.toLowerCase().includes('anti-età') ||
+      c.toLowerCase().includes('no age')
     );
-    if (hasAntiAging) score += 5;
+    if (hasAntiAging) score += 8;
+  }
+  
+  // Penalità se il prodotto non tratta NESSUNA concern dell'utente
+  if (matchCount === 0) {
+    score = 0.1;
   }
   
   return score;
