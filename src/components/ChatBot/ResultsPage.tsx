@@ -14,6 +14,7 @@ interface ResultsPageProps {
     name: string;
     skinType: string;
     age: number;
+    ageDisplay?: string;
     concerns: string[];
     productTypes?: string[];
     additionalInfo?: string;
@@ -203,7 +204,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
               <h3 className="font-bold text-sm sm:text-base mb-2 text-primary">👤 Profilo</h3>
               <div className="space-y-1 text-xs sm:text-sm">
                 <p className="break-words"><strong>Nome:</strong> {userData.fullName || userData.name}</p>
-                <p><strong>Età:</strong> {userData.age} anni</p>
+                <p><strong>Età:</strong> {userData.ageDisplay || `${userData.age} anni`}</p>
                 <p><strong>Tipo di pelle:</strong> {userData.skinType}</p>
               </div>
             </Card>
