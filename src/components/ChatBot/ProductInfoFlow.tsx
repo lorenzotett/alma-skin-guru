@@ -157,13 +157,10 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
         </Card>
       )}
 
-      {/* Discount Code Reminder */}
+      {/* Info Card */}
       <Card className="p-4 sm:p-5 bg-gradient-to-r from-accent/10 to-primary/10 border-primary/30 text-center backdrop-blur shadow-lg">
-        <p className="text-xs sm:text-sm font-semibold text-primary mb-2">🎁 Ricorda il codice sconto!</p>
-        <div className="bg-white/60 backdrop-blur px-4 py-2 rounded-lg inline-block">
-          <p className="text-lg sm:text-xl font-bold text-primary">ALMA15</p>
-        </div>
-        <p className="text-xs text-muted-foreground mt-2">Usa questo codice per avere il 15% di sconto su almanaturalbeauty.it</p>
+        <p className="text-xs sm:text-sm font-semibold text-primary mb-2">🌸 Scopri la tua routine ideale</p>
+        <p className="text-xs text-muted-foreground">Ti aiuterò a trovare i prodotti perfetti per la tua pelle su almanaturalbeauty.it</p>
       </Card>
 
       {/* Input Area - Fixed at bottom */}

@@ -88,11 +88,11 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           </Button>
         </div>
 
-        {/* Discount Badge */}
+        {/* Benefit Badge */}
         <div className="pt-4 animate-fade-in" style={{ animationDelay: '0.7s' }}>
           <div className="inline-block px-6 py-3 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-full">
             <p className="text-xs sm:text-sm font-semibold text-green-700">
-              🎁 Ricevi subito il codice sconto <span className="font-bold">15% (ALMA15)</span>
+              🎁 Ricevi la tua <span className="font-bold">analisi personalizzata gratuita</span>
             </p>
           </div>
         </div>

@@ -155,8 +155,8 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
           Lasciami i tuoi dati per inviarti:
         </p>
         <ul className="text-xs text-muted-foreground space-y-1">
-          <li>✓ La tua analisi completa</li>
-          <li>✓ Codice sconto <strong className="text-primary">15% (ALMA15)</strong></li>
+          <li>✓ La tua analisi completa personalizzata</li>
+          <li>✓ Routine skincare su misura per te</li>
         </ul>
       </div>
 

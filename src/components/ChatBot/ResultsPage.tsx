@@ -31,8 +31,6 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   const [loading, setLoading] = useState(true);
   // Expand all categories by default
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
-  
-  const discountCode = "ALMA15";
 
   useEffect(() => {
     loadRecommendations();
@@ -88,8 +86,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           age: userData.age,
           concerns: userData.concerns,
           product_type: userData.productTypes?.join(', '),
-          additional_info: userData.additionalInfo,
-          discount_code: discountCode
+          additional_info: userData.additionalInfo
         })
         .select()
         .single();
@@ -312,7 +309,6 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                   <p className="text-lg sm:text-xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                                  <p className="text-[10px] text-green-600">-15% ALMA15</p>
                                 </div>
                               </div>
 
@@ -394,15 +390,10 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
             </div>
 
             <div className="bg-card/80 backdrop-blur p-4 sm:p-6 rounded-xl shadow-md border-2 border-primary/20">
-              <p className="text-xs sm:text-sm text-muted-foreground mb-3">Il tuo codice sconto fisso:</p>
-              <div className="relative">
-                <Badge variant="secondary" className="text-xl sm:text-2xl py-3 sm:py-4 px-6 sm:px-8 bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/40">
-                  <strong className="text-primary">ALMA15</strong>
-                </Badge>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Inseriscilo al checkout su almanaturalbeauty.it per avere il 15% di sconto
-                </p>
-              </div>
+              <p className="text-sm font-semibold text-primary mb-2">🌸 La tua routine personalizzata</p>
+              <p className="text-xs text-muted-foreground">
+                Completa il tuo acquisto su almanaturalbeauty.it
+              </p>
             </div>
           </div>
 
