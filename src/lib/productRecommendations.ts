@@ -87,19 +87,27 @@ export function getRecommendedProducts(
 ): Product[] {
   const { skinType, age, concerns, productType } = profile;
   
+  console.log('🔍 getRecommendedProducts chiamata con:', { skinType, age, concerns, productType });
+  console.log('📦 Totale prodotti disponibili:', allProducts.length);
+  
   // Se l'utente vuole solo un tipo di prodotto specifico
   if (productType && productType !== 'routine_completa') {
-    return filterByCategory(allProducts, productType);
+    const filtered = filterByCategory(allProducts, productType);
+    console.log('✅ Prodotti filtrati per categoria:', filtered.length);
+    return filtered;
   }
 
   // 1. Filtra prodotti compatibili con il tipo di pelle
   const skinCompatibleProducts = filterBySkinType(allProducts, skinType);
+  console.log('✅ Prodotti compatibili con tipo di pelle:', skinCompatibleProducts.length);
   
   // 2. Per ogni step della routine, trova il prodotto migliore
   const recommendedProducts: Product[] = [];
   
   ROUTINE_ORDER.forEach(step => {
     const stepProducts = skinCompatibleProducts.filter(p => p.step === step);
+    console.log(`  Step "${step}": ${stepProducts.length} prodotti disponibili`);
+    
     if (stepProducts.length === 0) return;
     
     // Calcola score per ogni prodotto in base alle problematiche
@@ -111,13 +119,18 @@ export function getRecommendedProducts(
     // Ordina per score e prendi il migliore
     scoredProducts.sort((a, b) => b.score - a.score);
     
-    if (scoredProducts.length > 0 && scoredProducts[0].score > 0) {
+    console.log(`  Migliore prodotto per "${step}": ${scoredProducts[0]?.product.name} (score: ${scoredProducts[0]?.score})`);
+    
+    // Prendi sempre il prodotto migliore, anche con score 0
+    if (scoredProducts.length > 0) {
       recommendedProducts.push(scoredProducts[0].product);
     }
   });
   
   // 3. Assicurati che ci siano almeno i prodotti base
   ensureBaseProducts(recommendedProducts, skinCompatibleProducts, skinType, age);
+  
+  console.log('✅ Totale prodotti raccomandati:', recommendedProducts.length);
   
   return recommendedProducts;
 }

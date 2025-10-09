@@ -201,7 +201,7 @@ const Index = () => {
     setStep("initial-choice");
   };
 
-  const showBackButton = step !== "welcome" && step !== "results" && step !== "name";
+  const showBackButton = step !== "welcome" && step !== "results";
   const useChatLayout = [
     "skin-analysis",
     "skin-type", 
@@ -216,17 +216,17 @@ const Index = () => {
     return (
       <>
         {step === "welcome" && <WelcomeScreen onStart={handleStart} onFeatureClick={handleFeatureClick} />}
-        {step === "name" && <NameStep onNext={handleNameSubmit} onBack={handleBackToWelcome} />}
+        {step === "name" && <NameStep onNext={handleNameSubmit} onBack={handleBack} />}
         {step === "initial-choice" && userData.name && (
-          <InitialChoice userName={userData.name} onChoice={handleInitialChoice} onBack={handleBackToName} />
+          <InitialChoice userName={userData.name} onChoice={handleInitialChoice} onBack={handleBack} />
         )}
         {step === "product-info" && userData.name && (
-          <ProductInfoFlow userName={userData.name} onBack={handleBackToChoice} />
+          <ProductInfoFlow userName={userData.name} onBack={handleBack} />
         )}
         {step === "questions" && userData.name && (
-          <QuestionsFlow userName={userData.name} onBack={handleBackToChoice} />
+          <QuestionsFlow userName={userData.name} onBack={handleBack} />
         )}
-        {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBackToChoice} />}
+        {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBack} />}
         {step === "results" && userData.email && userData.skinType && userData.age && (
           <ResultsPage 
             userData={userData as any} 

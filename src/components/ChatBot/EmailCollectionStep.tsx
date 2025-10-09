@@ -153,7 +153,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
       <div className="space-y-2">
         <h3 className="text-lg sm:text-xl font-bold text-primary">Perfetto! 🎉</h3>
         <p className="text-sm font-medium">
-          Lasciami i tuoi dati per inviarti:
+          Lasciami i tuoi dati per visualizzare:
         </p>
         <ul className="text-xs text-muted-foreground space-y-1">
           <li>✓ La tua analisi completa personalizzata</li>
