@@ -234,10 +234,19 @@ const Index = () => {
         )}
         {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBack} />}
         {step === "results" && userData.email && userData.skinType && userData.age && (
-          <ResultsPage 
-            userData={userData as any} 
-            onRestart={handleRestart}
-          />
+          <>
+            {/* Force scroll when results page loads */}
+            {(() => {
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+              return null;
+            })()}
+            <ResultsPage 
+              userData={userData as any} 
+              onRestart={handleRestart}
+            />
+          </>
         )}
       </>
     );

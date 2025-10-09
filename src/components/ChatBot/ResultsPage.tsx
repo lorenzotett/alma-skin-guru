@@ -34,17 +34,21 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
 
   useEffect(() => {
-    // Force scroll to absolute top immediately
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    
-    // Double-check after a brief delay
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
+    // Force immediate scroll to top
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
-    }, 50);
+    };
+    
+    // Immediate scroll
+    scrollToTop();
+    
+    // Multiple checks to ensure scroll happens
+    const timeouts = [0, 10, 50, 100, 200];
+    timeouts.forEach(delay => {
+      setTimeout(scrollToTop, delay);
+    });
     
     loadRecommendations();
   }, []);
