@@ -168,7 +168,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5ebe0]">
-        <Card className="p-8 bg-white/95 backdrop-blur shadow-xl">
+        <Card className="p-8 bg-card/95 backdrop-blur shadow-xl">
           <p className="text-lg text-primary">Sto preparando la tua routine personalizzata... ✨</p>
         </Card>
       </div>
@@ -197,7 +197,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
           </h1>
           
           <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur border-primary/20 text-left">
+            <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur border-primary/20 text-left">
               <h3 className="font-bold text-sm sm:text-base mb-2 text-primary">👤 Profilo</h3>
               <div className="space-y-1 text-xs sm:text-sm">
                 <p className="break-words"><strong>Nome:</strong> {userData.fullName || userData.name}</p>
@@ -206,7 +206,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
               </div>
             </Card>
 
-            <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur border-primary/20 text-left">
+            <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur border-primary/20 text-left">
               <h3 className="font-bold text-sm sm:text-base mb-2 text-primary">🎯 Preoccupazioni</h3>
               <div className="flex flex-wrap gap-1.5">
                 {userData.concerns.map((concern, i) => (
@@ -220,31 +220,31 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
             <Card className="p-3 sm:p-4 bg-primary/10 backdrop-blur border-primary/30">
               <h3 className="font-bold text-sm sm:text-base mb-3 text-center text-primary">🔬 Risultato Analisi AI</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">💧 {userData.skinScores.idratazione}/10</div>
                   <div className="text-[10px] text-muted-foreground">Idratazione</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">🎯 {userData.skinScores.elasticita}/10</div>
                   <div className="text-[10px] text-muted-foreground">Elasticità</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">🌟 {userData.skinScores.pigmentazione}/10</div>
                   <div className="text-[10px] text-muted-foreground">Pigmentazione</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">✨ {userData.skinScores.acne}/10</div>
                   <div className="text-[10px] text-muted-foreground">Acne</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">⏱️ {userData.skinScores.rughe}/10</div>
                   <div className="text-[10px] text-muted-foreground">Rughe</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">🔍 {userData.skinScores.pori}/10</div>
                   <div className="text-[10px] text-muted-foreground">Pori</div>
                 </div>
-                <div className="bg-white/60 p-2 rounded text-center">
+                <div className="bg-card/60 p-2 rounded text-center">
                   <div className="font-bold">🌸 {userData.skinScores.rossore}/10</div>
                   <div className="text-[10px] text-muted-foreground">Rossore</div>
                 </div>
@@ -287,7 +287,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
                     <div className="grid gap-3 animate-fade-in">
                        {categoryProducts.map((product, index) => (
-                        <div key={product.id} className="p-3 sm:p-4 bg-white/60 backdrop-blur rounded-lg border border-primary/10 hover:shadow-md transition-all">
+                        <div key={product.id} className="p-3 sm:p-4 bg-card/60 backdrop-blur rounded-lg border border-primary/10 hover:shadow-md transition-all">
                           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                             {product.image_url && (
                               <img 

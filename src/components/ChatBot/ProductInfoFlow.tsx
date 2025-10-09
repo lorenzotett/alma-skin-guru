@@ -166,7 +166,7 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
       {/* Input Area - Fixed at bottom */}
       <div className="sticky bottom-0 left-0 right-0 bg-[#f5ebe0] pt-4 pb-2 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 border-t border-primary/10">
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 p-2 sm:p-3 bg-white/60 backdrop-blur rounded-lg border border-primary/20 shadow-md">
+          <div className="flex gap-2 p-2 sm:p-3 bg-card/60 backdrop-blur rounded-lg border border-primary/20 shadow-md">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}

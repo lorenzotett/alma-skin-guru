@@ -49,7 +49,7 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
         <div className="absolute top-1/4 right-1/4 w-20 h-20 sm:w-32 sm:h-32 bg-accent/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
-      <Card className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl bg-white/95 backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in">
+      <Card className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl bg-card/95 backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in">
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
           <div className="relative group">
@@ -150,7 +150,7 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
         {/* Trust badges enhanced */}
         <div className="flex flex-wrap justify-center gap-6 pt-4 text-sm animate-fade-in" style={{ animationDelay: '0.9s' }}>
           {["100% Naturale", "Cruelty Free", "Made in Italy"].map((badge, i) => (
-            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 border border-primary/10 hover:border-primary/30 hover:bg-white/80 transition-all group">
+            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-primary/10 hover:border-primary/30 hover:bg-card/80 transition-all group">
               <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Check className="w-3 h-3 text-white" />
               </div>

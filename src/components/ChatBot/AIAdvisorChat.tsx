@@ -104,7 +104,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       </div>
 
       {/* Messages Area */}
-      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth bg-white/40 backdrop-blur p-2 sm:p-3 md:p-4 rounded-lg border border-primary/10">
+      <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-1 sm:pr-2 scroll-smooth bg-card/40 backdrop-blur p-2 sm:p-3 md:p-4 rounded-lg border border-primary/10">
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -161,7 +161,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2 p-2 sm:p-3 bg-white/40 backdrop-blur rounded-lg border border-primary/10">
+      <div className="flex gap-2 p-2 sm:p-3 bg-card/40 backdrop-blur rounded-lg border border-primary/10">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
