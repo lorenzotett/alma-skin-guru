@@ -1,5 +1,5 @@
-// Product recommendation logic based on Alma Natural Beauty rules
-// Follows exact rules from REGOLE - Alma Natural Beauty document
+// Enhanced Product Recommendation System - Alma Natural Beauty
+// Intelligently matches products based on user's specific concerns and skin type
 
 export interface Product {
   id: string;
@@ -26,6 +26,27 @@ export interface UserProfile {
   productType?: string;
 }
 
+// Mappatura tra concerns dell'utente e nomenclatura database
+const CONCERN_MAP: { [key: string]: string[] } = {
+  'acne': ['Acne', 'Texture uniforme', 'Pori dilatati', 'Oleosità', 'Eccesso di sebo'],
+  'rughe': ['Rughe', 'Elasticità', 'Invecchiamento', 'Perdita di tono'],
+  'rossori': ['Rossori', 'Pelle sensibile o irritata', 'Idratazione'],
+  'pigmentazione': ['Pigmentazione', 'Macchie e discromie', 'Viso spento'],
+  'occhiaie': ['Occhiaie'],
+  'pori_dilatati': ['Pori dilatati', 'Texture uniforme'],
+  'elasticita': ['Elasticità', 'Perdita di tono', 'Pelle poco tonica o rilassata'],
+  'idratazione': ['Idratazione', 'Pelle secca', 'Secchezza cutanea']
+};
+
+// Mappatura tipo di pelle
+const SKIN_TYPE_MAP: { [key: string]: string[] } = {
+  'secca': ['Secca', 'Normale'],
+  'grassa': ['Grassa', 'Oleosa', 'Acneica'],
+  'mista': ['Mista', 'Normale'],
+  'normale': ['Normale', 'Mista'],
+  'asfittica': ['Asfittica', 'Acneica']
+};
+
 // Ordine preciso della beauty routine (dalle regole)
 const ROUTINE_ORDER = [
   '1. DETERGENTE',
@@ -49,60 +70,114 @@ export function getRecommendedProducts(
     return filterByCategory(allProducts, productType);
   }
 
-  // Array per prodotti raccomandati
-  let recommendedProducts: Product[] = [];
-
-  // ===== LOGICA PRINCIPALE BASATA SULLE REGOLE =====
+  // 1. Filtra prodotti compatibili con il tipo di pelle
+  const skinCompatibleProducts = filterBySkinType(allProducts, skinType);
   
-  // REGOLA 1: ROSACEA (acne + rossori insieme) - PRIORITÀ MASSIMA
-  if (hasRosacea(concerns)) {
-    recommendedProducts = getRosaceaRoutine(allProducts, skinType);
-  }
-  // REGOLA 2: ACNE (senza rossori)
-  else if (hasAcne(concerns)) {
-    recommendedProducts = getAcneRoutine(allProducts, skinType);
-  }
-  // REGOLA 3: PELLE SENSIBILE (rossori senza acne)
-  else if (hasSensitiveSkin(concerns)) {
-    recommendedProducts = getSensitiveRoutine(allProducts, skinType);
-  }
-  // REGOLA 4: BASE PER TIPO DI PELLE
-  else {
-    recommendedProducts = getBasicRoutine(allProducts, skinType, age);
-  }
-
-  // ===== AGGIUNTE SPECIFICHE PER PROBLEMATICHE =====
+  // 2. Per ogni step della routine, trova il prodotto migliore
+  const recommendedProducts: Product[] = [];
   
-  // MACCHIE/PIGMENTAZIONE - Aggiungi prodotti schiarenti
-  if (hasPigmentation(concerns)) {
-    addPigmentationProducts(recommendedProducts, allProducts);
-  }
-
-  // RUGHE/ANTI-ETÀ - Potenzia con anti-aging
-  if (hasAntiAging(concerns, age)) {
-    addAntiAgingProducts(recommendedProducts, allProducts);
-  }
-
-  // OCCHIAIE - Aggiungi contorno occhi
-  if (hasDarkCircles(concerns)) {
-    addEyeProducts(recommendedProducts, allProducts);
-  }
-
-  // PORI DILATATI - Aggiungi esfoliante
-  if (hasEnlargedPores(concerns)) {
-    addPoreProducts(recommendedProducts, allProducts);
-  }
-
-  // PERDITA DI ELASTICITÀ
-  if (hasElasticity(concerns)) {
-    addElasticityProducts(recommendedProducts, allProducts);
-  }
-
-  // Ordina i prodotti secondo la sequenza corretta della routine
-  return sortByRoutineOrder(recommendedProducts);
+  ROUTINE_ORDER.forEach(step => {
+    const stepProducts = skinCompatibleProducts.filter(p => p.step === step);
+    if (stepProducts.length === 0) return;
+    
+    // Calcola score per ogni prodotto in base alle problematiche
+    const scoredProducts = stepProducts.map(product => ({
+      product,
+      score: calculateConcernMatch(product, concerns, age)
+    }));
+    
+    // Ordina per score e prendi il migliore
+    scoredProducts.sort((a, b) => b.score - a.score);
+    
+    if (scoredProducts.length > 0 && scoredProducts[0].score > 0) {
+      recommendedProducts.push(scoredProducts[0].product);
+    }
+  });
+  
+  // 3. Assicurati che ci siano almeno i prodotti base
+  ensureBaseProducts(recommendedProducts, skinCompatibleProducts, skinType, age);
+  
+  return recommendedProducts;
 }
 
-// ===== FUNZIONI DI RILEVAMENTO PROBLEMATICHE =====
+// ===== FUNZIONI DI MATCHING INTELLIGENTE =====
+
+function filterBySkinType(products: Product[], userSkinType: string): Product[] {
+  const skinLower = userSkinType.toLowerCase();
+  const compatibleTypes = SKIN_TYPE_MAP[skinLower] || [userSkinType];
+  
+  return products.filter(product => {
+    if (!product.skin_types || product.skin_types.length === 0) return true;
+    
+    // Controlla se il prodotto è adatto al tipo di pelle dell'utente
+    return product.skin_types.some(type => 
+      compatibleTypes.some(compat => 
+        type.toLowerCase().includes(compat.toLowerCase()) ||
+        compat.toLowerCase().includes(type.toLowerCase())
+      )
+    );
+  });
+}
+
+function calculateConcernMatch(product: Product, userConcerns: string[], userAge: number): number {
+  let score = 0;
+  
+  if (!product.concerns_treated || product.concerns_treated.length === 0) {
+    return 1; // Score base per prodotti senza concerns specifiche
+  }
+  
+  // Per ogni concern dell'utente, verifica se il prodotto la risolve
+  userConcerns.forEach(concern => {
+    const mappedConcerns = CONCERN_MAP[concern] || [concern];
+    
+    // Controlla se il prodotto tratta questa problematica
+    const matchesConcern = product.concerns_treated.some(treated =>
+      mappedConcerns.some(mapped => 
+        treated.toLowerCase().includes(mapped.toLowerCase()) ||
+        mapped.toLowerCase().includes(treated.toLowerCase())
+      )
+    );
+    
+    if (matchesConcern) {
+      score += 10; // Peso alto per match diretto delle problematiche
+    }
+  });
+  
+  // Bonus per età (prodotti anti-età per over 35)
+  if (userAge > 35) {
+    const hasAntiAging = product.concerns_treated.some(c => 
+      c.toLowerCase().includes('rughe') ||
+      c.toLowerCase().includes('elasticità') ||
+      c.toLowerCase().includes('invecchiamento')
+    );
+    if (hasAntiAging) score += 5;
+  }
+  
+  return score;
+}
+
+function ensureBaseProducts(
+  recommended: Product[],
+  available: Product[],
+  skinType: string,
+  age: number
+) {
+  // Assicura almeno un detergente
+  if (!recommended.some(p => p.step === '1. DETERGENTE' || p.step === '1. DEREGENTE')) {
+    const detergente = available.find(p => 
+      p.step === '1. DETERGENTE' || p.step === '1. DEREGENTE'
+    );
+    if (detergente) recommended.unshift(detergente);
+  }
+  
+  // Assicura almeno una crema
+  if (!recommended.some(p => p.step === '4. CREMA')) {
+    const crema = available.find(p => p.step === '4. CREMA');
+    if (crema) recommended.push(crema);
+  }
+}
+
+// ===== FUNZIONI HELPER PER MESSAGGI =====
 
 function hasRosacea(concerns: string[]): boolean {
   return concerns.includes('acne') && concerns.includes('rossori');
@@ -124,204 +199,8 @@ function hasAntiAging(concerns: string[], age: number): boolean {
   return concerns.includes('rughe') || age > 35;
 }
 
-function hasDarkCircles(concerns: string[]): boolean {
-  return concerns.includes('occhiaie');
-}
-
-function hasEnlargedPores(concerns: string[]): boolean {
-  return concerns.includes('pori_dilatati');
-}
-
-function hasElasticity(concerns: string[]): boolean {
-  return concerns.includes('elasticita');
-}
-
-// ===== ROUTINE SPECIFICHE =====
-
-function getRosaceaRoutine(products: Product[], skinType: string): Product[] {
-  // Routine per pelle con rosacea (acne + rossori)
-  const routine = [];
-  
-  // 1. Detergente delicato
-  routine.push(findProduct(products, 'BIO OLIO DETERGENTE VISO'));
-  
-  // 2. Tonico lenitivo
-  routine.push(findProduct(products, 'TONICO SPRAY'));
-  
-  // 3. Siero lenitivo
-  routine.push(findProduct(products, 'SIERO INTENSIVO'));
-  
-  // 4. Crema lenitiva
-  routine.push(findProduct(products, 'CREMA VISO NOTTE FIORDALISO'));
-  
-  // 5. Maschera calmante
-  routine.push(findProduct(products, 'MASCHERA GLOBALE'));
-  
-  return routine.filter(Boolean) as Product[];
-}
-
-function getAcneRoutine(products: Product[], skinType: string): Product[] {
-  // Routine per pelle acneica (senza rossori)
-  const routine = [];
-  
-  // 1. Detergente purificante
-  if (skinType.toLowerCase() === 'grassa') {
-    routine.push(findProduct(products, 'MOUSSE DETERGENTE VISO'));
-  } else {
-    routine.push(findProduct(products, 'BIO GEL DETERGENTE VISO'));
-  }
-  
-  // 2. Tonico
-  routine.push(findProduct(products, 'TONICO SPRAY'));
-  
-  // 3. Siero acido ialuronico
-  routine.push(findProduct(products, 'ACIDO IALURONICO PURO'));
-  
-  // 4. Trattamento acidi
-  routine.push(findProduct(products, 'FLUIDO ACIDI'));
-  
-  // 5. Siero correttore
-  routine.push(findProduct(products, 'SIERO ACIDI'));
-  
-  return routine.filter(Boolean) as Product[];
-}
-
-function getSensitiveRoutine(products: Product[], skinType: string): Product[] {
-  // Routine per pelle sensibile (rossori senza acne)
-  const routine = [];
-  
-  // 1. Detergente delicato
-  routine.push(findProduct(products, 'BIO OLIO DETERGENTE VISO'));
-  
-  // 2. Tonico lenitivo
-  routine.push(findProduct(products, 'TONICO SPRAY'));
-  
-  // 3. Siero calmante
-  routine.push(findProduct(products, 'SIERO INTENSIVO'));
-  
-  // 4. Crema giorno
-  routine.push(findProduct(products, 'CREMA VISO GIORNO ROSA CANINA'));
-  
-  // 5. Crema notte
-  routine.push(findProduct(products, 'CREMA VISO NOTTE FIORDALISO'));
-  
-  return routine.filter(Boolean) as Product[];
-}
-
-function getBasicRoutine(products: Product[], skinType: string, age: number): Product[] {
-  const routine = [];
-  const skinLower = skinType.toLowerCase();
-  
-  // PELLE SECCA
-  if (skinLower === 'secca') {
-    routine.push(findProduct(products, 'BIO OLIO DETERGENTE VISO'));
-    routine.push(findProduct(products, 'TONICO SPRAY'));
-    routine.push(findProduct(products, 'ACIDO IALURONICO PURO'));
-    
-    if (age > 35) {
-      routine.push(findProduct(products, 'CREMA GIORNO NO-AGE'));
-      routine.push(findProduct(products, 'CREMA NOTTE NO-AGE'));
-    } else {
-      routine.push(findProduct(products, 'CREMA VISO GIORNO ROSA CANINA'));
-      routine.push(findProduct(products, 'CREMA VISO NOTTE FIORDALISO'));
-    }
-  }
-  // PELLE GRASSA
-  else if (skinLower === 'grassa') {
-    routine.push(findProduct(products, 'MOUSSE DETERGENTE VISO'));
-    routine.push(findProduct(products, 'TONICO SPRAY'));
-    routine.push(findProduct(products, 'CREMA VISO GIORNO ROSA CANINA'));
-    routine.push(findProduct(products, 'CREMA VISO NOTTE FIORDALISO'));
-  }
-  // PELLE MISTA
-  else if (skinLower === 'mista') {
-    routine.push(findProduct(products, 'BIO OLIO DETERGENTE VISO'));
-    routine.push(findProduct(products, 'TONICO SPRAY'));
-    routine.push(findProduct(products, 'ELISIR AL BIO MELOGRANO'));
-    routine.push(findProduct(products, 'CREMA VISO GIORNO ROSA CANINA'));
-  }
-  // PELLE NORMALE
-  else if (skinLower === 'normale') {
-    routine.push(findProduct(products, 'BIO GEL DETERGENTE VISO'));
-    routine.push(findProduct(products, 'TONICO SPRAY'));
-    
-    if (age > 35) {
-      routine.push(findProduct(products, 'ACIDO IALURONICO PURO'));
-      routine.push(findProduct(products, 'CREMA GIORNO NO-AGE'));
-    } else {
-      routine.push(findProduct(products, 'CREMA VISO GIORNO ROSA CANINA'));
-    }
-  }
-  // PELLE ASFITTICA
-  else if (skinLower === 'asfittica') {
-    routine.push(findProduct(products, 'BIO GEL DETERGENTE VISO'));
-    routine.push(findProduct(products, 'TONICO SPRAY'));
-    routine.push(findProduct(products, 'ACIDO IALURONICO PURO'));
-    routine.push(findProduct(products, 'PEELING VISO'));
-  }
-  
-  return routine.filter(Boolean) as Product[];
-}
-
-// ===== AGGIUNTE SPECIFICHE =====
-
-function addPigmentationProducts(routine: Product[], allProducts: Product[]) {
-  const serioAcidi = findProduct(allProducts, 'SIERO ACIDI');
-  const cremaAcidi = findProduct(allProducts, 'CREMA ACIDI H24');
-  
-  if (serioAcidi && !routine.find(p => p.name.includes('SIERO ACIDI'))) {
-    routine.push(serioAcidi);
-  }
-  if (cremaAcidi && !routine.find(p => p.name.includes('CREMA ACIDI'))) {
-    routine.push(cremaAcidi);
-  }
-}
-
-function addAntiAgingProducts(routine: Product[], allProducts: Product[]) {
-  const acido = findProduct(allProducts, 'ACIDO IALURONICO PURO');
-  const cremaGiorno = findProduct(allProducts, 'CREMA GIORNO NO-AGE');
-  const cremaNotte = findProduct(allProducts, 'CREMA NOTTE NO-AGE');
-  
-  if (acido && !routine.find(p => p.name.includes('ACIDO IALURONICO'))) {
-    routine.push(acido);
-  }
-  // Ensure at least one cream is always added
-  const hasCream = routine.some(p => p.category?.toLowerCase().includes('crema'));
-  if (!hasCream) {
-    if (cremaGiorno) routine.push(cremaGiorno);
-    if (cremaNotte) routine.push(cremaNotte);
-  } else {
-    if (cremaGiorno && !routine.find(p => p.name.includes('GIORNO NO-AGE'))) {
-      routine.push(cremaGiorno);
-    }
-    if (cremaNotte && !routine.find(p => p.name.includes('NOTTE NO-AGE'))) {
-      routine.push(cremaNotte);
-    }
-  }
-}
-
-function addEyeProducts(routine: Product[], allProducts: Product[]) {
-  const contorno = findProduct(allProducts, 'CONTORNO OCCHI');
-  if (contorno && !routine.find(p => p.name.includes('CONTORNO OCCHI'))) {
-    routine.push(contorno);
-  }
-}
-
-function addPoreProducts(routine: Product[], allProducts: Product[]) {
-  const esfoliante = findProduct(allProducts, 'ESFOLIANTE VISO DELICATO');
-  if (esfoliante && !routine.find(p => p.name.includes('ESFOLIANTE'))) {
-    routine.push(esfoliante);
-  }
-}
-
-function addElasticityProducts(routine: Product[], allProducts: Product[]) {
-  const elisir = findProduct(allProducts, 'ELISIR AL BIO MELOGRANO');
-  if (elisir && !routine.find(p => p.name.includes('ELISIR'))) {
-    routine.push(elisir);
-  }
-}
-
 // ===== FUNZIONI UTILITY =====
+
 
 function findProduct(products: Product[], nameFragment: string): Product | undefined {
   return products.find(p => 
