@@ -75,11 +75,50 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
           </p>
         </div>
 
+        {/* Routine Completa - Featured */}
+        <div className="mb-4">
+          <button
+            onClick={() => toggleType("routine_completa")}
+            className={cn(
+              "w-full relative p-6 rounded-xl border-3 text-left transition-all",
+              "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl",
+              "bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20",
+              selectedTypes.includes("routine_completa")
+                ? "border-primary shadow-lg ring-2 ring-primary/50"
+                : "border-primary/40 hover:border-primary"
+            )}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">✨</span>
+                  <span className="font-bold text-lg text-primary">Routine Completa</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  La scelta migliore! Ricevi una skincare routine personalizzata e completa per la tua pelle.
+                </p>
+                <Badge className="bg-primary text-primary-foreground">
+                  🌟 Più Consigliato
+                </Badge>
+              </div>
+              {selectedTypes.includes("routine_completa") && (
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <Check className="w-4 h-4 text-primary-foreground" />
+                </div>
+              )}
+            </div>
+          </button>
+        </div>
+
+        <div className="text-center text-sm text-muted-foreground mb-3">
+          oppure seleziona prodotti specifici:
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {productTypes.map((type) => {
+          {productTypes.filter(t => t.value !== "routine_completa").map((type) => {
             const isSelected = selectedTypes.includes(type.value);
             const isRoutineSelected = selectedTypes.includes("routine_completa");
-            const isDisabled = isRoutineSelected && type.value !== "routine_completa";
+            const isDisabled = isRoutineSelected;
             const isUnavailable = (type as any).unavailable;
 
             if (isUnavailable) {
@@ -105,13 +144,14 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
               <button
                 key={type.value}
                 onClick={() => toggleType(type.value)}
+                disabled={isDisabled}
                 className={cn(
                   "relative p-4 rounded-lg border-2 text-left transition-all bg-card/50",
                   "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md",
                   isSelected
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50",
-                  isDisabled && "opacity-50"
+                  isDisabled && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -122,11 +162,6 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
                     </div>
                   )}
                 </div>
-                {type.recommended && (
-                  <Badge variant="secondary" className="mt-2 text-xs">
-                    Consigliato
-                  </Badge>
-                )}
               </button>
             );
           })}

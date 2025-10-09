@@ -130,7 +130,9 @@ const Index = () => {
     navigateToStep("skin-type", { skinScores: scores });
   };
 
-  const handleSkinType = (skinType: string) => {
+  const handleSkinType = (skinTypes: string[]) => {
+    // Join multiple skin types for display
+    const skinType = skinTypes.join(", ");
     navigateToStep("age", { skinType });
   };
 

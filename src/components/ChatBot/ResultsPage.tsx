@@ -35,7 +35,14 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
 
   useEffect(() => {
     // Scroll to top immediately when results page loads
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      const header = document.getElementById('results-header');
+      if (header) {
+        header.scrollIntoView({ behavior: 'instant', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }, 100);
     loadRecommendations();
   }, []);
 
@@ -194,7 +201,7 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         </div>
 
         {/* Header */}
-        <Card className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-xl">
+        <Card id="results-header" className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-xl">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary animate-scale-in leading-tight">
             ✨ La tua Routine Alma Personalizzata ✨
           </h1>
