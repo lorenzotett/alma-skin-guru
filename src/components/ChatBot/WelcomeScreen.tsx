@@ -6,9 +6,10 @@ import logoAlma from "@/assets/logo-alma.jpg";
 
 interface WelcomeScreenProps {
   onStart: () => void;
+  onFeatureClick?: (featureType: 'analysis' | 'questions' | 'products') => void;
 }
 
-export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
+export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   const features = [
@@ -16,19 +17,22 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       icon: Sparkles,
       title: "Analisi AI Avanzata",
       description: "Tecnologia all'avanguardia per analizzare la tua pelle",
-      color: "from-primary via-[#b55819] to-accent"
+      color: "from-primary via-[#b55819] to-accent",
+      type: 'analysis' as const
     },
     {
       icon: Brain,
       title: "Consulenza Personalizzata",
       description: "Risposte immediate da esperti virtuali",
-      color: "from-accent via-[#b55819] to-primary"
+      color: "from-accent via-[#b55819] to-primary",
+      type: 'questions' as const
     },
     {
       icon: ShoppingBag,
       title: "Prodotti 100% Naturali",
       description: "Cosmetici biologici Made in Italy",
-      color: "from-primary via-[#b55819] to-accent"
+      color: "from-primary via-[#b55819] to-accent",
+      type: 'products' as const
     }
   ];
 
@@ -81,6 +85,7 @@ export const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           {features.map((feature, index) => (
             <div 
               key={index}
+              onClick={() => onFeatureClick?.(feature.type)}
               onMouseEnter={() => setHoveredFeature(index)}
               onMouseLeave={() => setHoveredFeature(null)}
               className="relative flex flex-col items-center gap-4 p-6 rounded-2xl bg-gradient-to-br from-white to-white/80 border-2 border-primary/20 shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer group"

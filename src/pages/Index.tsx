@@ -75,8 +75,27 @@ const Index = () => {
 
   const handleStart = () => navigateToStep("name");
 
+  const handleFeatureClick = (featureType: 'analysis' | 'products' | 'questions') => {
+    setUserData(prev => ({ ...prev, choice: featureType }));
+    navigateToStep("name");
+  };
+
   const handleNameSubmit = (name: string) => {
-    navigateToStep("initial-choice", { name });
+    const updatedData = { name };
+    
+    // Se l'utente ha cliccato su una feature card, vai direttamente a quella sezione
+    if (userData.choice) {
+      const choice = userData.choice;
+      if (choice === 'analysis') {
+        navigateToStep("photo-upload", { ...updatedData, choice });
+      } else if (choice === 'products') {
+        navigateToStep("product-info", { ...updatedData, choice });
+      } else if (choice === 'questions') {
+        navigateToStep("questions", { ...updatedData, choice });
+      }
+    } else {
+      navigateToStep("initial-choice", updatedData);
+    }
   };
 
   const handleInitialChoice = (choice: 'analysis' | 'products' | 'questions') => {
@@ -157,7 +176,7 @@ const Index = () => {
   if (!useChatLayout) {
     return (
       <>
-        {step === "welcome" && <WelcomeScreen onStart={handleStart} />}
+        {step === "welcome" && <WelcomeScreen onStart={handleStart} onFeatureClick={handleFeatureClick} />}
         {step === "name" && <NameStep onNext={handleNameSubmit} />}
         {step === "initial-choice" && userData.name && (
           <InitialChoice userName={userData.name} onChoice={handleInitialChoice} />
