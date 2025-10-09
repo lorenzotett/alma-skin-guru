@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_insert_audit: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: unknown | null
+          success: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+        }
+        Relationships: []
+      }
       contact_products: {
         Row: {
           contact_id: string
@@ -52,12 +76,12 @@ export type Database = {
           conversation_id: string | null
           created_at: string | null
           discount_code: string | null
-          email: string | null
+          email: string
           email_clicked_at: string | null
           email_opened_at: string | null
           email_sent: boolean | null
           id: string
-          name: string | null
+          name: string
           phone: string | null
           photo_url: string | null
           product_type: string | null
@@ -70,12 +94,12 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           discount_code?: string | null
-          email?: string | null
+          email: string
           email_clicked_at?: string | null
           email_opened_at?: string | null
           email_sent?: boolean | null
           id?: string
-          name?: string | null
+          name: string
           phone?: string | null
           photo_url?: string | null
           product_type?: string | null
@@ -88,12 +112,12 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           discount_code?: string | null
-          email?: string | null
+          email?: string
           email_clicked_at?: string | null
           email_opened_at?: string | null
           email_sent?: boolean | null
           id?: string
-          name?: string | null
+          name?: string
           phone?: string | null
           photo_url?: string | null
           product_type?: string | null
