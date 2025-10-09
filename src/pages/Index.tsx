@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { WelcomeScreen } from "@/components/ChatBot/WelcomeScreen";
 import { NameStep } from "@/components/ChatBot/NameStep";
 import { InitialChoice } from "@/components/ChatBot/InitialChoice";
@@ -268,6 +269,21 @@ const Index = () => {
       {/* Skin Type */}
       {step === "skin-type" && (
         <>
+          {userData.photoPreview && (
+            <ChatMessage sender="user">
+              <div className="space-y-2">
+                <img src={userData.photoPreview} alt="Foto analisi" className="max-w-[200px] rounded-lg" />
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigateToStep("photo-upload", {})}
+                  className="text-xs text-primary hover:text-primary/80"
+                >
+                  ✏️ Cambia foto
+                </Button>
+              </div>
+            </ChatMessage>
+          )}
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base font-medium mb-1">
               Perfetto! Ora dimmi, che tipo di pelle hai? 🤔
@@ -286,7 +302,17 @@ const Index = () => {
       {step === "age" && userData.skinType && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm sm:text-base font-medium">Pelle {userData.skinType}</p>
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base font-medium">Pelle {userData.skinType}</p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigateToStep("skin-type", {})}
+                className="text-xs text-primary hover:text-primary/80"
+              >
+                ✏️ Modifica tipo di pelle
+              </Button>
+            </div>
           </ChatMessage>
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base">
@@ -306,7 +332,17 @@ const Index = () => {
       {step === "concerns" && userData.age && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm sm:text-base font-medium">{userData.ageDisplay || `${userData.age} anni`}</p>
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base font-medium">{userData.ageDisplay || `${userData.age} anni`}</p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigateToStep("age", { skinType: userData.skinType })}
+                className="text-xs text-primary hover:text-primary/80"
+              >
+                ✏️ Modifica età
+              </Button>
+            </div>
           </ChatMessage>
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base">
@@ -326,7 +362,17 @@ const Index = () => {
       {step === "product-type" && userData.concerns && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm sm:text-base">{userData.concerns.join(", ")}</p>
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base">{userData.concerns.join(", ")}</p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigateToStep("concerns", { skinType: userData.skinType, age: userData.age, ageDisplay: userData.ageDisplay })}
+                className="text-xs text-primary hover:text-primary/80"
+              >
+                ✏️ Modifica preoccupazioni
+              </Button>
+            </div>
           </ChatMessage>
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base">
@@ -346,11 +392,21 @@ const Index = () => {
       {step === "additional-info" && userData.productTypes && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm sm:text-base">
-              {userData.productTypes.length === 1 && userData.productTypes[0] === "routine_completa" 
-                ? "✨ Routine Completa" 
-                : `${userData.productTypes.length} prodotti selezionati`}
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base">
+                {userData.productTypes.length === 1 && userData.productTypes[0] === "routine_completa" 
+                  ? "✨ Routine Completa" 
+                  : `${userData.productTypes.length} prodotti selezionati`}
+              </p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigateToStep("product-type", { skinType: userData.skinType, age: userData.age, ageDisplay: userData.ageDisplay, concerns: userData.concerns })}
+                className="text-xs text-primary hover:text-primary/80"
+              >
+                ✏️ Modifica selezione prodotti
+              </Button>
+            </div>
           </ChatMessage>
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base">

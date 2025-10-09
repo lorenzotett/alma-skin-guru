@@ -201,26 +201,55 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
         </div>
 
         {/* Header */}
-        <Card id="results-header" className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 animate-fade-in bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-xl">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary animate-scale-in leading-tight">
-            ✨ La tua Routine Alma Personalizzata ✨
-          </h1>
+        <Card id="results-header" className="p-6 sm:p-8 md:p-10 text-center space-y-4 sm:space-y-6 animate-fade-in bg-gradient-to-br from-[#f9f5f0] via-white to-[#f9f5f0] backdrop-blur border-2 border-primary/30 shadow-2xl">
+          <div className="space-y-3">
+            <div className="inline-block px-4 py-2 bg-primary/10 rounded-full">
+              <span className="text-sm font-semibold text-primary">Analisi Completata ✓</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-scale-in leading-tight">
+              La tua Routine Alma Personalizzata
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+              Abbiamo creato una routine su misura per te, basata sulle tue esigenze specifiche
+            </p>
+          </div>
           
-          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur border-primary/20 text-left">
-              <h3 className="font-bold text-sm sm:text-base mb-2 text-primary">👤 Profilo</h3>
-              <div className="space-y-1 text-xs sm:text-sm">
-                <p className="break-words"><strong>Nome:</strong> {userData.fullName || userData.name}</p>
-                <p><strong>Età:</strong> {userData.ageDisplay || `${userData.age} anni`}</p>
-                <p><strong>Tipo di pelle:</strong> {userData.skinType}</p>
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mt-6">
+            <Card className="p-4 sm:p-6 bg-white/80 backdrop-blur border-2 border-primary/20 text-left hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <h3 className="font-bold text-lg text-primary">Il tuo Profilo</h3>
+              </div>
+              <div className="space-y-3 text-sm sm:text-base">
+                <div className="flex items-start gap-2">
+                  <span className="text-primary font-semibold min-w-[80px]">Nome:</span>
+                  <span className="text-foreground break-words">{userData.fullName || userData.name}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-primary font-semibold min-w-[80px]">Età:</span>
+                  <span className="text-foreground">{userData.ageDisplay || `${userData.age} anni`}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-primary font-semibold min-w-[80px]">Pelle:</span>
+                  <span className="text-foreground capitalize">{userData.skinType}</span>
+                </div>
               </div>
             </Card>
 
-            <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur border-primary/20 text-left">
-              <h3 className="font-bold text-sm sm:text-base mb-2 text-primary">🎯 Preoccupazioni</h3>
-              <div className="flex flex-wrap gap-1.5">
+            <Card className="p-4 sm:p-6 bg-white/80 backdrop-blur border-2 border-primary/20 text-left hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h3 className="font-bold text-lg text-primary">Le tue Esigenze</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {userData.concerns.map((concern, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs">{concern}</Badge>
+                  <Badge key={i} className="text-xs sm:text-sm px-3 py-1.5 bg-gradient-to-r from-primary/80 to-accent/80 text-white border-0">
+                    {concern}
+                  </Badge>
                 ))}
               </div>
             </Card>
@@ -262,16 +291,27 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
             </Card>
           )}
 
-          <Card className="p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur border-primary/30">
-            <p className="text-sm sm:text-base text-center font-medium">{personalizedMessage}</p>
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 backdrop-blur border-2 border-primary/30 shadow-lg">
+            <div className="flex items-start gap-3">
+              <span className="text-3xl">💡</span>
+              <div className="flex-1">
+                <h4 className="font-bold text-base sm:text-lg text-primary mb-2">La nostra Raccomandazione</h4>
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">{personalizedMessage}</p>
+              </div>
+            </div>
           </Card>
         </Card>
 
         {/* Products Grouped by Category */}
-        <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-4 text-center">
-            🌸 I Tuoi Prodotti Consigliati
-          </h2>
+        <div className="space-y-4">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              I Tuoi Prodotti Consigliati
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {products.length} prodotti selezionati appositamente per te
+            </p>
+          </div>
           
           <div className="space-y-4">
             {sortedCategories.map(category => {
@@ -280,19 +320,24 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
               
               return (
                 <div key={category} className="animate-fade-in">
-                  <Card className="p-3 sm:p-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-2xl">
-                        {category === "Detergente" && "🧴"}
-                        {category === "Tonico" && "💧"}
-                        {category === "Siero" && "✨"}
-                        {category === "Contorno Occhi" && "👁️"}
-                        {category === "Crema Viso" && "🌸"}
-                        {category === "Protezione Solare" && "☀️"}
-                        {category === "Maschera" && "🎭"}
-                        {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
-                      </span>
-                      <h3 className="text-lg sm:text-xl font-bold text-primary">{category}</h3>
+                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
+                    <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <span className="text-2xl sm:text-3xl">
+                          {category === "Detergente" && "🧴"}
+                          {category === "Tonico" && "💧"}
+                          {category === "Siero" && "✨"}
+                          {category === "Contorno Occhi" && "👁️"}
+                          {category === "Crema Viso" && "🌸"}
+                          {category === "Protezione Solare" && "☀️"}
+                          {category === "Maschera" && "🎭"}
+                          {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
+                        </span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-primary">{category}</h3>
+                      <Badge className="ml-auto bg-primary/10 text-primary border-primary/30">
+                        {categoryProducts.length} {categoryProducts.length === 1 ? "prodotto" : "prodotti"}
+                      </Badge>
                     </div>
 
                     <div className="grid gap-3 animate-fade-in">
