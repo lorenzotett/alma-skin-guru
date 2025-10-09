@@ -25,18 +25,19 @@ interface ResultsPageProps {
     skinScores?: any;
   };
   onRestart: () => void;
+  onEditData?: (step: string) => void;
 }
 
-export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
+export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   // Expand all categories by default
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
 
   useEffect(() => {
-    // Force immediate scroll to top
+    // Force immediate scroll to top with multiple attempts
     const scrollToTop = () => {
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: 'instant' });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     };
@@ -44,13 +45,18 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
     // Immediate scroll
     scrollToTop();
     
-    // Multiple checks to ensure scroll happens
-    const timeouts = [0, 10, 50, 100, 200];
+    // Multiple checks to ensure scroll happens after render
+    const timeouts = [0, 10, 50, 100, 200, 300, 500];
+    const intervals: NodeJS.Timeout[] = [];
     timeouts.forEach(delay => {
-      setTimeout(scrollToTop, delay);
+      intervals.push(setTimeout(scrollToTop, delay));
     });
     
     loadRecommendations();
+    
+    return () => {
+      intervals.forEach(interval => clearTimeout(interval));
+    };
   }, []);
 
   const loadRecommendations = async () => {
@@ -234,23 +240,59 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
                   <span className="text-primary font-semibold min-w-[80px]">Nome:</span>
                   <span className="text-foreground break-words">{userData.fullName || userData.name}</span>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-primary font-semibold min-w-[80px]">Età:</span>
-                  <span className="text-foreground">{userData.ageDisplay || `${userData.age} anni`}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-semibold min-w-[80px]">Età:</span>
+                    <span className="text-foreground">{userData.ageDisplay || `${userData.age} anni`}</span>
+                  </div>
+                  {onEditData && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEditData('age')}
+                      className="text-xs h-auto py-1 px-2 text-primary hover:text-primary/80"
+                    >
+                      ✏️ Modifica
+                    </Button>
+                  )}
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-primary font-semibold min-w-[80px]">Pelle:</span>
-                  <span className="text-foreground capitalize">{userData.skinType}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-semibold min-w-[80px]">Pelle:</span>
+                    <span className="text-foreground capitalize">{userData.skinType}</span>
+                  </div>
+                  {onEditData && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEditData('skin-type')}
+                      className="text-xs h-auto py-1 px-2 text-primary hover:text-primary/80"
+                    >
+                      ✏️ Modifica
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>
 
             <Card className="p-4 sm:p-6 bg-white/80 backdrop-blur border-2 border-primary/20 text-left hover:shadow-lg transition-shadow">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <span className="text-2xl">🎯</span>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="font-bold text-lg text-primary">Le tue Esigenze</h3>
                 </div>
-                <h3 className="font-bold text-lg text-primary">Le tue Esigenze</h3>
+                {onEditData && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEditData('concerns')}
+                    className="text-xs h-auto py-1 px-2 text-primary hover:text-primary/80"
+                  >
+                    ✏️ Modifica
+                  </Button>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 {userData.concerns.map((concern, i) => (

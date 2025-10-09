@@ -191,6 +191,23 @@ const Index = () => {
     setUserData({});
     setStep("welcome");
     setStepHistory([]);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleEditFromResults = (stepToEdit: string) => {
+    // Navigate to the specific step to edit data
+    const stepMap: Record<string, Step> = {
+      'age': 'age',
+      'skin-type': 'skin-type',
+      'concerns': 'concerns',
+      'product-type': 'product-type',
+    };
+    
+    const targetStep = stepMap[stepToEdit];
+    if (targetStep) {
+      setStep(targetStep);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   };
   
   const handleBackToWelcome = () => {
@@ -234,19 +251,11 @@ const Index = () => {
         )}
         {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBack} />}
         {step === "results" && userData.email && userData.skinType && userData.age && (
-          <>
-            {/* Force scroll when results page loads */}
-            {(() => {
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-              return null;
-            })()}
-            <ResultsPage 
-              userData={userData as any} 
-              onRestart={handleRestart}
-            />
-          </>
+          <ResultsPage 
+            userData={userData as any} 
+            onRestart={handleRestart}
+            onEditData={handleEditFromResults}
+          />
         )}
       </>
     );
