@@ -340,7 +340,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <EmailCollectionStep onNext={handleEmailCollection} />
+            <EmailCollectionStep onNext={handleEmailCollection} onBack={handleBack} />
           </ChatMessage>
         </>
       )}

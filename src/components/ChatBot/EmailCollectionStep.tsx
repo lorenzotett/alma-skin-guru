@@ -8,9 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface EmailCollectionStepProps {
   onNext: (data: { fullName: string; email: string; phone?: string }) => void;
+  onBack?: () => void;
 }
 
-export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
+export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -229,13 +230,25 @@ export const EmailCollectionStep = ({ onNext }: EmailCollectionStepProps) => {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full bg-primary hover:bg-primary/90"
-          disabled={!fullName || !email || !privacyConsent}
-        >
-          VISUALIZZA RISULTATI 🎁
-        </Button>
+        <div className="flex gap-2">
+          {onBack && (
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              className="w-auto"
+            >
+              ← Indietro
+            </Button>
+          )}
+          <Button 
+            type="submit" 
+            className="flex-1 bg-primary hover:bg-primary/90"
+            disabled={!fullName || !email || !privacyConsent}
+          >
+            VISUALIZZA RISULTATI 🎁
+          </Button>
+        </div>
       </form>
     </Card>
   );
