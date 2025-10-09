@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 interface AgeStepProps {
-  onNext: (age: number) => void;
+  onNext: (age: number, ageDisplay?: string) => void;
 }
 
 const ageRanges = [
@@ -40,7 +40,7 @@ export const AgeStep = ({ onNext }: AgeStepProps) => {
             {ageRanges.map((range) => (
               <Button
                 key={range.label}
-                onClick={() => onNext(range.value)}
+                onClick={() => onNext(range.value, range.label)}
                 variant="outline"
                 className="hover:bg-primary/10 hover:border-primary hover:shadow-md bg-card/50"
               >

@@ -43,6 +43,7 @@ interface UserData {
   skinScores?: SkinScores;
   skinType?: string;
   age?: number;
+  ageDisplay?: string;
   concerns?: string[];
   productTypes?: ProductType[];
   additionalInfo?: string;
@@ -128,8 +129,8 @@ const Index = () => {
     navigateToStep("age", { skinType });
   };
 
-  const handleAge = (age: number) => {
-    navigateToStep("concerns", { age });
+  const handleAge = (age: number, ageDisplay?: string) => {
+    navigateToStep("concerns", { age, ageDisplay });
   };
 
   const handleConcerns = (concerns: string[]) => {
@@ -262,7 +263,7 @@ const Index = () => {
       {step === "concerns" && userData.age && (
         <>
           <ChatMessage sender="user">
-            <p className="text-sm sm:text-base font-medium">{userData.age} anni</p>
+            <p className="text-sm sm:text-base font-medium">{userData.ageDisplay || `${userData.age} anni`}</p>
           </ChatMessage>
           <ChatMessage sender="bot">
             <p className="text-sm sm:text-base">
