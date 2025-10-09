@@ -15,6 +15,8 @@ import { QuestionsFlow } from "@/components/ChatBot/QuestionsFlow";
 import { SkinAnalysisResults, type SkinScores } from "@/components/ChatBot/SkinAnalysisResults";
 import { ChatContainer } from "@/components/ChatBot/ChatContainer";
 import { ChatMessage } from "@/components/ChatBot/ChatMessage";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type Step = 
   | "welcome"
@@ -145,12 +147,38 @@ const Index = () => {
     navigateToStep("email-collection", { additionalInfo: info });
   };
 
-  const handleEmailCollection = (data: { fullName: string; email: string; phone?: string }) => {
-    navigateToStep("results", { 
-      fullName: data.fullName,
-      email: data.email,
-      phone: data.phone
-    });
+  const handleEmailCollection = async (data: { fullName: string; email: string; phone?: string }) => {
+    try {
+      // Salva i dati nel database
+      const { error } = await supabase.from('contacts').insert({
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        skin_type: userData.skinType,
+        concerns: userData.concerns,
+        age: userData.age,
+        product_type: userData.productTypes?.join(', '),
+        additional_info: userData.additionalInfo,
+        photo_url: userData.photoPreview,
+      });
+
+      if (error) {
+        console.error('Errore nel salvataggio dei dati:', error);
+        toast.error('Errore nel salvataggio dei dati. Riprova.');
+        return;
+      }
+
+      toast.success('Dati salvati con successo!');
+      
+      navigateToStep("results", { 
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone
+      });
+    } catch (error) {
+      console.error('Errore:', error);
+      toast.error('Si è verificato un errore. Riprova.');
+    }
   };
 
   const handleRestart = () => {
