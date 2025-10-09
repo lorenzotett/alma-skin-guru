@@ -34,8 +34,8 @@ export const ResultsPage = ({ userData, onRestart }: ResultsPageProps) => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
 
   useEffect(() => {
-    // Scroll to top when results page loads
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top immediately when results page loads
+    window.scrollTo({ top: 0, behavior: 'instant' });
     loadRecommendations();
   }, []);
 

@@ -65,6 +65,9 @@ const Index = () => {
     setStepHistory(prev => [...prev, { step, data: userData }]);
     setUserData(prev => ({ ...prev, ...newData }));
     setStep(newStep);
+    
+    // Scroll to top when navigating to any step
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleBack = () => {
