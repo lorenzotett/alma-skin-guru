@@ -9,11 +9,11 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Alma Natural Beauty Brand Colors - Sfondo beige caldo come il logo */
-    --background: 35 40% 92%;
-    --foreground: 25 60% 20%;
+    --background: 35 25% 85%;
+    --foreground: 25 60% 15%;
 
-    --card: 35 45% 96%;
-    --card-foreground: 25 60% 20%;
+    --card: 35 30% 88%;
+    --card-foreground: 25 60% 15%;
 
     --popover: 35 45% 96%;
     --popover-foreground: 25 60% 20%;
