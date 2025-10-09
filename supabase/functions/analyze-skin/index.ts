@@ -21,61 +21,14 @@ serve(async (req) => {
 
     console.log('Analizzando la pelle con Lovable AI...');
 
-    const prompt = `Sei un esperto dermatologo che analizza foto del viso per valutare la salute della pelle.
-                
-Analizza attentamente questa foto del viso e fornisci punteggi da 1 a 10 per le seguenti caratteristiche della pelle.
-
-IMPORTANTE: Rispondi SOLO con un oggetto JSON valido, senza testo aggiuntivo o spiegazioni.
-
-Formato richiesto:
-{
-  "idratazione": numero da 1 a 10,
-  "elasticita": numero da 1 a 10,
-  "pigmentazione": numero da 1 a 10,
-  "acne": numero da 1 a 10,
-  "rughe": numero da 1 a 10,
-  "pori": numero da 1 a 10,
-  "rossore": numero da 1 a 10
-}
-
-Criteri di valutazione dettagliati:
-
-IDRATAZIONE (1-10):
-- 1-3: Pelle molto disidratata, opaca, desquamazione evidente
-- 4-6: Pelle normale, leggera disidratazione in alcune zone
-- 7-10: Pelle ben idratata, luminosa, rimpolpata, aspetto sano
-
-ELASTICITÀ (1-10):
-- 1-3: Pelle flaccida, priva di tono, cedimenti evidenti
-- 4-6: Elasticità moderata, alcuni segni di perdita di tono
-- 7-10: Pelle tonica, compatta, elastica, aspetto giovane
-
-PIGMENTAZIONE (1-10):
-- 1-3: Macchie scure diffuse, tono molto irregolare, iperpigmentazione evidente
-- 4-6: Alcune discromie, tono leggermente irregolare
-- 7-10: Tono uniforme, nessuna macchia visibile, colorito omogeneo
-
-ACNE (1-10):
-- 1-3: Acne severa, molti brufoli, comedoni, infiammazioni
-- 4-6: Acne moderata, alcune imperfezioni, punti neri
-- 7-10: Pelle pulita, nessuna imperfezione, al massimo un paio di punti neri
-
-RUGHE (1-10):
-- 1-3: Rughe profonde e diffuse, linee marcate su tutto il viso
-- 4-6: Alcune linee sottili, rughe d'espressione visibili
-- 7-10: Pelle liscia, al massimo linee sottilissime, aspetto giovane
-
-PORI (1-10):
-- 1-3: Pori molto dilatati e visibili su tutto il viso
-- 4-6: Pori moderatamente visibili, soprattutto zona T
-- 7-10: Pori minimali, texture della pelle levigata e fine
-
-ROSSORE (1-10):
-- 1-3: Rossore diffuso, couperose evidente, irritazioni
-- 4-6: Leggero rossore localizzato, qualche capillare visibile
-- 7-10: Nessun rossore, tono uniforme, pelle calma
-
-Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`;
+    const prompt = `Analizza questa foto del viso come dermatologo esperto e valuta la salute della pelle su questi aspetti:
+- IDRATAZIONE: 1-3 molto secca, 4-6 normale, 7-10 ben idratata
+- ELASTICITÀ: 1-3 flaccida, 4-6 moderata, 7-10 tonica
+- PIGMENTAZIONE: 1-3 molte macchie, 4-6 alcune discromie, 7-10 tono uniforme
+- ACNE: 1-3 severa, 4-6 moderata, 7-10 pelle pulita
+- RUGHE: 1-3 profonde, 4-6 linee sottili, 7-10 pelle liscia
+- PORI: 1-3 molto dilatati, 4-6 visibili, 7-10 minimali
+- ROSSORE: 1-3 diffuso, 4-6 leggero, 7-10 nessuno`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -84,7 +37,7 @@ Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',
@@ -99,8 +52,29 @@ Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`;
             ]
           }
         ],
-        max_tokens: 500,
-        temperature: 0.4
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'analyze_skin',
+              description: 'Analizza la pelle e fornisci punteggi da 1 a 10',
+              parameters: {
+                type: 'object',
+                properties: {
+                  idratazione: { type: 'number', description: 'Punteggio idratazione 1-10' },
+                  elasticita: { type: 'number', description: 'Punteggio elasticità 1-10' },
+                  pigmentazione: { type: 'number', description: 'Punteggio pigmentazione 1-10' },
+                  acne: { type: 'number', description: 'Punteggio acne 1-10' },
+                  rughe: { type: 'number', description: 'Punteggio rughe 1-10' },
+                  pori: { type: 'number', description: 'Punteggio pori 1-10' },
+                  rossore: { type: 'number', description: 'Punteggio rossore 1-10' }
+                },
+                required: ['idratazione', 'elasticita', 'pigmentazione', 'acne', 'rughe', 'pori', 'rossore']
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'analyze_skin' } }
       }),
     });
 
@@ -127,19 +101,14 @@ Analizza con attenzione la foto e fornisci punteggi precisi e realistici.`;
     const data = await response.json();
     console.log('Risposta Lovable AI:', JSON.stringify(data));
 
-    const textContent = data.choices?.[0]?.message?.content;
-    if (!textContent) {
-      throw new Error('Nessuna risposta da Lovable AI');
-    }
-
-    // Estrai il JSON dalla risposta
-    const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error('Testo ricevuto:', textContent);
+    // Estrai il risultato dal tool call
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall || !toolCall.function?.arguments) {
+      console.error('Nessun tool call ricevuto:', JSON.stringify(data));
       throw new Error('Formato risposta non valido');
     }
 
-    const scores = JSON.parse(jsonMatch[0]);
+    const scores = JSON.parse(toolCall.function.arguments);
     console.log('Punteggi estratti:', scores);
 
     return new Response(JSON.stringify(scores), {
