@@ -45,15 +45,7 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
   ];
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${backgroundTexture})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-[#f5ebe0] via-[#fdf6ed] to-[#f5ebe0] relative overflow-hidden">
       {/* Enhanced animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-24 h-24 sm:w-40 sm:h-40 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
@@ -62,7 +54,15 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
         <div className="absolute top-1/4 right-1/4 w-20 h-20 sm:w-32 sm:h-32 bg-accent/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
-      <Card className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl bg-card/95 backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in">
+      <Card 
+        className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in"
+        style={{
+          backgroundImage: `url(${backgroundTexture})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
           <div className="relative group">
