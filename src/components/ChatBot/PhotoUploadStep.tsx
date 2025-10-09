@@ -6,9 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface PhotoUploadStepProps {
   onNext: (photo?: File) => void;
+  onBack?: () => void;
 }
 
-export const PhotoUploadStep = ({ onNext }: PhotoUploadStepProps) => {
+export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
   const { toast } = useToast();
@@ -116,6 +117,16 @@ export const PhotoUploadStep = ({ onNext }: PhotoUploadStepProps) => {
         )}
 
         <div className="flex gap-4 pt-4">
+          {onBack && (
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={onBack}
+            >
+              ← Indietro
+            </Button>
+          )}
           <Button
             onClick={() => onNext(photo || undefined)}
             size="lg"

@@ -158,6 +158,16 @@ const Index = () => {
     setStep("welcome");
     setStepHistory([]);
   };
+  
+  const handleBackToWelcome = () => {
+    setUserData({});
+    setStep("welcome");
+    setStepHistory([]);
+  };
+
+  const handleBackToName = () => {
+    setStep("name");
+  };
 
   const handleBackToChoice = () => {
     setStep("initial-choice");
@@ -178,9 +188,9 @@ const Index = () => {
     return (
       <>
         {step === "welcome" && <WelcomeScreen onStart={handleStart} onFeatureClick={handleFeatureClick} />}
-        {step === "name" && <NameStep onNext={handleNameSubmit} />}
+        {step === "name" && <NameStep onNext={handleNameSubmit} onBack={handleBackToWelcome} />}
         {step === "initial-choice" && userData.name && (
-          <InitialChoice userName={userData.name} onChoice={handleInitialChoice} />
+          <InitialChoice userName={userData.name} onChoice={handleInitialChoice} onBack={handleBackToName} />
         )}
         {step === "product-info" && userData.name && (
           <ProductInfoFlow userName={userData.name} onBack={handleBackToChoice} />
@@ -188,7 +198,7 @@ const Index = () => {
         {step === "questions" && userData.name && (
           <QuestionsFlow userName={userData.name} onBack={handleBackToChoice} />
         )}
-        {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} />}
+        {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBackToChoice} />}
         {step === "results" && userData.email && userData.skinType && userData.age && (
           <ResultsPage 
             userData={userData as any} 

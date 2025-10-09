@@ -5,9 +5,10 @@ import { Sparkles, Package, MessageCircle } from "lucide-react";
 interface InitialChoiceProps {
   userName: string;
   onChoice: (choice: 'analysis' | 'products' | 'questions') => void;
+  onBack?: () => void;
 }
 
-export const InitialChoice = ({ userName, onChoice }: InitialChoiceProps) => {
+export const InitialChoice = ({ userName, onChoice, onBack }: InitialChoiceProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5ebe0]">
       <Card className="max-w-3xl w-full p-8 space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
@@ -74,6 +75,19 @@ export const InitialChoice = ({ userName, onChoice }: InitialChoiceProps) => {
             </div>
           </Button>
         </div>
+
+        {onBack && (
+          <div className="pt-4">
+            <Button 
+              variant="outline"
+              size="lg"
+              onClick={onBack}
+              className="w-full"
+            >
+              ← Indietro
+            </Button>
+          </div>
+        )}
       </Card>
     </div>
   );

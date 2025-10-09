@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 
 interface NameStepProps {
   onNext: (name: string) => void;
+  onBack?: () => void;
 }
 
-export const NameStep = ({ onNext }: NameStepProps) => {
+export const NameStep = ({ onNext, onBack }: NameStepProps) => {
   const [name, setName] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,14 +40,26 @@ export const NameStep = ({ onNext }: NameStepProps) => {
             autoFocus
           />
           
-          <Button 
-            type="submit" 
-            size="lg" 
-            className="w-full"
-            disabled={!name.trim()}
-          >
-            Continua
-          </Button>
+          <div className="flex gap-2">
+            {onBack && (
+              <Button 
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={onBack}
+              >
+                ← Indietro
+              </Button>
+            )}
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="flex-1"
+              disabled={!name.trim()}
+            >
+              Continua
+            </Button>
+          </div>
         </form>
       </Card>
     </div>
