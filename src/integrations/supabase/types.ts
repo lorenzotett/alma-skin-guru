@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_audit: {
+        Row: {
+          accessed_at: string
+          action: string
+          admin_user_id: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_at?: string
+          action: string
+          admin_user_id: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_at?: string
+          action?: string
+          admin_user_id?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       contact_insert_audit: {
         Row: {
           created_at: string | null
@@ -75,6 +111,7 @@ export type Database = {
           concerns: string[] | null
           conversation_id: string | null
           created_at: string | null
+          created_by_user_id: string | null
           discount_code: string | null
           email: string
           email_clicked_at: string | null
@@ -93,6 +130,7 @@ export type Database = {
           concerns?: string[] | null
           conversation_id?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
           discount_code?: string | null
           email: string
           email_clicked_at?: string | null
@@ -111,6 +149,7 @@ export type Database = {
           concerns?: string[] | null
           conversation_id?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
           discount_code?: string | null
           email?: string
           email_clicked_at?: string | null
@@ -132,6 +171,7 @@ export type Database = {
           duration: number | null
           id: string
           messages: Json[] | null
+          user_id: string | null
         }
         Insert: {
           completed?: boolean | null
@@ -139,6 +179,7 @@ export type Database = {
           duration?: number | null
           id?: string
           messages?: Json[] | null
+          user_id?: string | null
         }
         Update: {
           completed?: boolean | null
@@ -146,6 +187,7 @@ export type Database = {
           duration?: number | null
           id?: string
           messages?: Json[] | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -300,6 +342,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_details?: Json
+          p_record_id?: string
+          p_table_name: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

@@ -62,7 +62,19 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData>({});
   const [stepHistory, setStepHistory] = useState<StepHistoryItem[]>([]);
 
-  // No authentication required for public chatbot
+  // Initialize anonymous session for public chatbot
+  useEffect(() => {
+    const initSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Sign in anonymously to get a valid JWT for edge functions
+        await supabase.auth.signInAnonymously();
+      }
+    };
+    
+    initSession();
+  }, []);
 
   const navigateToStep = (newStep: Step, newData: Partial<UserData> = {}) => {
     setStepHistory(prev => [...prev, { step, data: userData }]);
@@ -157,7 +169,15 @@ const Index = () => {
 
   const handleEmailCollection = async (data: { fullName: string; email: string; phone?: string }) => {
     try {
-      // Salva i dati nel database
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error('Sessione non valida. Ricarica la pagina.');
+        return;
+      }
+
+      // Salva i dati nel database with user tracking
       const { error } = await supabase.from('contacts').insert({
         name: data.fullName,
         email: data.email,
@@ -168,6 +188,7 @@ const Index = () => {
         product_type: userData.productTypes?.join(', '),
         additional_info: userData.additionalInfo,
         photo_url: userData.photoPreview,
+        created_by_user_id: session.user.id,
       });
 
       if (error) {
