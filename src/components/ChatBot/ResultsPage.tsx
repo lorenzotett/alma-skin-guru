@@ -313,36 +313,60 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
           </div>
 
           {userData.skinScores && (
-            <Card className="p-3 sm:p-4 bg-primary/10 backdrop-blur border-primary/30">
-              <h3 className="font-bold text-sm sm:text-base mb-3 text-center text-primary">🔬 Risultato Analisi AI</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">💧 {userData.skinScores.idratazione}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Idratazione</div>
+            <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur border-2 border-primary/30">
+              <h3 className="font-bold text-base sm:text-lg mb-4 text-center text-primary flex items-center justify-center gap-2">
+                <span className="text-2xl">🔬</span>
+                Risultato Analisi AI della Pelle
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">💧 {userData.skinScores.idratazione}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Idratazione</div>
+                  {userData.skinScores.idratazione < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">🎯 {userData.skinScores.elasticita}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Elasticità</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">🎯 {userData.skinScores.elasticita}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Elasticità</div>
+                  {userData.skinScores.elasticita < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">🌟 {userData.skinScores.pigmentazione}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Pigmentazione</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">🌟 {userData.skinScores.pigmentazione}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Pigmentazione</div>
+                  {userData.skinScores.pigmentazione < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">✨ {userData.skinScores.acne}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Acne</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">✨ {userData.skinScores.acne}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Acne</div>
+                  {userData.skinScores.acne < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">⏱️ {userData.skinScores.rughe}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Rughe</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">⏱️ {userData.skinScores.rughe}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Rughe</div>
+                  {userData.skinScores.rughe < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">🔍 {userData.skinScores.pori}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Pori</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">🔍 {userData.skinScores.pori}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Pori</div>
+                  {userData.skinScores.pori < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
-                <div className="bg-card/60 p-2 rounded text-center">
-                  <div className="font-bold">🌸 {userData.skinScores.rossore}/10</div>
-                  <div className="text-[10px] text-muted-foreground">Rossore</div>
+                <div className="bg-card/80 p-3 sm:p-4 rounded-lg shadow-sm border border-primary/10 hover:shadow-md transition-shadow">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1">🌸 {userData.skinScores.rossore}/10</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground font-medium">Rossore</div>
+                  {userData.skinScores.rossore < 7 && (
+                    <div className="text-[10px] sm:text-xs text-accent mt-1">⚠️ Da migliorare</div>
+                  )}
                 </div>
               </div>
             </Card>
@@ -399,74 +423,84 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
 
                     <div className="grid gap-3 animate-fade-in">
                        {categoryProducts.map((product, index) => (
-                        <div key={product.id} className="p-3 sm:p-4 bg-card/60 backdrop-blur rounded-lg border border-primary/10 hover:shadow-md transition-all">
-                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div key={product.id} className="p-4 sm:p-5 bg-gradient-to-br from-white to-primary/5 backdrop-blur rounded-xl border-2 border-primary/20 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+                          <div className="flex flex-col sm:flex-row gap-4">
                             {product.image_url && (
-                              <img 
-                                src={product.image_url} 
-                                alt={product.name}
-                                className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-lg"
-                              />
+                              <div className="relative group">
+                                <img 
+                                  src={product.image_url} 
+                                  alt={product.name}
+                                  className="w-full sm:w-28 h-36 sm:h-28 object-cover rounded-xl border-2 border-primary/10 group-hover:border-primary/30 transition-all"
+                                />
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                              </div>
                             )}
                             
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1 min-w-0 space-y-3">
+                              <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-base sm:text-lg font-bold text-primary mb-1 break-words">{product.name}</h4>
-                                  {product.description_short && (
-                                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-                                      {product.description_short}
-                                    </p>
-                                  )}
+                                  <h4 className="font-bold text-lg sm:text-xl text-primary break-words leading-tight">{product.name}</h4>
+                                  <p className="text-sm text-muted-foreground font-medium">{product.brand}</p>
                                 </div>
                                 <div className="text-right flex-shrink-0">
-                                  <p className="text-lg sm:text-xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                  <p className="text-2xl font-bold bg-gradient-to-br from-accent to-primary bg-clip-text text-transparent">
+                                    €{product.price.toFixed(2)}
+                                  </p>
+                                  {product.step && (
+                                    <Badge variant="outline" className="text-xs mt-1 border-primary/30">
+                                      {product.step}
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
-
-                              <div className="space-y-2">
-                                {product.concerns_treated && product.concerns_treated.length > 0 && (
-                                  <div className="bg-primary/5 p-2 rounded">
-                                    <p className="font-semibold text-[10px] sm:text-xs mb-1">✓ Tratta:</p>
-                                    <div className="flex flex-wrap gap-1">
-                                      {product.concerns_treated.slice(0, 3).map((concern, i) => (
-                                        <Badge key={i} variant="secondary" className="text-[10px]">{concern}</Badge>
-                                      ))}
-                                    </div>
+                              
+                              {product.description_short && (
+                                <p className="text-sm text-foreground/90 leading-relaxed line-clamp-2">{product.description_short}</p>
+                              )}
+                              
+                              {/* Match with concerns and skin scores */}
+                              {product.concerns_treated && product.concerns_treated.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-xs font-semibold text-primary">🎯 Tratta:</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {product.concerns_treated.map((concern, i) => {
+                                      const isUserConcern = userData.concerns.some(uc => 
+                                        uc.toLowerCase().includes(concern.toLowerCase()) || 
+                                        concern.toLowerCase().includes(uc.toLowerCase())
+                                      );
+                                      return (
+                                        <Badge 
+                                          key={i} 
+                                          className={`text-xs px-3 py-1 ${
+                                            isUserConcern 
+                                              ? 'bg-gradient-to-r from-accent to-primary text-white border-0 shadow-md' 
+                                              : 'bg-secondary text-secondary-foreground'
+                                          }`}
+                                        >
+                                          {isUserConcern && '✓ '}{concern}
+                                        </Badge>
+                                      );
+                                    })}
                                   </div>
-                                )}
-
-                                {product.key_ingredients && product.key_ingredients.length > 0 && (
-                                  <div className="bg-accent/5 p-2 rounded">
-                                    <p className="font-semibold text-[10px] sm:text-xs mb-1">🧪 Ingredienti chiave:</p>
-                                    <p className="text-[10px] text-muted-foreground line-clamp-1">
-                                      {product.key_ingredients.slice(0, 2).join(', ')}
-                                    </p>
-                                  </div>
-                                )}
-
-                                {product.how_to_use && (
-                                  <div className="bg-secondary/20 p-2 rounded">
-                                    <p className="font-semibold text-[10px] sm:text-xs mb-1">💡 Come usarlo:</p>
-                                    <p className="text-[10px] text-muted-foreground line-clamp-2">
-                                      {product.how_to_use}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-
-                              <div className="flex gap-2 pt-2">
-                                <Button asChild className="flex-1 text-xs">
-                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                    <ShoppingCart className="w-3 h-3 mr-1" />
-                                    Acquista
-                                  </a>
+                                </div>
+                              )}
+                              
+                              <div className="flex gap-2 pt-3">
+                                <Button
+                                  className="flex-1 gap-2 h-11 text-base font-semibold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 shadow-lg hover:shadow-xl transition-all"
+                                  onClick={() => window.open(product.product_url, '_blank')}
+                                >
+                                  <ShoppingCart className="w-5 h-5" />
+                                  Acquista Ora
                                 </Button>
-                                <Button asChild variant="outline" className="flex-1 text-xs">
-                                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                    Dettagli
-                                  </a>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-11 w-11 border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60"
+                                  onClick={() => window.open(product.product_url, '_blank')}
+                                  title="Visualizza su sito"
+                                >
+                                  <ExternalLink className="w-5 h-5" />
                                 </Button>
                               </div>
                             </div>

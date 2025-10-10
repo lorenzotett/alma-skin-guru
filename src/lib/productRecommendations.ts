@@ -304,28 +304,26 @@ function sortByRoutineOrder(products: Product[]): Product[] {
 
 // ===== MESSAGGIO PERSONALIZZATO =====
 
-export function getPersonalizedMessage(profile: UserProfile): string {
-  const { skinType, concerns, age } = profile;
+export const getPersonalizedMessage = (profile: UserProfile): string => {
+  const { skinType, age, concerns } = profile;
   
-  if (hasRosacea(concerns)) {
-    return "🌸 Ho identificato che la tua pelle potrebbe soffrire di rosacea (acne + rossori). Ti consiglio una routine delicata e lenitiva specifica per questa condizione sensibile.";
+  let message = `✨ In base alla tua pelle **${skinType.toLowerCase()}**`;
+  
+  if (age < 25) {
+    message += " e alla tua giovane età, abbiamo creato una routine che protegge e previene";
+  } else if (age >= 25 && age < 35) {
+    message += " e alla tua età, ti consigliamo prodotti che mantengono l'idratazione e la luminosità";
+  } else if (age >= 35 && age < 45) {
+    message += ", considerando che sei nella fascia d'età in cui la pelle inizia a mostrare i primi segni del tempo, abbiamo selezionato prodotti con attivi anti-età";
+  } else {
+    message += ", considerando la maturità della tua pelle, ti proponiamo una routine intensiva anti-aging";
   }
   
-  if (hasAcne(concerns)) {
-    return "✨ La tua pelle ha tendenza acneica. Ti ho selezionato prodotti sebo-regolatori e purificanti che combattono le imperfezioni senza aggredire la pelle.";
+  if (concerns && concerns.length > 0) {
+    message += `. I prodotti sono stati scelti **specificamente** per trattare: **${concerns.join(", ").toLowerCase()}**`;
   }
   
-  if (hasSensitiveSkin(concerns)) {
-    return "💚 La tua pelle sensibile ha bisogno di delicatezza! Ti consiglio prodotti lenitivi e calmanti per ridurre rossori e irritazioni.";
-  }
+  message += ". 🎯 Ogni prodotto della routine è stato accuratamente selezionato per rispondere alle tue esigenze specifiche e lavorare in sinergia con gli altri.";
   
-  if (hasAntiAging(concerns, age)) {
-    return "⏰ Ho selezionato per te una routine anti-età con acido ialuronico, collagene e attivi rimpolpanti per contrastare rughe e segni del tempo.";
-  }
-  
-  if (hasPigmentation(concerns)) {
-    return "☀️ Per le tue macchie e discromie, ti consiglio prodotti con azione schiarente specifica a base di acidi per uniformare il tono della pelle.";
-  }
-  
-  return `💫 Ho selezionato i prodotti Alma Natural Beauty perfetti per la tua pelle ${skinType}, seguendo l'ordine corretto della skincare routine!`;
-}
+  return message;
+};
