@@ -444,6 +444,14 @@ export default function AdminUsers() {
                       <p className="text-xs text-muted-foreground mb-1">Età</p>
                       <p className="font-semibold text-sm">{selectedContact.age || 'N/A'}</p>
                     </Card>
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Tipo Pelle</p>
+                      <p className="font-semibold text-sm capitalize">{selectedContact.skin_type || 'N/A'}</p>
+                    </Card>
+                    <Card className="p-4 bg-secondary/30">
+                      <p className="text-xs text-muted-foreground mb-1">Prodotto Cercato</p>
+                      <p className="font-semibold text-sm">{selectedContact.product_type || 'N/A'}</p>
+                    </Card>
                     <Card className="p-4 bg-secondary/30 sm:col-span-2">
                       <p className="text-xs text-muted-foreground mb-1">Registrato</p>
                       <p className="font-semibold text-sm">
@@ -451,6 +459,33 @@ export default function AdminUsers() {
                       </p>
                     </Card>
                   </div>
+                  
+                  {/* Concerns Section */}
+                  {selectedContact.concerns && selectedContact.concerns.length > 0 && (
+                    <div className="mt-4">
+                      <Card className="p-4 bg-secondary/30">
+                        <p className="text-xs text-muted-foreground mb-3">Preoccupazioni</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedContact.concerns.map((concern, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-sm">
+                              {concern}
+                            </Badge>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+                  )}
+                  
+                  {/* Additional Info */}
+                  {selectedContact.additional_info && (
+                    <div className="mt-4">
+                      <Card className="p-4 bg-secondary/30">
+                        <p className="text-xs text-muted-foreground mb-2">Informazioni Aggiuntive</p>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{selectedContact.additional_info}</p>
+                      </Card>
+                    </div>
+                  )}
+                  
                   <Button onClick={exportUserJSON} variant="outline" className="w-full gap-2 mt-4">
                     <FileDown className="w-4 h-4" />
                     Esporta Dati (JSON)
