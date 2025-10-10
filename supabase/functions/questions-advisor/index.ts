@@ -1,10 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Restrict CORS to your domain
 const allowedOrigins = [
   'https://scanbeauty.almanaturalbeauty.it',
   'https://ndgnwsayjcptaodefzlx.lovable.app',
+  'https://alma-skin.lovable.app',
 ];
 
 const getCorsHeaders = (origin: string | null) => {
@@ -15,6 +15,32 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
+// Input validation
+function sanitizeString(input: any, maxLength: number = 1000): string {
+  if (typeof input !== 'string') return '';
+  return input.trim().slice(0, maxLength);
+}
+
+function validateQuestionsInput(data: any): { valid: boolean; error?: string } {
+  if (!data.message || typeof data.message !== 'string') {
+    return { valid: false, error: 'Message is required' };
+  }
+  
+  if (data.message.length > 1000) {
+    return { valid: false, error: 'Message too long (max 1000 characters)' };
+  }
+  
+  if (data.conversationHistory && !Array.isArray(data.conversationHistory)) {
+    return { valid: false, error: 'Invalid conversation history' };
+  }
+  
+  if (data.conversationHistory && data.conversationHistory.length > 50) {
+    return { valid: false, error: 'Conversation history too long' };
+  }
+  
+  return { valid: true };
+}
+
 serve(async (req) => {
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
@@ -24,50 +50,25 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('Missing Authorization header');
-      return new Response(JSON.stringify({ 
-        error: 'Autenticazione richiesta' 
-      }), {
-        status: 401,
+    const requestData = await req.json();
+    
+    // Validate input
+    const validation = validateQuestionsInput(requestData);
+    if (!validation.valid) {
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Create Supabase client for auth
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.58.0');
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader }
-        }
-      }
-    );
-
-    // Verify user token
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-
-    if (authError || !user) {
-      console.error('Invalid authentication token:', authError);
-      return new Response(JSON.stringify({ 
-        error: 'Token non valido' 
-      }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log(`Authenticated questions request from: ${user.email || user.id}`);
-    const { message, conversationHistory, userName } = await req.json();
+    const { message, conversationHistory, userName } = requestData;
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
+
+    const sanitizedUserName = sanitizeString(userName, 100);
 
     const systemPrompt = `Sei un'esperta consulente di bellezza e skincare per Alma Natural Beauty, un brand italiano di cosmetica naturale.
 
@@ -76,7 +77,6 @@ IL TUO RUOLO:
 - Fornisci consigli professionali basati sulla scienza della pelle
 - Spiega ingredienti, benefici, modalità d'uso
 - Dai consigli su routine mattina/sera, ordine di applicazione prodotti
-- Rispondi a dubbi su compatibilità ingredienti, problematiche specifiche
 
 EXPERTISE:
 - Tipi di pelle (secca, grassa, mista, normale, sensibile)
@@ -88,7 +88,7 @@ EXPERTISE:
 - Ingredienti naturali e biologici
 
 IMPORTANTE:
-- Se ${userName} chiede di prodotti specifici Alma, suggerisci di usare la chat "Info Prodotti"
+- Se chiede di prodotti specifici Alma, suggerisci di usare la chat "Info Prodotti"
 - Se chiede un'analisi personalizzata, suggerisci di fare l'analisi completa della pelle
 - Sii sempre professionale ma amichevole
 - Usa emoji per rendere la conversazione piacevole 🌸✨💚
@@ -103,26 +103,21 @@ STILE:
 
 Rispondi sempre in italiano in modo professionale, competente e amichevole.`;
 
-    // Build messages array
     const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'assistant', content: 'Ciao! Sono la tua esperta skincare Alma. Sono qui per rispondere a tutte le tue domande su bellezza, cura della pelle e routine beauty! 💚✨ Cosa vuoi sapere?' }
     ];
 
-    // Add conversation history
+    // Sanitize and limit conversation history
     if (conversationHistory && conversationHistory.length > 0) {
-      conversationHistory.forEach((msg: any) => {
-        messages.push({
-          role: msg.role === 'assistant' ? 'assistant' : 'user',
-          content: msg.content
-        });
-      });
+      const sanitizedHistory = conversationHistory.slice(-20).map((msg: any) => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: sanitizeString(msg.content, 1000)
+      }));
+      messages.push(...sanitizedHistory);
     }
 
-    // Add current message
-    messages.push({ role: 'user', content: message });
-
-    console.log('Calling Lovable AI for questions...');
+    messages.push({ role: 'user', content: sanitizeString(message, 1000) });
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -139,9 +134,6 @@ Rispondi sempre in italiano in modo professionale, competente e amichevole.`;
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      
       if (response.status === 429) {
         return new Response(JSON.stringify({ 
           error: 'Rate limit exceeded',
@@ -161,12 +153,10 @@ Rispondi sempre in italiano in modo professionale, competente e amichevole.`;
         });
       }
       
-      throw new Error(`Lovable AI error: ${response.status}`);
+      throw new Error(`AI error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Lovable AI response received');
-
     const aiResponse = data.choices?.[0]?.message?.content || 
       'Mi dispiace, non riesco a rispondere al momento. Riprova!';
 
@@ -176,10 +166,9 @@ Rispondi sempre in italiano in modo professionale, competente e amichevole.`;
     );
 
   } catch (error) {
-    console.error('Error in questions-advisor function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Si è verificato un errore',
         response: 'Mi dispiace, sto avendo un problema tecnico. Per favore riprova tra poco! 🙏'
       }),
       { 

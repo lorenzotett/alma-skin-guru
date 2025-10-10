@@ -62,26 +62,7 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData>({});
   const [stepHistory, setStepHistory] = useState<StepHistoryItem[]>([]);
 
-  // Anonymous authentication for security (Phase 3)
-  useEffect(() => {
-    const ensureAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log('No session found, signing in anonymously...');
-        const { error } = await supabase.auth.signInAnonymously();
-        
-        if (error) {
-          console.error('Anonymous sign-in failed:', error);
-          toast.error('Errore di connessione. Ricarica la pagina.');
-        } else {
-          console.log('Anonymous authentication successful');
-        }
-      }
-    };
-    
-    ensureAuth();
-  }, []);
+  // No authentication required for public chatbot
 
   const navigateToStep = (newStep: Step, newData: Partial<UserData> = {}) => {
     setStepHistory(prev => [...prev, { step, data: userData }]);
