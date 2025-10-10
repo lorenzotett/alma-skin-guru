@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 
 interface AgeStepProps {
   onNext: (age: number, ageDisplay?: string) => void;
+  onBack?: () => void;
 }
 
 const ageRanges = [
@@ -15,7 +16,7 @@ const ageRanges = [
   { label: "60+ anni", value: 65 }
 ];
 
-export const AgeStep = ({ onNext }: AgeStepProps) => {
+export const AgeStep = ({ onNext, onBack }: AgeStepProps) => {
   const [customAge, setCustomAge] = useState("");
   const [showCustom, setShowCustom] = useState(false);
 
@@ -49,13 +50,26 @@ export const AgeStep = ({ onNext }: AgeStepProps) => {
             ))}
           </div>
           
-          <Button
-            variant="link"
-            onClick={() => setShowCustom(true)}
-            className="text-primary text-xs w-full"
-          >
-            Inserisci età manualmente
-          </Button>
+          <div className="space-y-2">
+            <Button
+              variant="link"
+              onClick={() => setShowCustom(true)}
+              className="text-primary text-xs w-full"
+            >
+              Inserisci età manualmente
+            </Button>
+            
+            {onBack && (
+              <Button
+                onClick={onBack}
+                variant="outline"
+                size="lg"
+                className="w-full"
+              >
+                ← Indietro
+              </Button>
+            )}
+          </div>
         </>
       ) : (
         <form onSubmit={handleCustomSubmit} className="space-y-2">

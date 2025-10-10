@@ -20,6 +20,7 @@ export type ProductType =
 
 interface ProductTypeStepProps {
   onNext: (productTypes: ProductType[]) => void;
+  onBack?: () => void;
 }
 
 const productTypes = [
@@ -36,7 +37,7 @@ const productTypes = [
   { value: "olio_corpo" as ProductType, label: "💆 Olio Corpo" }
 ];
 
-export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
+export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
   const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
 
   const toggleType = (type: ProductType) => {
@@ -168,13 +169,25 @@ export const ProductTypeStep = ({ onNext }: ProductTypeStepProps) => {
         </div>
 
         {selectedTypes.length > 0 && (
-          <div className="pt-2">
+          <div className="pt-2 space-y-2">
             <p className="text-sm text-muted-foreground mb-2">
               Hai selezionato: <span className="font-medium text-foreground">{selectedTypes.length}</span> {selectedTypes.length === 1 ? "prodotto" : "prodotti"}
             </p>
-            <Button onClick={handleContinue} size="lg" className="w-full bg-primary hover:bg-primary/90">
-              Continua ✨
-            </Button>
+            <div className="flex gap-2">
+              {onBack && (
+                <Button 
+                  onClick={onBack} 
+                  variant="outline"
+                  size="lg"
+                  className="w-32"
+                >
+                  ← Indietro
+                </Button>
+              )}
+              <Button onClick={handleContinue} size="lg" className="flex-1 bg-primary hover:bg-primary/90">
+                Continua ✨
+              </Button>
+            </div>
           </div>
         )}
       </Card>

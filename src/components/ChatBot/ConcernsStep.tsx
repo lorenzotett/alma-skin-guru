@@ -20,6 +20,7 @@ type Concern =
 
 interface ConcernsStepProps {
   onNext: (concerns: Concern[]) => void;
+  onBack?: () => void;
 }
 
 const concerns = [
@@ -37,7 +38,7 @@ const concerns = [
   { value: "nessuna" as Concern, icon: "☑️", title: "Nessuna problematica particolare", description: "" }
 ];
 
-export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
+export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
   const [selected, setSelected] = useState<Concern[]>([]);
 
   const toggleConcern = (concern: Concern) => {
@@ -92,13 +93,26 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
         ))}
       </div>
 
-      <Button
-        onClick={() => onNext(selected)}
-        className="w-full text-sm sm:text-base"
-        disabled={selected.length === 0}
-      >
-        Continua ({selected.length})
-      </Button>
+      <div className="flex gap-2">
+        {onBack && (
+          <Button
+            onClick={onBack}
+            variant="outline"
+            size="lg"
+            className="w-32"
+          >
+            ← Indietro
+          </Button>
+        )}
+        <Button
+          onClick={() => onNext(selected)}
+          className="flex-1 text-sm sm:text-base"
+          size="lg"
+          disabled={selected.length === 0}
+        >
+          Continua ({selected.length})
+        </Button>
+      </div>
     </Card>
   );
 };

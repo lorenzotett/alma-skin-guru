@@ -8,6 +8,7 @@ type SkinType = "secca" | "grassa" | "mista" | "normale" | "asfittica";
 
 interface SkinTypeStepProps {
   onNext: (skinTypes: SkinType[]) => void;
+  onBack?: () => void;
 }
 
 const skinTypes = [
@@ -43,7 +44,7 @@ const skinTypes = [
   }
 ];
 
-export const SkinTypeStep = ({ onNext }: SkinTypeStepProps) => {
+export const SkinTypeStep = ({ onNext, onBack }: SkinTypeStepProps) => {
   const [selectedTypes, setSelectedTypes] = useState<SkinType[]>([]);
 
   const toggleType = (type: SkinType) => {
@@ -101,13 +102,25 @@ export const SkinTypeStep = ({ onNext }: SkinTypeStepProps) => {
       </div>
       
       {selectedTypes.length > 0 && (
-        <div className="pt-2">
+        <div className="pt-2 space-y-2">
           <p className="text-sm text-muted-foreground mb-2">
             Hai selezionato: <span className="font-medium text-foreground">{selectedTypes.length}</span> {selectedTypes.length === 1 ? "tipo" : "tipi"}
           </p>
-          <Button onClick={handleContinue} size="lg" className="w-full bg-primary hover:bg-primary/90">
-            Continua ✨
-          </Button>
+          <div className="flex gap-2">
+            {onBack && (
+              <Button 
+                onClick={onBack} 
+                variant="outline"
+                size="lg"
+                className="w-32"
+              >
+                ← Indietro
+              </Button>
+            )}
+            <Button onClick={handleContinue} size="lg" className="flex-1 bg-primary hover:bg-primary/90">
+              Continua ✨
+            </Button>
+          </div>
         </div>
       )}
     </Card>

@@ -334,7 +334,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <SkinTypeStep onNext={handleSkinType} />
+            <SkinTypeStep onNext={handleSkinType} onBack={handleBack} />
           </ChatMessage>
         </>
       )}
@@ -364,7 +364,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <AgeStep onNext={handleAge} />
+            <AgeStep onNext={handleAge} onBack={handleBack} />
           </ChatMessage>
         </>
       )}
@@ -394,7 +394,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <ConcernsStep onNext={handleConcerns} />
+            <ConcernsStep onNext={handleConcerns} onBack={handleBack} />
           </ChatMessage>
         </>
       )}
@@ -424,7 +424,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <ProductTypeStep onNext={handleProductType} />
+            <ProductTypeStep onNext={handleProductType} onBack={handleBack} />
           </ChatMessage>
         </>
       )}
@@ -458,7 +458,7 @@ const Index = () => {
             </p>
           </ChatMessage>
           <ChatMessage sender="bot">
-            <AdditionalInfoStep onNext={handleAdditionalInfo} />
+            <AdditionalInfoStep onNext={handleAdditionalInfo} onBack={handleBack} />
           </ChatMessage>
         </>
       )}

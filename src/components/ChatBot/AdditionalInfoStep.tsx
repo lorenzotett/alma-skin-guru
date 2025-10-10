@@ -5,9 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface AdditionalInfoStepProps {
   onNext: (info?: string) => void;
+  onBack?: () => void;
 }
 
-export const AdditionalInfoStep = ({ onNext }: AdditionalInfoStepProps) => {
+export const AdditionalInfoStep = ({ onNext, onBack }: AdditionalInfoStepProps) => {
   const [info, setInfo] = useState("");
 
   return (
@@ -29,12 +30,25 @@ export const AdditionalInfoStep = ({ onNext }: AdditionalInfoStepProps) => {
         className="min-h-[100px]"
       />
 
-      <Button
-        onClick={() => onNext(info || undefined)}
-        className="w-full"
-      >
-        {info ? "Invia ✨" : "Salta ⏭️"}
-      </Button>
+      <div className="flex gap-2">
+        {onBack && (
+          <Button
+            onClick={onBack}
+            variant="outline"
+            size="lg"
+            className="w-32"
+          >
+            ← Indietro
+          </Button>
+        )}
+        <Button
+          onClick={() => onNext(info || undefined)}
+          className="flex-1"
+          size="lg"
+        >
+          {info ? "Invia ✨" : "Salta ⏭️"}
+        </Button>
+      </div>
     </Card>
   );
 };
