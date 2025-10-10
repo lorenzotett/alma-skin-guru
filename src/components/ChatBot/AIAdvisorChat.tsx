@@ -149,11 +149,11 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
                   setInput(q);
                   setTimeout(() => sendMessage(), 100);
                 }}
-                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5"
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5 overflow-hidden"
                 disabled={isLoading}
               >
                 <span className="mr-1 sm:mr-2 flex-shrink-0">→</span>
-                <span className="break-words">{q}</span>
+                <span className="break-words overflow-hidden">{q}</span>
               </Button>
             ))}
           </div>

@@ -35,18 +35,26 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
 
   useEffect(() => {
-    // Force immediate scroll to top with multiple attempts
+    // Force immediate and persistent scroll to top
     const scrollToTop = () => {
+      // Multiple scroll methods for maximum compatibility
       window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
+      
+      // Also try scrolling to the header element
+      const headerElement = document.getElementById('results-header');
+      if (headerElement) {
+        headerElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
     };
     
     // Immediate scroll
     scrollToTop();
     
-    // Multiple checks to ensure scroll happens after render
-    const timeouts = [0, 10, 50, 100, 200, 300, 500];
+    // Multiple aggressive checks to ensure scroll happens
+    const timeouts = [0, 10, 50, 100, 150, 200, 300, 500, 800, 1000];
     const intervals: NodeJS.Timeout[] = [];
     timeouts.forEach(delay => {
       intervals.push(setTimeout(scrollToTop, delay));

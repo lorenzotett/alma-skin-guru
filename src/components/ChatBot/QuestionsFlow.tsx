@@ -146,11 +146,11 @@ export const QuestionsFlow = ({ userName, onBack }: QuestionsFlowProps) => {
                   setInput(q);
                   setTimeout(() => sendMessage(), 100);
                 }}
-                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all overflow-hidden"
                 disabled={isLoading}
               >
-                <span className="mr-2">→</span>
-                <span className="break-words">{q}</span>
+                <span className="mr-2 flex-shrink-0">→</span>
+                <span className="break-words overflow-hidden">{q}</span>
               </Button>
             ))}
           </div>
