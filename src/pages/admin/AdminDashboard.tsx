@@ -278,37 +278,41 @@ export default function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                  angle={0}
-                  height={40}
-                  interval="preserveStartEnd"
-                />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                  width={40}
-                  allowDecimals={false}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    padding: '8px 12px'
-                  }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                  fill="url(#colorCount)"
-                  dot={{ fill: 'hsl(var(--primary))', r: 3, strokeWidth: 2, stroke: '#fff' }}
-                />
+              <XAxis 
+                dataKey="date" 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                angle={-20}
+                textAnchor="end"
+                height={60}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                width={45}
+                allowDecimals={false}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '2px solid hsl(var(--primary))',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  padding: '10px 14px',
+                  fontWeight: '500',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="count" 
+                stroke="hsl(var(--primary))" 
+                strokeWidth={3}
+                fill="url(#colorCount)"
+                dot={{ fill: 'hsl(var(--primary))', r: 4, strokeWidth: 2, stroke: '#fff' }}
+                name="Analisi"
+              />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -323,17 +327,18 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={skinTypeData}
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
+                  style={{ fontSize: '13px', fontWeight: '600' }}
                 >
                   {skinTypeData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -341,11 +346,13 @@ export default function AdminDashboard() {
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    padding: '8px 12px'
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '2px solid hsl(var(--primary))',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    padding: '10px 14px',
+                    fontWeight: '500',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                   }}
                 />
               </PieChart>
@@ -362,37 +369,40 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={concernsData} margin={{ top: 10, right: 15, left: 0, bottom: 50 }}>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={concernsData} margin={{ top: 10, right: 15, left: 0, bottom: 70 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis 
                   dataKey="name" 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 10 }}
-                  angle={-35}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
+                  angle={-40}
                   textAnchor="end"
-                  height={80}
+                  height={100}
                   interval={0}
                 />
                 <YAxis 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                  width={40}
+                  tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                  width={45}
                   allowDecimals={false}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    padding: '8px 12px'
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '2px solid hsl(var(--primary))',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    padding: '10px 14px',
+                    fontWeight: '500',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                   }}
                 />
                 <Bar 
                   dataKey="count" 
                   fill="hsl(var(--primary))" 
                   radius={[8, 8, 0, 0]}
+                  name="Conteggio"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -408,22 +418,22 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 sm:px-6 pb-4">
-            <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
               {recentContacts.length > 0 ? (
                 recentContacts.map((contact) => (
                   <div 
                     key={contact.id} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-pointer border border-transparent hover:border-primary/20"
+                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all cursor-pointer"
                   >
                     <div className="flex-1 min-w-0 pr-3">
-                      <p className="font-medium text-sm truncate">{contact.name || 'N/A'}</p>
-                      <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
+                      <p className="font-semibold text-sm sm:text-base truncate text-foreground">{contact.name || 'N/A'}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate mt-0.5">{contact.email}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <Badge variant="secondary" className="text-xs mb-1">
+                      <Badge variant="secondary" className="text-xs font-medium mb-1.5 px-2 py-0.5">
                         {contact.skin_type || 'N/A'}
                       </Badge>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs font-medium text-muted-foreground">
                         {new Date(contact.created_at).toLocaleDateString('it-IT', { 
                           day: '2-digit', 
                           month: 'short' 

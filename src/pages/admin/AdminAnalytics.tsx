@@ -186,26 +186,28 @@ export default function AdminAnalytics() {
                 textAnchor="end" 
                 height={120} 
                 interval={0}
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 10, fill: 'hsl(var(--foreground))' }}
               />
               <YAxis 
                 stroke="hsl(var(--muted-foreground))" 
-                tick={{ fontSize: 10 }}
-                width={35}
+                tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
+                width={40}
                 allowDecimals={false}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  fontSize: '11px',
-                  padding: '8px 12px'
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '2px solid hsl(var(--primary))',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  padding: '10px 14px',
+                  fontWeight: '500',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                 }}
                 cursor={{ fill: 'hsl(var(--primary) / 0.05)' }}
               />
               <Legend 
-                wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
+                wrapperStyle={{ fontSize: '12px', paddingTop: '10px', fontWeight: '500' }}
                 iconType="circle"
               />
               <Bar 
@@ -234,17 +236,18 @@ export default function AdminAnalytics() {
             <CardTitle className="text-base sm:text-lg">Distribuzione Età</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-center px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie
                   data={ageDistribution}
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={90}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={95}
                   fill="#8884d8"
                   dataKey="value"
+                  style={{ fontSize: '13px', fontWeight: '600' }}
                 >
                   {ageDistribution.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -252,11 +255,13 @@ export default function AdminAnalytics() {
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    padding: '8px 12px'
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '2px solid hsl(var(--primary))',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    padding: '10px 14px',
+                    fontWeight: '500',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                   }} 
                 />
               </PieChart>
@@ -269,36 +274,39 @@ export default function AdminAnalytics() {
             <CardTitle className="text-base sm:text-lg">Preoccupazioni Principali</CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <BarChart data={topConcerns} layout="vertical" margin={{ top: 5, right: 20, left: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis 
                   type="number" 
                   stroke="hsl(var(--muted-foreground))" 
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
                   allowDecimals={false}
                 />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
                   stroke="hsl(var(--muted-foreground))" 
-                  width={140}
-                  tick={{ fontSize: 10 }}
+                  width={150}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    padding: '8px 12px'
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '2px solid hsl(var(--primary))',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    padding: '10px 14px',
+                    fontWeight: '500',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                   }}
                   cursor={{ fill: 'hsl(var(--primary) / 0.05)' }}
                 />
                 <Bar 
                   dataKey="count" 
                   fill="hsl(var(--primary))" 
-                  radius={[0, 6, 6, 0]}
+                  radius={[0, 8, 8, 0]}
+                  name="Conteggio"
                 />
               </BarChart>
             </ResponsiveContainer>
