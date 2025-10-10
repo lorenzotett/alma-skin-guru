@@ -525,7 +525,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
           <Separator className="bg-primary/20" />
 
           <Button size="lg" asChild className="w-full hover-scale bg-gradient-to-r from-primary to-accent shadow-xl text-base sm:text-lg py-5 sm:py-6">
-            <a href="https://almanaturalbeauty.it" target="_blank" rel="noopener noreferrer">
+            <a href="https://almanaturalbeauty.it/shop/" target="_blank" rel="noopener noreferrer">
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               ACQUISTA ORA 🛍️✨
             </a>
