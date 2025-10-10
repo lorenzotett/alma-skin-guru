@@ -13,7 +13,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalContacts: 0,
     todayAnalyses: 0,
-    emailOpenRate: 0,
     productClickRate: 0,
     growthRate: 0,
   });
@@ -49,16 +48,19 @@ export default function AdminDashboard() {
         .select('*', { count: 'exact', head: true })
         .gte('created_at', today.toISOString());
 
-      // Fetch email stats
-      const { data: emailLogs } = await supabase
-        .from('email_logs')
-        .select('opened, clicked');
+      // Fetch product click rate from contact_products
+      const { count: totalRecommendations } = await supabase
+        .from('contact_products')
+        .select('*', { count: 'exact', head: true });
       
-      const totalEmails = emailLogs?.length || 0;
-      const openedEmails = emailLogs?.filter(e => e.opened).length || 0;
-      const clickedEmails = emailLogs?.filter(e => e.clicked).length || 0;
-      const emailOpenRate = totalEmails > 0 ? Math.round((openedEmails / totalEmails) * 100) : 0;
-      const productClickRate = totalEmails > 0 ? Math.round((clickedEmails / totalEmails) * 100) : 0;
+      const { data: clickedProducts } = await supabase
+        .from('products')
+        .select('times_clicked');
+      
+      const totalClicks = clickedProducts?.reduce((sum, p) => sum + (p.times_clicked || 0), 0) || 0;
+      const productClickRate = totalRecommendations && totalRecommendations > 0 
+        ? Math.round((totalClicks / totalRecommendations) * 100) 
+        : 0;
 
       // Growth rate calculation
       const thirtyDaysAgo = new Date();
@@ -83,7 +85,6 @@ export default function AdminDashboard() {
       setStats({
         totalContacts: totalContacts || 0,
         todayAnalyses: todayAnalyses || 0,
-        emailOpenRate,
         productClickRate,
         growthRate,
       });
@@ -190,9 +191,10 @@ export default function AdminDashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">Ultimi 7 giorni</SelectItem>
-              <SelectItem value="14">Ultimi 14 giorni</SelectItem>
-              <SelectItem value="30">Ultimo mese</SelectItem>
+              <SelectItem value="30">Ultimi 30 giorni</SelectItem>
               <SelectItem value="90">Ultimi 3 mesi</SelectItem>
+              <SelectItem value="180">Ultimi 6 mesi</SelectItem>
+              <SelectItem value="365">Ultimo anno</SelectItem>
             </SelectContent>
           </Select>
           <Button 
@@ -259,8 +261,8 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={trendsData} margin={{ top: 10, right: 15, left: 0, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -271,15 +273,16 @@ export default function AdminDashboard() {
                 <XAxis 
                   dataKey="date" 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 10 }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={50}
+                  tick={{ fontSize: 11 }}
+                  angle={0}
+                  height={40}
+                  interval="preserveStartEnd"
                 />
                 <YAxis 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 10 }}
-                  width={30}
+                  tick={{ fontSize: 11 }}
+                  width={40}
+                  allowDecimals={false}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -312,15 +315,15 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={skinTypeData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
-                  outerRadius={70}
+                  labelLine={true}
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -351,21 +354,23 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-4">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={concernsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={concernsData} margin={{ top: 10, right: 15, left: 0, bottom: 50 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis 
                   dataKey="name" 
                   stroke="hsl(var(--muted-foreground))"
                   tick={{ fontSize: 10 }}
-                  angle={-45}
+                  angle={-35}
                   textAnchor="end"
                   height={80}
+                  interval={0}
                 />
                 <YAxis 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 10 }}
-                  width={30}
+                  tick={{ fontSize: 11 }}
+                  width={40}
+                  allowDecimals={false}
                 />
                 <Tooltip 
                   contentStyle={{ 

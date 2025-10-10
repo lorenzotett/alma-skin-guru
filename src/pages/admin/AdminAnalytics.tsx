@@ -1,43 +1,28 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const COLORS = ['#9a4a13', '#b55819', '#d16a22', '#e8822e', '#f4a261', '#e76f51'];
 
 export default function AdminAnalytics() {
-  const [emailMetrics, setEmailMetrics] = useState({
-    sentRate: 0,
-    openRate: 0,
-    clickRate: 0,
-  });
   const [productPerformance, setProductPerformance] = useState<any[]>([]);
   const [ageDistribution, setAgeDistribution] = useState<any[]>([]);
   const [topConcerns, setTopConcerns] = useState<any[]>([]);
+  const [timeRange, setTimeRange] = useState<string>("30");
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [timeRange]);
 
   const fetchAnalytics = async () => {
     try {
-      // Email Metrics
-      const { data: contacts } = await supabase
-        .from('contacts')
-        .select('email_sent, email_opened_at, email_clicked_at');
+      // Calculate date range
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
 
-      const total = contacts?.length || 0;
-      const sent = contacts?.filter(c => c.email_sent).length || 0;
-      const opened = contacts?.filter(c => c.email_opened_at).length || 0;
-      const clicked = contacts?.filter(c => c.email_clicked_at).length || 0;
-
-      setEmailMetrics({
-        sentRate: total > 0 ? Math.round((sent / total) * 100) : 0,
-        openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0,
-        clickRate: sent > 0 ? Math.round((clicked / sent) * 100) : 0,
-      });
-
-      // Product Performance
+      // Product Performance (filtered by timeframe)
       const { data: products } = await supabase
         .from('products')
         .select('id, name, times_recommended, times_clicked')
@@ -50,11 +35,12 @@ export default function AdminAnalytics() {
         cliccati: p.times_clicked,
       })) || []);
 
-      // Age Distribution
+      // Age Distribution (filtered by timeframe)
       const { data: contactsWithAge } = await supabase
         .from('contacts')
         .select('age')
-        .not('age', 'is', null);
+        .not('age', 'is', null)
+        .gte('created_at', daysAgo.toISOString());
 
       const ageGroups: { [key: string]: number } = {
         '18-25': 0,
@@ -75,11 +61,12 @@ export default function AdminAnalytics() {
 
       setAgeDistribution(Object.entries(ageGroups).map(([name, value]) => ({ name, value })));
 
-      // Top Concerns
+      // Top Concerns (filtered by timeframe)
       const { data: contactsWithConcerns } = await supabase
         .from('contacts')
         .select('concerns')
-        .not('concerns', 'is', null);
+        .not('concerns', 'is', null)
+        .gte('created_at', daysAgo.toISOString());
 
       const concernsCount: { [key: string]: number } = {};
       contactsWithConcerns?.forEach(contact => {
@@ -101,41 +88,24 @@ export default function AdminAnalytics() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold text-primary mb-2">Analytics</h1>
-        <p className="text-muted-foreground">Statistiche e metriche dettagliate</p>
-      </div>
-
-      {/* Email Marketing Metrics */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Email Marketing</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{emailMetrics.sentRate}%</p>
-                <p className="text-sm text-muted-foreground mt-2">Tasso Invio</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{emailMetrics.openRate}%</p>
-                <p className="text-sm text-muted-foreground mt-2">Tasso Apertura</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{emailMetrics.clickRate}%</p>
-                <p className="text-sm text-muted-foreground mt-2">Tasso Click</p>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="space-y-6 animate-fade-in px-2 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Analytics</h1>
+          <p className="text-sm text-muted-foreground">Statistiche e metriche dettagliate</p>
         </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger className="w-40 h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">Ultimi 7 giorni</SelectItem>
+            <SelectItem value="30">Ultimi 30 giorni</SelectItem>
+            <SelectItem value="90">Ultimi 3 mesi</SelectItem>
+            <SelectItem value="180">Ultimi 6 mesi</SelectItem>
+            <SelectItem value="365">Ultimo anno</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Product Performance */}
@@ -143,16 +113,35 @@ export default function AdminAnalytics() {
         <CardHeader>
           <CardTitle>Performance Prodotti</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-6">
           <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={productPerformance}>
+            <BarChart data={productPerformance} margin={{ top: 10, right: 15, left: 0, bottom: 80 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" height={100} />
-              <YAxis stroke="hsl(var(--muted-foreground))" />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }} />
-              <Legend />
-              <Bar dataKey="consigliati" fill="hsl(var(--primary))" name="Consigliati" />
-              <Bar dataKey="cliccati" fill="hsl(var(--accent))" name="Cliccati" />
+              <XAxis 
+                dataKey="name" 
+                stroke="hsl(var(--muted-foreground))" 
+                angle={-35} 
+                textAnchor="end" 
+                height={100} 
+                interval={0}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))" 
+                tick={{ fontSize: 11 }}
+                allowDecimals={false}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--background))', 
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  fontSize: '12px'
+                }} 
+              />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Bar dataKey="consigliati" fill="hsl(var(--primary))" name="Consigliati" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="cliccati" fill="hsl(var(--accent))" name="Cliccati" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -164,16 +153,16 @@ export default function AdminAnalytics() {
           <CardHeader>
             <CardTitle>Distribuzione Età</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center">
+          <CardContent className="flex justify-center px-2 sm:px-6">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={ageDistribution}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
-                  outerRadius={100}
+                  labelLine={true}
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -181,7 +170,14 @@ export default function AdminAnalytics() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
