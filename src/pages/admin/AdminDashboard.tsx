@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, FileText, MousePointer, TrendingUp, Calendar, Download, RefreshCw } from "lucide-react";
-import { LineChart, Line, PieChart, Pie, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { Users, FileText, MousePointer, TrendingUp, Calendar, RefreshCw } from "lucide-react";
+import { PieChart, Pie, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
-const COLORS = ['#9a4a13', '#b55819', '#d16a22', '#e8822e'];
+const COLORS = ['#9a4513', '#b55819', '#d16a22', '#e8822e'];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -57,11 +57,10 @@ export default function AdminDashboard() {
       const totalEmails = emailLogs?.length || 0;
       const openedEmails = emailLogs?.filter(e => e.opened).length || 0;
       const clickedEmails = emailLogs?.filter(e => e.clicked).length || 0;
-      
       const emailOpenRate = totalEmails > 0 ? Math.round((openedEmails / totalEmails) * 100) : 0;
       const productClickRate = totalEmails > 0 ? Math.round((clickedEmails / totalEmails) * 100) : 0;
 
-      // Calculate growth rate
+      // Growth rate calculation
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const { count: last30Days } = await supabase
@@ -77,7 +76,7 @@ export default function AdminDashboard() {
         .gte('created_at', sixtyDaysAgo.toISOString())
         .lt('created_at', thirtyDaysAgo.toISOString());
 
-      const growthRate = previous30Days && previous30Days > 0 
+      const growthRate = previous30Days && previous30Days > 0
         ? Math.round(((last30Days || 0) - previous30Days) / previous30Days * 100)
         : 0;
 
@@ -89,23 +88,20 @@ export default function AdminDashboard() {
         growthRate,
       });
 
-      // Fetch trends data based on selected time range
+      // Fetch trends data
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
-      
       const { data: contactsData } = await supabase
         .from('contacts')
         .select('created_at')
         .gte('created_at', daysAgo.toISOString())
         .order('created_at', { ascending: true });
 
-      // Group by day
       const trendsByDay: { [key: string]: number } = {};
       contactsData?.forEach(contact => {
         const date = new Date(contact.created_at).toLocaleDateString('it-IT', { month: 'short', day: 'numeric' });
         trendsByDay[date] = (trendsByDay[date] || 0) + 1;
       });
-      
       setTrendsData(Object.entries(trendsByDay).map(([date, count]) => ({ date, count })));
 
       // Fetch skin type distribution
@@ -120,7 +116,6 @@ export default function AdminDashboard() {
           skinTypes[contact.skin_type] = (skinTypes[contact.skin_type] || 0) + 1;
         }
       });
-      
       setSkinTypeData(Object.entries(skinTypes).map(([name, value]) => ({ name, value })));
 
       // Fetch top concerns
@@ -140,7 +135,6 @@ export default function AdminDashboard() {
         .sort(([, a], [, b]) => b - a)
         .slice(0, 5)
         .map(([name, count]) => ({ name, count }));
-      
       setConcernsData(topConcerns);
 
       // Fetch recent contacts
@@ -151,7 +145,6 @@ export default function AdminDashboard() {
         .limit(10);
       
       setRecentContacts(recentContactsData || []);
-
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
@@ -183,17 +176,16 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header with Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 pb-6">
+      {/* Header - Mobile Optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Dashboard Analytics</h1>
-          <p className="text-muted-foreground">Panoramica in tempo reale del sistema</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Panoramica analytics</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[160px]">
-              <Calendar className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-36 sm:w-40 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -206,24 +198,26 @@ export default function AdminDashboard() {
           <Button 
             variant="outline" 
             size="icon"
+            className="h-9 w-9"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="hover:bg-primary/10"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards Enhanced */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* KPI Cards - Mobile Optimized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {kpiCards.map((card) => (
-          <Card key={card.title} className="overflow-hidden border-primary/10 hover:shadow-xl transition-all hover:scale-[1.02] group">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <p className="text-sm text-muted-foreground font-medium">{card.title}</p>
+          <Card key={card.title} className="hover:shadow-lg transition-shadow border-primary/10">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
+                      {card.title}
+                    </p>
                     {'trend' in card && (
                       <Badge variant="secondary" className={`text-xs ${card.trendColor}`}>
                         <TrendingUp className="w-3 h-3 mr-1" />
@@ -231,13 +225,17 @@ export default function AdminDashboard() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-3xl sm:text-4xl font-bold text-primary mb-1">{card.value}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary truncate">
+                    {card.value}
+                  </p>
                   {'subtitle' in card && (
-                    <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      {card.subtitle}
+                    </p>
                   )}
                 </div>
-                <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                  <card.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                  <card.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -245,24 +243,24 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Grid - Mobile Responsive */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Trends Chart */}
-        <Card className="hover:shadow-xl transition-all border-primary/10">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Trend Analisi
+        <Card className="hover:shadow-lg transition-shadow border-primary/10">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+                <span className="truncate">Analisi nel Tempo</span>
               </CardTitle>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs self-start sm:self-auto">
                 {timeRange} giorni
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={trendsData}>
+          <CardContent className="px-2 sm:px-6 pb-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={trendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -273,49 +271,48 @@ export default function AdminDashboard() {
                 <XAxis 
                   dataKey="date" 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 12 }}
-                  tickLine={false}
+                  tick={{ fontSize: 10 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={50}
                 />
                 <YAxis 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
+                  tick={{ fontSize: 10 }}
+                  width={30}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))', 
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '12px',
-                    padding: '12px 16px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    padding: '8px 12px'
                   }}
-                  labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="count" 
                   stroke="hsl(var(--primary))" 
-                  strokeWidth={3}
+                  strokeWidth={2}
                   fill="url(#colorCount)"
-                  dot={{ fill: 'hsl(var(--primary))', r: 5, strokeWidth: 2, stroke: '#fff' }}
-                  activeDot={{ r: 7, strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--primary))', r: 3, strokeWidth: 2, stroke: '#fff' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Skin Type Distribution */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              Distribuzione Tipi di Pelle
+        {/* Skin Types - Mobile Optimized */}
+        <Card className="hover:shadow-lg transition-shadow border-primary/10">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <span className="truncate">Tipi di Pelle</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center">
-            <ResponsiveContainer width="100%" height={280}>
+          <CardContent className="px-2 sm:px-6 pb-4">
+            <ResponsiveContainer width="100%" height={220}>
               <PieChart>
                 <Pie
                   data={skinTypeData}
@@ -323,7 +320,7 @@ export default function AdminDashboard() {
                   cy="50%"
                   labelLine={false}
                   label={(entry) => `${entry.name}: ${entry.value}`}
-                  outerRadius={90}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -335,7 +332,9 @@ export default function AdminDashboard() {
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))', 
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    padding: '8px 12px'
                   }}
                 />
               </PieChart>
@@ -343,35 +342,38 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Top Concerns */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MousePointer className="w-5 h-5 text-primary" />
-              Top 5 Preoccupazioni
+        {/* Top Concerns - Mobile Optimized */}
+        <Card className="hover:shadow-lg transition-shadow border-primary/10">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <MousePointer className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <span className="truncate">Top Preoccupazioni</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={concernsData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <CardContent className="px-2 sm:px-6 pb-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={concernsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis 
                   dataKey="name" 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 11 }}
-                  angle={-15}
+                  tick={{ fontSize: 10 }}
+                  angle={-45}
                   textAnchor="end"
-                  height={60}
+                  height={80}
                 />
                 <YAxis 
                   stroke="hsl(var(--muted-foreground))"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 10 }}
+                  width={30}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))', 
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    padding: '8px 12px'
                   }}
                 />
                 <Bar 
@@ -384,28 +386,28 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Contacts */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              Ultimi Contatti
+        {/* Recent Contacts - Mobile Optimized */}
+        <Card className="hover:shadow-lg transition-shadow border-primary/10">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <span className="truncate">Ultimi Contatti</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin">
+          <CardContent className="px-4 sm:px-6 pb-4">
+            <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
               {recentContacts.length > 0 ? (
                 recentContacts.map((contact) => (
                   <div 
                     key={contact.id} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/70 transition-all cursor-pointer border border-transparent hover:border-primary/20"
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-pointer border border-transparent hover:border-primary/20"
                   >
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pr-3">
                       <p className="font-medium text-sm truncate">{contact.name || 'N/A'}</p>
                       <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
                     </div>
-                    <div className="text-right ml-3 flex-shrink-0">
-                      <Badge variant="secondary" className="mb-1">
+                    <div className="text-right flex-shrink-0">
+                      <Badge variant="secondary" className="text-xs mb-1">
                         {contact.skin_type || 'N/A'}
                       </Badge>
                       <p className="text-xs text-muted-foreground">
@@ -418,7 +420,7 @@ export default function AdminDashboard() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-sm text-muted-foreground text-center py-8">
                   Nessun contatto recente
                 </p>
               )}
