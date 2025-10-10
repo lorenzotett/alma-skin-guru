@@ -54,33 +54,32 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
   };
 
   return (
-    <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
-      <div className="space-y-2">
-        <h3 className="text-lg sm:text-xl font-bold text-primary">Quali sono le tue preoccupazioni? 💭</h3>
-        <p className="text-sm text-muted-foreground">
+    <Card className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+      <div className="space-y-1.5 sm:space-y-2">
+        <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary">Quali sono le tue preoccupazioni? 💭</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Seleziona le tue problematiche (anche più di una):
         </p>
       </div>
 
-      <div className="grid gap-2 max-h-[400px] overflow-y-auto pr-1">
+      <div className="grid gap-2 max-h-[50vh] sm:max-h-[400px] overflow-y-auto pr-1">
         {concerns.map((concern) => (
           <div
             key={concern.value}
             onClick={() => toggleConcern(concern.value)}
             className={cn(
-              "flex items-start gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-card/50",
-              "hover:bg-primary/10 hover:border-primary hover:shadow-md",
+              "flex items-start gap-2 p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-all bg-card/50",
+              "hover:bg-primary/10 hover:border-primary hover:shadow-md active:scale-[0.98]",
               selected.includes(concern.value) && "bg-primary/15 border-primary shadow-md"
             )}
           >
             <Checkbox
               checked={selected.includes(concern.value)}
-              onCheckedChange={() => toggleConcern(concern.value)}
-              className="mt-0.5"
+              className="mt-0.5 pointer-events-none"
             />
             <div className="flex-1">
-              <div className="font-medium flex items-center gap-1.5 text-sm text-foreground">
-                <span className="text-base">{concern.icon}</span>
+              <div className="font-medium flex items-center gap-1.5 text-xs sm:text-sm text-foreground">
+                <span className="text-sm sm:text-base">{concern.icon}</span>
                 <span>{concern.title}</span>
               </div>
               {concern.description && (
@@ -95,7 +94,7 @@ export const ConcernsStep = ({ onNext }: ConcernsStepProps) => {
 
       <Button
         onClick={() => onNext(selected)}
-        className="w-full"
+        className="w-full text-sm sm:text-base"
         disabled={selected.length === 0}
       >
         Continua ({selected.length})

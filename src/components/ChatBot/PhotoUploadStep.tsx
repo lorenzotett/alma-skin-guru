@@ -53,24 +53,24 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5ebe0]">
-      <Card className="max-w-2xl w-full p-8 space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-primary">
+      <Card className="max-w-2xl w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
+        <div className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-primary">
             Carica una Foto (Opzionale) 📸
           </h2>
-          <p className="text-foreground">
+          <p className="text-sm sm:text-base text-foreground">
             Per poterti consigliare al meglio, puoi caricare una foto del tuo viso oppure passare direttamente alle domande sulla tua pelle.
           </p>
         </div>
 
         {!preview ? (
-          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center space-y-4 bg-secondary/30">
-            <Camera className="w-16 h-16 mx-auto text-primary/60" />
+          <div className="border-2 border-dashed border-border rounded-lg p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 bg-secondary/30">
+            <Camera className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-primary/60" />
             <div>
-              <p className="font-medium text-foreground mb-2">
+              <p className="font-medium text-sm sm:text-base text-foreground mb-2">
                 Trascina qui la tua foto o clicca per selezionarla
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Assicurati che il viso sia struccato, ben illuminato con luce naturale e centrato
               </p>
               <p className="text-xs text-muted-foreground mt-2">
@@ -85,7 +85,7 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
               id="photo-upload"
             />
             <label htmlFor="photo-upload">
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                 <span className="cursor-pointer">
                   <Upload className="w-4 h-4 mr-2" />
                   Seleziona Foto
@@ -94,12 +94,12 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
             </label>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="relative">
               <img 
                 src={preview} 
                 alt="Preview" 
-                className="w-full rounded-lg shadow-md max-h-96 object-contain bg-secondary/30"
+                className="w-full rounded-lg shadow-md max-h-64 sm:max-h-96 object-contain bg-secondary/30"
               />
               <Button
                 variant="destructive"
@@ -110,19 +110,20 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-sm text-center text-green-600 font-medium">
+            <p className="text-xs sm:text-sm text-center text-green-600 font-medium">
               ✓ Perfetto! Foto ricevuta
             </p>
           </div>
         )}
 
-        <div className="flex gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
           {onBack && (
             <Button
               type="button"
               variant="outline"
               size="lg"
               onClick={onBack}
+              className="w-full sm:w-auto order-2 sm:order-1"
             >
               ← Indietro
             </Button>
@@ -130,14 +131,14 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
           <Button
             onClick={() => onNext(photo || undefined)}
             size="lg"
-            className="flex-1"
+            className="flex-1 text-sm sm:text-base order-1 sm:order-2"
           >
             {photo ? "Continua con la Foto" : "⏭️ Salta questo passaggio"}
           </Button>
         </div>
 
         {photo && (
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-xs sm:text-sm text-center text-muted-foreground">
             Ora passiamo ad alcune domande per conoscerti meglio!
           </p>
         )}

@@ -54,12 +54,12 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
       return;
     }
 
-    // RFC 5322 simplified email regex
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    // RFC 5322 simplified email regex - validazione base migliorata
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(normalizedEmail)) {
       toast({
         title: "Email non valida",
-        description: "Inserisci un indirizzo email valido",
+        description: "Inserisci un indirizzo email valido (es: nome@esempio.com)",
         variant: "destructive",
       });
       return;
@@ -68,19 +68,11 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     // Extract domain from email
     const emailDomain = normalizedEmail.split('@')[1];
     
-    // List of common valid email providers
-    const validProviders = [
-      'gmail.com', 'libero.it', 'hotmail.com', 'hotmail.it', 'outlook.com', 'outlook.it',
-      'yahoo.com', 'yahoo.it', 'icloud.com', 'live.com', 'live.it', 'msn.com',
-      'virgilio.it', 'alice.it', 'tin.it', 'tiscali.it', 'fastwebnet.it', 'poste.it',
-      'pec.it', 'aruba.it', 'email.it', 'protonmail.com', 'proton.me'
-    ];
-    
     // List of known temporary/fake email domains to block
     const blockedDomains = [
       'tempmail', 'temp-mail', 'throwaway', 'guerrillamail', 'mailinator',
       '10minutemail', 'fakeinbox', 'maildrop', 'yopmail', 'getnada',
-      'trashmail', 'sharklasers', 'guerrillamail', 'spam4.me', 'mail.tm'
+      'trashmail', 'sharklasers', 'spam4.me', 'mail.tm', 'disposable'
     ];
     
     // Check if it's a blocked temporary email domain
@@ -89,20 +81,6 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
       toast({
         title: "Email non valida",
         description: "Non sono accettate email temporanee. Usa un'email reale.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Check if it's a valid provider OR a business email (has valid TLD)
-    const isValidProvider = validProviders.includes(emailDomain);
-    const validTLDs = ['.com', '.it', '.net', '.org', '.edu', '.gov', '.eu', '.co', '.info', '.biz'];
-    const hasValidTLD = validTLDs.some(tld => emailDomain.endsWith(tld));
-    
-    if (!isValidProvider && !hasValidTLD) {
-      toast({
-        title: "Email non valida",
-        description: "Usa un'email reale (Gmail, Libero, Outlook, etc.) o aziendale",
         variant: "destructive",
       });
       return;
@@ -152,10 +130,10 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
       <div className="space-y-2">
         <h3 className="text-lg sm:text-xl font-bold text-primary">Perfetto! 🎉</h3>
-        <p className="text-sm font-medium">
+        <p className="text-sm sm:text-base font-medium">
           Lasciami i tuoi dati per visualizzare:
         </p>
-        <ul className="text-xs text-muted-foreground space-y-1">
+        <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
           <li>✓ La tua analisi completa personalizzata</li>
           <li>✓ Routine skincare su misura per te</li>
         </ul>
@@ -163,7 +141,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
 
       <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="fullName" className="text-xs">Nome completo *</Label>
+          <Label htmlFor="fullName" className="text-xs sm:text-sm">Nome completo *</Label>
           <Input
             id="fullName"
             type="text"
@@ -171,11 +149,12 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
+            className="text-sm sm:text-base"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-xs">Email *</Label>
+          <Label htmlFor="email" className="text-xs sm:text-sm">Email *</Label>
           <Input
             id="email"
             type="email"
@@ -183,17 +162,19 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="text-sm sm:text-base"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="phone" className="text-xs">Telefono (opzionale)</Label>
+          <Label htmlFor="phone" className="text-xs sm:text-sm">Telefono (opzionale)</Label>
           <Input
             id="phone"
             type="tel"
             placeholder="+39 333 123 4567"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            className="text-sm sm:text-base"
           />
         </div>
 
@@ -203,8 +184,9 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
               id="marketing"
               checked={marketingConsent}
               onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
+              className="mt-0.5"
             />
-            <Label htmlFor="marketing" className="text-xs leading-tight cursor-pointer">
+            <Label htmlFor="marketing" className="text-xs sm:text-sm leading-tight cursor-pointer">
               Ricevi offerte esclusive Alma
             </Label>
           </div>
@@ -215,8 +197,9 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
               checked={privacyConsent}
               onCheckedChange={(checked) => setPrivacyConsent(checked as boolean)}
               required
+              className="mt-0.5"
             />
-            <Label htmlFor="privacy" className="text-xs leading-tight cursor-pointer">
+            <Label htmlFor="privacy" className="text-xs sm:text-sm leading-tight cursor-pointer">
               Accetto la{" "}
               <a 
                 href="https://almanaturalbeauty.it/privacy-policy" 
@@ -230,20 +213,20 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           {onBack && (
             <Button 
               type="button"
               variant="outline"
               onClick={onBack}
-              className="w-auto"
+              className="w-full sm:w-auto order-2 sm:order-1"
             >
               ← Indietro
             </Button>
           )}
           <Button 
             type="submit" 
-            className="flex-1 bg-primary hover:bg-primary/90"
+            className="flex-1 bg-primary hover:bg-primary/90 text-sm sm:text-base order-1 sm:order-2"
             disabled={!fullName || !email || !privacyConsent}
           >
             VISUALIZZA RISULTATI 🎁
