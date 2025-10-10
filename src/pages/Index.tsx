@@ -247,7 +247,7 @@ const Index = () => {
     setStep("initial-choice");
   };
 
-  const showBackButton = step !== "welcome" && step !== "results" && step !== "name" && step !== "initial-choice";
+  const showBackButton = step !== "welcome" && step !== "name" && step !== "initial-choice";
   const useChatLayout = [
     "skin-analysis",
     "skin-type", 

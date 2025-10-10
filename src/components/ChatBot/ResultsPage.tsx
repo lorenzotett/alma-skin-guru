@@ -209,17 +209,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8 bg-[#f5ebe0]">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Back button */}
-        <div className="flex justify-start">
-          <Button
-            variant="outline"
-            onClick={onRestart}
-            className="gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Torna all'inizio
-          </Button>
-        </div>
 
         {/* Header */}
         <Card id="results-header" className="p-6 sm:p-8 md:p-10 text-center space-y-4 sm:space-y-6 animate-fade-in bg-gradient-to-br from-[#f9f5f0] via-white to-[#f9f5f0] backdrop-blur border-2 border-primary/30 shadow-2xl">
@@ -373,9 +362,9 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
           )}
 
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 backdrop-blur border-2 border-primary/30 shadow-lg">
-            <div className="flex items-start gap-3">
+            <div className="flex flex-col items-center text-center gap-3">
               <span className="text-3xl">💡</span>
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <h4 className="font-bold text-base sm:text-lg text-primary mb-2">La nostra Raccomandazione</h4>
                 <p className="text-sm sm:text-base text-foreground leading-relaxed">{personalizedMessage}</p>
               </div>

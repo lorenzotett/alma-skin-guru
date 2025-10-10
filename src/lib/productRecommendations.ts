@@ -307,23 +307,23 @@ function sortByRoutineOrder(products: Product[]): Product[] {
 export const getPersonalizedMessage = (profile: UserProfile): string => {
   const { skinType, age, concerns } = profile;
   
-  let message = `✨ In base alla tua pelle **${skinType.toLowerCase()}**`;
+  let message = `In base alla tua pelle ${skinType.toLowerCase()}`;
   
   if (age < 25) {
-    message += " e alla tua giovane età, abbiamo creato una routine che protegge e previene";
+    message += " e alla tua giovane età, abbiamo creato una routine che protegge e previene.";
   } else if (age >= 25 && age < 35) {
-    message += " e alla tua età, ti consigliamo prodotti che mantengono l'idratazione e la luminosità";
+    message += " e alla tua età, ti consigliamo prodotti che mantengono l'idratazione e la luminosità.";
   } else if (age >= 35 && age < 45) {
-    message += ", considerando che sei nella fascia d'età in cui la pelle inizia a mostrare i primi segni del tempo, abbiamo selezionato prodotti con attivi anti-età";
+    message += ", considerando che sei nella fascia d'età in cui la pelle inizia a mostrare i primi segni del tempo, abbiamo selezionato prodotti con attivi anti-età.";
   } else {
-    message += ", considerando la maturità della tua pelle, ti proponiamo una routine intensiva anti-aging";
+    message += ", considerando la maturità della tua pelle, ti proponiamo una routine intensiva anti-aging.";
   }
   
   if (concerns && concerns.length > 0) {
-    message += `. I prodotti sono stati scelti **specificamente** per trattare: **${concerns.join(", ").toLowerCase()}**`;
+    message += ` I prodotti sono stati scelti specificamente per trattare: ${concerns.join(", ").toLowerCase()}.`;
   }
   
-  message += ". 🎯 Ogni prodotto della routine è stato accuratamente selezionato per rispondere alle tue esigenze specifiche e lavorare in sinergia con gli altri.";
+  message += " Ogni prodotto della routine è stato accuratamente selezionato per rispondere alle tue esigenze specifiche e lavorare in sinergia con gli altri.";
   
   return message;
 };

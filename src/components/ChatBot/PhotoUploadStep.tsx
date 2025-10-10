@@ -120,10 +120,10 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
           {onBack && (
             <Button
               type="button"
-              variant="outline"
-              size="lg"
+              variant="ghost"
+              size="sm"
               onClick={onBack}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto order-2 sm:order-1 text-xs sm:text-sm"
             >
               ← Indietro
             </Button>
@@ -131,9 +131,9 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
           <Button
             onClick={() => onNext(photo || undefined)}
             size="lg"
-            className="flex-1 text-sm sm:text-base order-1 sm:order-2"
+            className="flex-1 text-base sm:text-lg font-semibold order-1 sm:order-2 py-6"
           >
-            {photo ? "Continua con la Foto" : "⏭️ Salta questo passaggio"}
+            {photo ? "Continua con la Foto ✓" : "⏭️ Salta questo passaggio"}
           </Button>
         </div>
 
