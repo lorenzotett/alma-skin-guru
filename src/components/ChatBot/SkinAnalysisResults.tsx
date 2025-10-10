@@ -39,8 +39,24 @@ export const SkinAnalysisResults = ({ photoPreview, onNext }: SkinAnalysisResult
 
         console.log('Invio foto a Gemini per analisi...');
         
+        // Get current session for authentication
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          toast({
+            title: "Errore di autenticazione",
+            description: "Ricarica la pagina e riprova",
+            variant: "destructive",
+          });
+          setIsAnalyzing(false);
+          return;
+        }
+
         const { data, error } = await supabase.functions.invoke('analyze-skin', {
-          body: { imageBase64: base64Data }
+          body: { imageBase64: base64Data },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         });
 
         if (error) throw error;

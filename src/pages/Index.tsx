@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { WelcomeScreen } from "@/components/ChatBot/WelcomeScreen";
 import { NameStep } from "@/components/ChatBot/NameStep";
@@ -61,6 +61,27 @@ const Index = () => {
   const [step, setStep] = useState<Step>("welcome");
   const [userData, setUserData] = useState<UserData>({});
   const [stepHistory, setStepHistory] = useState<StepHistoryItem[]>([]);
+
+  // Anonymous authentication for security (Phase 3)
+  useEffect(() => {
+    const ensureAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('No session found, signing in anonymously...');
+        const { error } = await supabase.auth.signInAnonymously();
+        
+        if (error) {
+          console.error('Anonymous sign-in failed:', error);
+          toast.error('Errore di connessione. Ricarica la pagina.');
+        } else {
+          console.log('Anonymous authentication successful');
+        }
+      }
+    };
+    
+    ensureAuth();
+  }, []);
 
   const navigateToStep = (newStep: Step, newData: Partial<UserData> = {}) => {
     setStepHistory(prev => [...prev, { step, data: userData }]);

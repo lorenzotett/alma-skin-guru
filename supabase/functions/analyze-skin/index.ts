@@ -1,17 +1,96 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Restrict CORS to your domain
+const allowedOrigins = [
+  'https://scanbeauty.almanaturalbeauty.it',
+  'https://ndgnwsayjcptaodefzlx.lovable.app',
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const corsOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
 };
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing Authorization header');
+      return new Response(JSON.stringify({ 
+        error: 'Autenticazione richiesta per utilizzare questa funzione' 
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create Supabase client for auth and rate limiting
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.58.0');
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: authHeader }
+        }
+      }
+    );
+
+    // Verify user token
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+
+    if (authError || !user) {
+      console.error('Invalid authentication token:', authError);
+      return new Response(JSON.stringify({ 
+        error: 'Token di autenticazione non valido' 
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`Authenticated request from: ${user.email || user.id}`);
+
+    // Rate limiting: Max 10 skin analyses per user per day
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabaseClient
+      .from('contacts')
+      .select('*', { count: 'exact', head: true })
+      .or(`email.eq.${user.email || user.id},id.eq.${user.id}`)
+      .gte('created_at', oneDayAgo);
+
+    if (countError) {
+      console.error('Error checking rate limit:', countError);
+    }
+
+    if (count && count >= 10) {
+      console.warn(`Rate limit exceeded for user ${user.email || user.id}: ${count} analyses today`);
+      return new Response(JSON.stringify({ 
+        error: 'Hai raggiunto il limite giornaliero di 10 analisi. Riprova domani.',
+        retryAfter: 86400
+      }), {
+        status: 429,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': '86400'
+        },
+      });
+    }
+
+    console.log(`Rate limit check passed: ${count || 0}/10 analyses today`);
     const { imageBase64 } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 

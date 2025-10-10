@@ -1,13 +1,13 @@
 project_id = "ndgnwsayjcptaodefzlx"
 
 [functions.analyze-skin]
-verify_jwt = false
+verify_jwt = true
 
 [functions.chat-advisor]
-verify_jwt = false
+verify_jwt = true
 
 [functions.product-advisor]
-verify_jwt = false
+verify_jwt = true
 
 [functions.questions-advisor]
-verify_jwt = false
+verify_jwt = true

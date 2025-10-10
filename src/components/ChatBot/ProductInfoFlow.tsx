@@ -47,12 +47,28 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
     setIsLoading(true);
 
     try {
+      // Get current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast({
+          title: "Errore di autenticazione",
+          description: "Ricarica la pagina e riprova",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('product-advisor', {
         body: {
           message: userMessage,
           conversationHistory: messages,
           userName
-        }
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       if (error) throw error;
