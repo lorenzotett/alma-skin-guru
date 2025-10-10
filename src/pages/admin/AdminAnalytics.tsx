@@ -11,6 +11,11 @@ export default function AdminAnalytics() {
   const [ageDistribution, setAgeDistribution] = useState<any[]>([]);
   const [topConcerns, setTopConcerns] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>("30");
+  const [totalData, setTotalData] = useState<{
+    totalProducts: number;
+    totalRecommended: number;
+    totalClicked: number;
+  }>({ totalProducts: 0, totalRecommended: 0, totalClicked: 0 });
 
   useEffect(() => {
     fetchAnalytics();
@@ -19,8 +24,11 @@ export default function AdminAnalytics() {
   const fetchAnalytics = async () => {
     try {
       // Calculate date range
+      const useAllTime = timeRange === "all";
       const daysAgo = new Date();
-      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+      if (!useAllTime) {
+        daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+      }
 
       // Product Performance (filtered by timeframe)
       const { data: products } = await supabase
@@ -29,18 +37,32 @@ export default function AdminAnalytics() {
         .order('times_recommended', { ascending: false })
         .limit(10);
 
+      const totalRecommended = products?.reduce((sum, p) => sum + p.times_recommended, 0) || 0;
+      const totalClicked = products?.reduce((sum, p) => sum + p.times_clicked, 0) || 0;
+
+      setTotalData({
+        totalProducts: products?.length || 0,
+        totalRecommended,
+        totalClicked,
+      });
+
       setProductPerformance(products?.map(p => ({
-        name: p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name,
+        name: p.name.length > 15 ? p.name.substring(0, 15) + '...' : p.name,
         consigliati: p.times_recommended,
         cliccati: p.times_clicked,
       })) || []);
 
       // Age Distribution (filtered by timeframe)
-      const { data: contactsWithAge } = await supabase
+      let ageQuery = supabase
         .from('contacts')
         .select('age')
-        .not('age', 'is', null)
-        .gte('created_at', daysAgo.toISOString());
+        .not('age', 'is', null);
+      
+      if (!useAllTime) {
+        ageQuery = ageQuery.gte('created_at', daysAgo.toISOString());
+      }
+      
+      const { data: contactsWithAge } = await ageQuery;
 
       const ageGroups: { [key: string]: number } = {
         '18-25': 0,
@@ -62,11 +84,16 @@ export default function AdminAnalytics() {
       setAgeDistribution(Object.entries(ageGroups).map(([name, value]) => ({ name, value })));
 
       // Top Concerns (filtered by timeframe)
-      const { data: contactsWithConcerns } = await supabase
+      let concernsQuery = supabase
         .from('contacts')
         .select('concerns')
-        .not('concerns', 'is', null)
-        .gte('created_at', daysAgo.toISOString());
+        .not('concerns', 'is', null);
+      
+      if (!useAllTime) {
+        concernsQuery = concernsQuery.gte('created_at', daysAgo.toISOString());
+      }
+      
+      const { data: contactsWithConcerns } = await concernsQuery;
 
       const concernsCount: { [key: string]: number } = {};
       contactsWithConcerns?.forEach(contact => {
@@ -88,47 +115,83 @@ export default function AdminAnalytics() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in px-2 sm:px-0">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in px-2 sm:px-0 pb-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Analytics</h1>
-          <p className="text-sm text-muted-foreground">Statistiche e metriche dettagliate</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Analytics Dettagliate</h1>
+          <p className="text-sm text-muted-foreground">Analisi approfondita delle performance</p>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-40 h-9">
+          <SelectTrigger className="w-44 h-9">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7">Ultimi 7 giorni</SelectItem>
-            <SelectItem value="30">Ultimi 30 giorni</SelectItem>
+            <SelectItem value="7">Ultima settimana</SelectItem>
+            <SelectItem value="30">Ultimo mese</SelectItem>
             <SelectItem value="90">Ultimi 3 mesi</SelectItem>
             <SelectItem value="180">Ultimi 6 mesi</SelectItem>
             <SelectItem value="365">Ultimo anno</SelectItem>
+            <SelectItem value="all">Tutti i dati</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 sm:p-5">
+            <div className="space-y-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Prodotti Attivi</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary">{totalData.totalProducts}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 sm:p-5">
+            <div className="space-y-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Totale Consigliati</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary">{totalData.totalRecommended}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 sm:p-5">
+            <div className="space-y-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Totale Cliccati</p>
+              <p className="text-2xl sm:text-3xl font-bold text-accent">{totalData.totalClicked}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Product Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance Prodotti</CardTitle>
+      <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+        <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="text-base sm:text-lg">Performance Prodotti</CardTitle>
+            <p className="text-xs text-muted-foreground">Top 10 prodotti più consigliati</p>
+          </div>
         </CardHeader>
-        <CardContent className="px-2 sm:px-6">
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={productPerformance} margin={{ top: 10, right: 15, left: 0, bottom: 80 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <CardContent className="px-2 sm:px-6 pb-4">
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart 
+              data={productPerformance} 
+              margin={{ top: 10, right: 10, left: -10, bottom: 100 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis 
                 dataKey="name" 
                 stroke="hsl(var(--muted-foreground))" 
-                angle={-35} 
+                angle={-45} 
                 textAnchor="end" 
-                height={100} 
+                height={120} 
                 interval={0}
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 9 }}
               />
               <YAxis 
                 stroke="hsl(var(--muted-foreground))" 
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10 }}
+                width={35}
                 allowDecimals={false}
               />
               <Tooltip 
@@ -136,24 +199,41 @@ export default function AdminAnalytics() {
                   backgroundColor: 'hsl(var(--background))', 
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
-                  fontSize: '12px'
-                }} 
+                  fontSize: '11px',
+                  padding: '8px 12px'
+                }}
+                cursor={{ fill: 'hsl(var(--primary) / 0.05)' }}
               />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Bar dataKey="consigliati" fill="hsl(var(--primary))" name="Consigliati" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="cliccati" fill="hsl(var(--accent))" name="Cliccati" radius={[4, 4, 0, 0]} />
+              <Legend 
+                wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
+                iconType="circle"
+              />
+              <Bar 
+                dataKey="consigliati" 
+                fill="hsl(var(--primary))" 
+                name="Consigliati" 
+                radius={[6, 6, 0, 0]}
+                maxBarSize={60}
+              />
+              <Bar 
+                dataKey="cliccati" 
+                fill="hsl(var(--accent))" 
+                name="Cliccati" 
+                radius={[6, 6, 0, 0]}
+                maxBarSize={60}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
       {/* Demographics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribuzione Età</CardTitle>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <CardTitle className="text-base sm:text-lg">Distribuzione Età</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center px-2 sm:px-6">
+          <CardContent className="flex justify-center px-2 sm:px-6 pb-4">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -162,7 +242,7 @@ export default function AdminAnalytics() {
                   cy="50%"
                   labelLine={true}
                   label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -175,7 +255,8 @@ export default function AdminAnalytics() {
                     backgroundColor: 'hsl(var(--background))', 
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
-                    fontSize: '12px'
+                    fontSize: '11px',
+                    padding: '8px 12px'
                   }} 
                 />
               </PieChart>
@@ -183,18 +264,42 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Concerns</CardTitle>
+        <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <CardHeader className="px-4 sm:px-6 py-3 sm:py-4">
+            <CardTitle className="text-base sm:text-lg">Preoccupazioni Principali</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-6 pb-4">
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topConcerns} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" width={150} />
-                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
+              <BarChart data={topConcerns} layout="vertical" margin={{ top: 5, right: 20, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <XAxis 
+                  type="number" 
+                  stroke="hsl(var(--muted-foreground))" 
+                  tick={{ fontSize: 10 }}
+                  allowDecimals={false}
+                />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  stroke="hsl(var(--muted-foreground))" 
+                  width={140}
+                  tick={{ fontSize: 10 }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '11px',
+                    padding: '8px 12px'
+                  }}
+                  cursor={{ fill: 'hsl(var(--primary) / 0.05)' }}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="hsl(var(--primary))" 
+                  radius={[0, 6, 6, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

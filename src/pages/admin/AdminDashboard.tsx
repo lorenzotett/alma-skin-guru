@@ -35,6 +35,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      const useAllTime = timeRange === "all";
+      
       // Fetch total contacts
       const { count: totalContacts } = await supabase
         .from('contacts')
@@ -90,13 +92,18 @@ export default function AdminDashboard() {
       });
 
       // Fetch trends data
-      const daysAgo = new Date();
-      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
-      const { data: contactsData } = await supabase
+      let contactsQuery = supabase
         .from('contacts')
         .select('created_at')
-        .gte('created_at', daysAgo.toISOString())
         .order('created_at', { ascending: true });
+      
+      if (!useAllTime) {
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+        contactsQuery = contactsQuery.gte('created_at', daysAgo.toISOString());
+      }
+      
+      const { data: contactsData } = await contactsQuery;
 
       const trendsByDay: { [key: string]: number } = {};
       contactsData?.forEach(contact => {
@@ -189,13 +196,14 @@ export default function AdminDashboard() {
             <SelectTrigger className="w-36 sm:w-40 h-9">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Ultimi 7 giorni</SelectItem>
-              <SelectItem value="30">Ultimi 30 giorni</SelectItem>
-              <SelectItem value="90">Ultimi 3 mesi</SelectItem>
-              <SelectItem value="180">Ultimi 6 mesi</SelectItem>
-              <SelectItem value="365">Ultimo anno</SelectItem>
-            </SelectContent>
+          <SelectContent>
+            <SelectItem value="7">Ultima settimana</SelectItem>
+            <SelectItem value="30">Ultimo mese</SelectItem>
+            <SelectItem value="90">Ultimi 3 mesi</SelectItem>
+            <SelectItem value="180">Ultimi 6 mesi</SelectItem>
+            <SelectItem value="365">Ultimo anno</SelectItem>
+            <SelectItem value="all">Tutti i dati</SelectItem>
+          </SelectContent>
           </Select>
           <Button 
             variant="outline" 
