@@ -116,10 +116,18 @@ export default function AdminDashboard() {
       setTrendsData(Object.entries(trendsByDay).map(([date, count]) => ({ date, count })));
 
       // Fetch skin type distribution
-      const { data: contacts } = await supabase
+      let skinQuery = supabase
         .from('contacts')
         .select('skin_type')
         .not('skin_type', 'is', null);
+      
+      if (!useAllTime) {
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+        skinQuery = skinQuery.gte('created_at', daysAgo.toISOString());
+      }
+      
+      const { data: contacts } = await skinQuery;
 
       const skinTypes: { [key: string]: number } = {};
       contacts?.forEach(contact => {
@@ -130,10 +138,18 @@ export default function AdminDashboard() {
       setSkinTypeData(Object.entries(skinTypes).map(([name, value]) => ({ name, value })));
 
       // Fetch top concerns
-      const { data: contactsWithConcerns } = await supabase
+      let concernsQuery = supabase
         .from('contacts')
         .select('concerns')
         .not('concerns', 'is', null);
+      
+      if (!useAllTime) {
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+        concernsQuery = concernsQuery.gte('created_at', daysAgo.toISOString());
+      }
+      
+      const { data: contactsWithConcerns } = await concernsQuery;
 
       const concernsCount: { [key: string]: number } = {};
       contactsWithConcerns?.forEach(contact => {

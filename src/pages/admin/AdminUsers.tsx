@@ -61,8 +61,7 @@ export default function AdminUsers() {
   const [conversationMessages, setConversationMessages] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const itemsPerPage = 25;
+  const itemsPerPage = 30;
 
   useEffect(() => {
     fetchContacts();
@@ -77,7 +76,7 @@ export default function AdminUsers() {
     try {
       const { data, error } = await supabase
         .from('contacts')
-        .select('*')
+        .select('id, name, email, phone, age, skin_type, concerns, product_type, additional_info, created_at, email_sent, email_opened_at, email_clicked_at, discount_code, conversation_id')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -217,57 +216,6 @@ export default function AdminUsers() {
     toast.success("Dati utente esportati");
   };
 
-  const deleteAllAnalyses = async () => {
-    if (!confirm("⚠️ ATTENZIONE: Questa operazione eliminerà TUTTE le analisi, contatti e conversazioni dal database. Sei sicuro di voler continuare?")) {
-      return;
-    }
-    
-    if (!confirm("🚨 CONFERMA FINALE: I dati eliminati non potranno essere recuperati. Procedere?")) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      // Delete in sequence to respect foreign key constraints
-      const { error: productsError } = await supabase
-        .from('contact_products')
-        .delete()
-        .neq('contact_id', '00000000-0000-0000-0000-000000000000');
-      
-      if (productsError) throw productsError;
-
-      const { error: conversationsError } = await supabase
-        .from('conversations')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-      
-      if (conversationsError) throw conversationsError;
-
-      const { error: contactsError } = await supabase
-        .from('contacts')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-      
-      if (contactsError) throw contactsError;
-
-      // Reset product counters
-      const { error: resetError } = await supabase
-        .from('products')
-        .update({ times_recommended: 0, times_clicked: 0 })
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-      
-      if (resetError) throw resetError;
-
-      toast.success("✅ Database pulito con successo!");
-      await fetchContacts();
-    } catch (error: any) {
-      console.error("Error deleting data:", error);
-      toast.error(`Errore durante la pulizia: ${error.message}`);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   const getEmailStatusBadge = (contact: Contact) => {
     if (contact.email_clicked_at) {
       return <Badge className="bg-green-500 hover:bg-green-600">Cliccata</Badge>;
@@ -298,20 +246,10 @@ export default function AdminUsers() {
             {isLoading && " (caricamento...)"}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={deleteAllAnalyses} 
-            variant="destructive" 
-            className="gap-2"
-            disabled={isDeleting}
-          >
-            {isDeleting ? "Eliminazione..." : "🗑️ Pulisci DB"}
-          </Button>
-          <Button onClick={exportToCSV} className="gap-2" disabled={isLoading}>
-            <Download className="w-4 h-4" />
-            Esporta CSV
-          </Button>
-        </div>
+        <Button onClick={exportToCSV} className="gap-2" disabled={isLoading}>
+          <Download className="w-4 h-4" />
+          Esporta CSV
+        </Button>
       </div>
 
       {/* Filters */}
