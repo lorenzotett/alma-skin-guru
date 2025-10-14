@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, FileText, MousePointer, TrendingUp, Calendar, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { PieChart, Pie, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,7 @@ export default function AdminDashboard() {
   const [recentContacts, setRecentContacts] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>("7");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -34,6 +36,7 @@ export default function AdminDashboard() {
   };
 
   const fetchDashboardData = async () => {
+    setIsLoading(true);
     try {
       const useAllTime = timeRange === "all";
       
@@ -155,6 +158,9 @@ export default function AdminDashboard() {
       setRecentContacts(recentContactsData || []);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+      toast.error("Errore nel caricamento dei dati");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -185,6 +191,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 pb-6">
+      {isLoading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-3">
+            <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-lg font-medium text-primary">Caricamento dashboard...</p>
+          </div>
+        </div>
+      )}
       {/* Header - Mobile Optimized */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>

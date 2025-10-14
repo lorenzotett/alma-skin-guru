@@ -60,6 +60,8 @@ export default function AdminUsers() {
   const [clickedProducts, setClickedProducts] = useState<Set<string>>(new Set());
   const [conversationMessages, setConversationMessages] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const itemsPerPage = 25;
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export default function AdminUsers() {
   }, [contacts, searchQuery, skinTypeFilter, emailStatusFilter]);
 
   const fetchContacts = async () => {
+    setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('contacts')
@@ -79,9 +82,12 @@ export default function AdminUsers() {
 
       if (error) throw error;
       setContacts(data || []);
+      toast.success(`${data?.length || 0} utenti caricati`);
     } catch (error) {
       console.error("Error fetching contacts:", error);
       toast.error("Errore nel caricamento dei contatti");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -211,6 +217,57 @@ export default function AdminUsers() {
     toast.success("Dati utente esportati");
   };
 
+  const deleteAllAnalyses = async () => {
+    if (!confirm("⚠️ ATTENZIONE: Questa operazione eliminerà TUTTE le analisi, contatti e conversazioni dal database. Sei sicuro di voler continuare?")) {
+      return;
+    }
+    
+    if (!confirm("🚨 CONFERMA FINALE: I dati eliminati non potranno essere recuperati. Procedere?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // Delete in sequence to respect foreign key constraints
+      const { error: productsError } = await supabase
+        .from('contact_products')
+        .delete()
+        .neq('contact_id', '00000000-0000-0000-0000-000000000000');
+      
+      if (productsError) throw productsError;
+
+      const { error: conversationsError } = await supabase
+        .from('conversations')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (conversationsError) throw conversationsError;
+
+      const { error: contactsError } = await supabase
+        .from('contacts')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (contactsError) throw contactsError;
+
+      // Reset product counters
+      const { error: resetError } = await supabase
+        .from('products')
+        .update({ times_recommended: 0, times_clicked: 0 })
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (resetError) throw resetError;
+
+      toast.success("✅ Database pulito con successo!");
+      await fetchContacts();
+    } catch (error: any) {
+      console.error("Error deleting data:", error);
+      toast.error(`Errore durante la pulizia: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getEmailStatusBadge = (contact: Contact) => {
     if (contact.email_clicked_at) {
       return <Badge className="bg-green-500 hover:bg-green-600">Cliccata</Badge>;
@@ -236,12 +293,25 @@ export default function AdminUsers() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">Gestione Utenti</h1>
-          <p className="text-muted-foreground">Totale: {filteredContacts.length} utenti</p>
+          <p className="text-muted-foreground">
+            Totale: {filteredContacts.length} utenti
+            {isLoading && " (caricamento...)"}
+          </p>
         </div>
-        <Button onClick={exportToCSV} className="gap-2">
-          <Download className="w-4 h-4" />
-          Esporta CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={deleteAllAnalyses} 
+            variant="destructive" 
+            className="gap-2"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Eliminazione..." : "🗑️ Pulisci DB"}
+          </Button>
+          <Button onClick={exportToCSV} className="gap-2" disabled={isLoading}>
+            <Download className="w-4 h-4" />
+            Esporta CSV
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -285,115 +355,126 @@ export default function AdminUsers() {
 
       {/* Table */}
       <Card className="shadow-lg">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-secondary/30">
-                <TableHead className="font-semibold">Utente</TableHead>
-                <TableHead className="font-semibold">Contatto</TableHead>
-                <TableHead className="font-semibold hidden sm:table-cell">Età</TableHead>
-                <TableHead className="font-semibold">Tipo Pelle</TableHead>
-                <TableHead className="font-semibold hidden md:table-cell">Concerns</TableHead>
-                <TableHead className="font-semibold hidden lg:table-cell">Data</TableHead>
-                <TableHead className="font-semibold">Email</TableHead>
-                <TableHead className="font-semibold text-right">Azioni</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedContacts.map((contact) => (
-                <TableRow key={contact.id} className="cursor-pointer hover:bg-secondary/50 transition-colors">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="hidden sm:flex">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {contact.name?.charAt(0) || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-sm">{contact.name || 'N/A'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm space-y-0.5">
-                      <div className="font-medium">{contact.email}</div>
-                      <div className="text-muted-foreground text-xs">{contact.phone || '-'}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <span className="text-sm">{contact.age || '-'}</span>
-                  </TableCell>
-                  <TableCell>
-                    {contact.skin_type ? (
-                      <Badge variant="secondary" className="text-xs">
-                        {contact.skin_type}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <div className="flex flex-wrap gap-1 max-w-[200px]">
-                      {contact.concerns?.slice(0, 2).map((concern, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {concern}
-                        </Badge>
-                      ))}
-                      {contact.concerns && contact.concerns.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{contact.concerns.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm hidden lg:table-cell">
-                    {new Date(contact.created_at).toLocaleDateString('it-IT', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric'
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    {getEmailStatusBadge(contact)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openDetailDrawer(contact)}
-                      className="hover:bg-primary/10"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t gap-4">
-          <p className="text-sm text-muted-foreground">
-            Pagina {currentPage} di {totalPages} • {filteredContacts.length} utenti totali
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
-              Precedente
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Successiva
-            </Button>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-12">
+            <div className="text-center space-y-3">
+              <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-muted-foreground">Caricamento utenti...</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-secondary/30">
+                    <TableHead className="font-semibold">Utente</TableHead>
+                    <TableHead className="font-semibold">Contatto</TableHead>
+                    <TableHead className="font-semibold hidden sm:table-cell">Età</TableHead>
+                    <TableHead className="font-semibold">Tipo Pelle</TableHead>
+                    <TableHead className="font-semibold hidden md:table-cell">Concerns</TableHead>
+                    <TableHead className="font-semibold hidden lg:table-cell">Data</TableHead>
+                    <TableHead className="font-semibold">Email</TableHead>
+                    <TableHead className="font-semibold text-right">Azioni</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedContacts.map((contact) => (
+                    <TableRow key={contact.id} className="cursor-pointer hover:bg-secondary/50 transition-colors">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="hidden sm:flex">
+                            <AvatarFallback className="bg-primary text-primary-foreground">
+                              {contact.name?.charAt(0) || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-sm">{contact.name || 'N/A'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm space-y-0.5">
+                          <div className="font-medium">{contact.email}</div>
+                          <div className="text-muted-foreground text-xs">{contact.phone || '-'}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <span className="text-sm">{contact.age || '-'}</span>
+                      </TableCell>
+                      <TableCell>
+                        {contact.skin_type ? (
+                          <Badge variant="secondary" className="text-xs">
+                            {contact.skin_type}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          {contact.concerns?.slice(0, 2).map((concern, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {concern}
+                            </Badge>
+                          ))}
+                          {contact.concerns && contact.concerns.length > 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{contact.concerns.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm hidden lg:table-cell">
+                        {new Date(contact.created_at).toLocaleDateString('it-IT', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        {getEmailStatusBadge(contact)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDetailDrawer(contact)}
+                          className="hover:bg-primary/10"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t gap-4">
+              <p className="text-sm text-muted-foreground">
+                Pagina {currentPage} di {totalPages} • {filteredContacts.length} utenti totali
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Precedente
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Successiva
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </Card>
 
       {/* Detail Drawer */}
