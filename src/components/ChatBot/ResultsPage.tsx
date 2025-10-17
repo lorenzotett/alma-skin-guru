@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, ShoppingCart, RotateCcw, Check, Plus, Package, ChevronLeft } from "lucide-react";
+import { ExternalLink, ShoppingCart, RotateCcw, ChevronDown, ChevronUp, Check, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getRecommendedProducts, getPersonalizedMessage, type Product } from "@/lib/productRecommendations";
 import { logError } from "@/lib/errorHandler";
@@ -35,6 +35,8 @@ interface ResultsPageProps {
 export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: ResultsPageProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  // Collapse all categories by default for better UX
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   
@@ -155,6 +157,23 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     }
   };
 
+  const toggleCategory = (category: string, e?: React.MouseEvent) => {
+    // Prevent any event bubbling that might cause double-firing
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
 
   // Handler for adding single product to cart
   const handleAddSingleProduct = async (product: Product) => {
@@ -172,15 +191,16 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       
       // Visual feedback
       setAddedProducts(prev => new Set(prev).add(product.id));
-      
-      // Redirect to external cart after brief delay
       setTimeout(() => {
-        window.location.href = 'https://almanaturalbeauty.it/carrello/';
-      }, 800);
+        setAddedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(product.id);
+          return newSet;
+        });
+      }, 2000);
       
     } catch (error) {
       console.error('Error adding to cart:', error);
-      toast.error('Errore nell\'aggiunta al carrello. Riprova.');
     }
   };
 
@@ -203,10 +223,10 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       await addMultipleToCart(cartProducts);
       
       // Brief delay for feedback
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Redirect to external cart
-      window.location.href = 'https://almanaturalbeauty.it/carrello/';
+      // Navigate to cart page
+      navigate('/cart');
       
     } catch (error) {
       setIsCheckingOut(false);
@@ -273,7 +293,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
               size="lg"
               className="gap-2 border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60 shadow-md hover:shadow-lg transition-all"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronDown className="w-5 h-5 rotate-90" />
               Torna all'Ultimo Passaggio
             </Button>
           </div>
@@ -452,15 +472,22 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
             </p>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             {sortedCategories.map(category => {
+              const isExpanded = expandedCategories.has(category);
               const categoryProducts = groupedProducts[category];
               
               return (
                 <div key={category} className="animate-fade-in">
-                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl">
-                    <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-primary/10">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                   <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
+                    <button
+                      type="button"
+                      onClick={(e) => toggleCategory(category, e)}
+                      className="w-full flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-0 text-left"
+                      aria-expanded={isExpanded}
+                      aria-controls={`category-${category}`}
+                    >
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center pointer-events-none">
                         <span className="text-2xl sm:text-3xl">
                           {category === "Detergente" && "🧴"}
                           {category === "Tonico" && "💧"}
@@ -472,14 +499,20 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                           {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
                         </span>
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-primary">{category}</h3>
-                      <Badge className="ml-auto bg-primary/10 text-primary border-primary/30">
+                      <h3 className="text-xl sm:text-2xl font-bold text-primary pointer-events-none">{category}</h3>
+                      <Badge className="ml-auto bg-primary/10 text-primary border-primary/30 pointer-events-none">
                         {categoryProducts.length} {categoryProducts.length === 1 ? "prodotto" : "prodotti"}
                       </Badge>
-                    </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-6 h-6 text-primary flex-shrink-0 pointer-events-none" />
+                      ) : (
+                        <ChevronDown className="w-6 h-6 text-primary flex-shrink-0 pointer-events-none" />
+                      )}
+                    </button>
 
-                    <div className="grid gap-4 sm:gap-5">
-                      {categoryProducts.map((product, index) => (
+                    {isExpanded && (
+                      <div id={`category-${category}`} className="grid gap-3 animate-fade-in">
+                       {categoryProducts.map((product, index) => (
                         <div key={product.id} className="p-4 sm:p-5 bg-gradient-to-br from-white to-primary/5 backdrop-blur rounded-xl border-2 border-primary/20 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
                           <div className="flex flex-col sm:flex-row gap-4">
                             {product.image_url && (
@@ -581,11 +614,12 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
+                         </div>
+                       ))}
+                      </div>
+                    )}
+                   </Card>
+                 </div>
                );
              })}
            </div>
