@@ -157,7 +157,13 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     }
   };
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = (category: string, e?: React.MouseEvent) => {
+    // Prevent any event bubbling that might cause double-firing
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setExpandedCategories(prev => {
       const newSet = new Set(prev);
       if (newSet.has(category)) {
@@ -473,10 +479,11 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
               
               return (
                 <div key={category} className="animate-fade-in">
-                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
+                   <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
                     <button
-                      onClick={() => toggleCategory(category)}
-                      className="w-full flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10 hover:opacity-80 transition-opacity cursor-pointer"
+                      type="button"
+                      onClick={(e) => toggleCategory(category, e)}
+                      className="w-full flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-0 text-left"
                       aria-expanded={isExpanded}
                       aria-controls={`category-${category}`}
                     >

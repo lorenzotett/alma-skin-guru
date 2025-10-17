@@ -278,7 +278,7 @@ const Index = () => {
             userData={userData as any} 
             onRestart={handleRestart}
             onEditData={handleEditFromResults}
-            onBack={handleBack}
+            onBack={() => setStep("additional-info")}
           />
         )}
       </>
