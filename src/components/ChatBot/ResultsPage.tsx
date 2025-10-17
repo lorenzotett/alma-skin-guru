@@ -3,11 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, ShoppingCart, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, ShoppingCart, RotateCcw, ChevronDown, ChevronUp, Check, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getRecommendedProducts, getPersonalizedMessage, type Product } from "@/lib/productRecommendations";
 import { logError } from "@/lib/errorHandler";
 import { AIAdvisorChat } from "./AIAdvisorChat";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface ResultsPageProps {
   userData: {
@@ -34,6 +37,11 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const [loading, setLoading] = useState(true);
   // Collapse all categories by default for better UX
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  
+  const { addToCart, addMultipleToCart, cartCount, isLoading: cartLoading } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Force immediate and persistent scroll to top
@@ -159,6 +167,65 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       }
       return newSet;
     });
+  };
+
+  // Handler for adding single product to cart
+  const handleAddSingleProduct = async (product: Product) => {
+    try {
+      await addToCart({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        product_url: product.product_url,
+        image_url: product.image_url,
+        description_short: product.description_short,
+        brand: product.brand,
+      });
+      
+      // Visual feedback
+      setAddedProducts(prev => new Set(prev).add(product.id));
+      setTimeout(() => {
+        setAddedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(product.id);
+          return newSet;
+        });
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
+  // Handler for buying all products
+  const handleBuyAll = async () => {
+    setIsCheckingOut(true);
+    
+    try {
+      const cartProducts = products.map(p => ({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        product_url: p.product_url,
+        image_url: p.image_url,
+        description_short: p.description_short,
+        brand: p.brand,
+      }));
+      
+      await addMultipleToCart(cartProducts);
+      
+      // Brief delay for feedback
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Navigate to cart page
+      navigate('/cart');
+      
+    } catch (error) {
+      setIsCheckingOut(false);
+      toast.error('Errore durante l\'aggiunta dei prodotti. Riprova.');
+    }
   };
 
   const totalValue = products.reduce((sum, p) => sum + p.price, 0);
@@ -503,11 +570,30 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                               
                               <div className="flex gap-2 pt-3">
                                 <Button
-                                  className="flex-1 gap-2 h-11 text-base font-semibold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 shadow-lg hover:shadow-xl transition-all"
-                                  onClick={() => window.open(product.product_url, '_blank')}
+                                  onClick={() => handleAddSingleProduct(product)}
+                                  disabled={cartLoading || addedProducts.has(product.id)}
+                                  className={`flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all ${
+                                    addedProducts.has(product.id)
+                                      ? 'bg-green-500 hover:bg-green-600'
+                                      : 'bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90'
+                                  }`}
                                 >
-                                  <ShoppingCart className="w-5 h-5" />
-                                  Acquista Ora
+                                  {addedProducts.has(product.id) ? (
+                                    <>
+                                      <Check className="w-5 h-5" />
+                                      Aggiunto!
+                                    </>
+                                  ) : cartLoading ? (
+                                    <>
+                                      <div className="animate-spin">⏳</div>
+                                      Aggiungendo...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-5 h-5" />
+                                      Aggiungi al Carrello
+                                    </>
+                                  )}
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -532,8 +618,89 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
            </div>
          </div>
 
-        {/* AI Advisor Chat */}
-        <AIAdvisorChat userData={userData} recommendedProducts={products} />
+         {/* Bulk Purchase Section */}
+         <Card className="p-6 sm:p-8 space-y-6 bg-gradient-to-br from-accent/20 via-primary/15 to-accent/20 backdrop-blur border-2 border-primary/30 shadow-2xl sticky top-4 z-10 animate-fade-in">
+           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+             <div className="text-center sm:text-left space-y-2 flex-1">
+               <div className="flex items-center justify-center sm:justify-start gap-2">
+                 <ShoppingCart className="w-6 h-6 text-primary" />
+                 <h3 className="text-xl sm:text-2xl font-bold text-primary">
+                   Acquista la Routine Completa
+                 </h3>
+               </div>
+               <p className="text-sm sm:text-base text-muted-foreground">
+                 {products.length} prodotti personalizzati • Sconto del 15%
+               </p>
+               <div className="flex items-center justify-center sm:justify-start gap-3 flex-wrap">
+                 <div className="flex items-baseline gap-2">
+                   <span className="text-sm text-muted-foreground line-through">
+                     €{totalValue.toFixed(2)}
+                   </span>
+                   <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                     €{discountedValue.toFixed(2)}
+                   </span>
+                 </div>
+                 <Badge className="bg-green-500 text-white border-0 shadow-md">
+                   Risparmi €{savings.toFixed(2)}
+                 </Badge>
+               </div>
+             </div>
+             
+             <div className="flex flex-col gap-3 w-full sm:w-auto">
+               <Button
+                 onClick={handleBuyAll}
+                 disabled={isCheckingOut || products.length === 0}
+                 size="lg"
+                 className="w-full sm:w-auto gap-3 h-14 px-8 text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 shadow-2xl hover:shadow-3xl transition-all animate-pulse hover:animate-none"
+               >
+                 {isCheckingOut ? (
+                   <>
+                     <div className="animate-spin">⏳</div>
+                     Aggiungendo al carrello...
+                   </>
+                 ) : (
+                   <>
+                     <ShoppingCart className="w-6 h-6" />
+                     Acquista Tutto - €{discountedValue.toFixed(2)}
+                   </>
+                 )}
+               </Button>
+               
+               {cartCount > 0 && (
+                 <Button
+                   onClick={() => navigate('/cart')}
+                   variant="outline"
+                   size="lg"
+                   className="w-full sm:w-auto gap-2 border-2 border-primary/40 hover:bg-primary/10"
+                 >
+                   Visualizza Carrello ({cartCount})
+                 </Button>
+               )}
+             </div>
+           </div>
+
+           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs sm:text-sm">
+             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
+               <div className="text-xl">🔒</div>
+               <p className="font-semibold">Pagamento Sicuro</p>
+             </div>
+             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
+               <div className="text-xl">🚚</div>
+               <p className="font-semibold">Spedizione Gratuita</p>
+             </div>
+             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
+               <div className="text-xl">↩️</div>
+               <p className="font-semibold">Reso Entro 30gg</p>
+             </div>
+             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
+               <div className="text-xl">💚</div>
+               <p className="font-semibold">100% Naturale</p>
+             </div>
+           </div>
+         </Card>
+
+         {/* AI Advisor Chat */}
+         <AIAdvisorChat userData={userData} recommendedProducts={products} />
 
         {/* CTA */}
         <Card className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 animate-fade-in border-2 border-primary/30 shadow-xl backdrop-blur">
