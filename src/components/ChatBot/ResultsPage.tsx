@@ -26,13 +26,14 @@ interface ResultsPageProps {
   };
   onRestart: () => void;
   onEditData?: (step: string) => void;
+  onBack?: () => void;
 }
 
-export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProps) => {
+export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: ResultsPageProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  // Expand all categories by default
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Detergente', 'Tonico', 'Siero', 'Contorno Occhi', 'Crema Viso', 'Protezione Solare', 'Maschera', 'Altri']));
+  // Collapse all categories by default for better UX
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Force immediate and persistent scroll to top
@@ -209,6 +210,21 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8 bg-[#f5ebe0]">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+
+        {/* Back Button */}
+        {onBack && (
+          <div className="flex justify-start">
+            <Button
+              onClick={onBack}
+              variant="outline"
+              size="lg"
+              className="gap-2 border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60 shadow-md hover:shadow-lg transition-all"
+            >
+              <ChevronDown className="w-5 h-5 rotate-90" />
+              Torna all'Ultimo Passaggio
+            </Button>
+          </div>
+        )}
 
         {/* Header */}
         <Card id="results-header" className="p-6 sm:p-8 md:p-10 text-center space-y-4 sm:space-y-6 animate-fade-in bg-gradient-to-br from-[#f9f5f0] via-white to-[#f9f5f0] backdrop-blur border-2 border-primary/30 shadow-2xl">
@@ -391,8 +407,13 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
               return (
                 <div key={category} className="animate-fade-in">
                   <Card className="p-4 sm:p-6 bg-gradient-to-br from-white via-[#f9f5f0]/50 to-white backdrop-blur border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
-                    <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                    <button
+                      onClick={() => toggleCategory(category)}
+                      className="w-full flex items-center gap-3 mb-4 pb-3 border-b-2 border-primary/10 hover:opacity-80 transition-opacity cursor-pointer"
+                      aria-expanded={isExpanded}
+                      aria-controls={`category-${category}`}
+                    >
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center pointer-events-none">
                         <span className="text-2xl sm:text-3xl">
                           {category === "Detergente" && "🧴"}
                           {category === "Tonico" && "💧"}
@@ -404,13 +425,19 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
                           {!["Detergente", "Tonico", "Siero", "Contorno Occhi", "Crema Viso", "Protezione Solare", "Maschera"].includes(category) && "💆"}
                         </span>
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-primary">{category}</h3>
-                      <Badge className="ml-auto bg-primary/10 text-primary border-primary/30">
+                      <h3 className="text-xl sm:text-2xl font-bold text-primary pointer-events-none">{category}</h3>
+                      <Badge className="ml-auto bg-primary/10 text-primary border-primary/30 pointer-events-none">
                         {categoryProducts.length} {categoryProducts.length === 1 ? "prodotto" : "prodotti"}
                       </Badge>
-                    </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-6 h-6 text-primary flex-shrink-0 pointer-events-none" />
+                      ) : (
+                        <ChevronDown className="w-6 h-6 text-primary flex-shrink-0 pointer-events-none" />
+                      )}
+                    </button>
 
-                    <div className="grid gap-3 animate-fade-in">
+                    {isExpanded && (
+                      <div id={`category-${category}`} className="grid gap-3 animate-fade-in">
                        {categoryProducts.map((product, index) => (
                         <div key={product.id} className="p-4 sm:p-5 bg-gradient-to-br from-white to-primary/5 backdrop-blur rounded-xl border-2 border-primary/20 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
                           <div className="flex flex-col sm:flex-row gap-4">
@@ -494,15 +521,16 @@ export const ResultsPage = ({ userData, onRestart, onEditData }: ResultsPageProp
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                         </div>
+                       ))}
+                      </div>
+                    )}
+                   </Card>
+                 </div>
+               );
+             })}
+           </div>
+         </div>
 
         {/* AI Advisor Chat */}
         <AIAdvisorChat userData={userData} recommendedProducts={products} />

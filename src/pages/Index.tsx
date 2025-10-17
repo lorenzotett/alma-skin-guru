@@ -247,7 +247,7 @@ const Index = () => {
     setStep("initial-choice");
   };
 
-  const showBackButton = step !== "welcome" && step !== "name" && step !== "initial-choice" && step !== "results";
+  const showBackButton = step !== "welcome" && step !== "name" && step !== "initial-choice";
   const useChatLayout = [
     "skin-analysis",
     "skin-type", 
@@ -278,6 +278,7 @@ const Index = () => {
             userData={userData as any} 
             onRestart={handleRestart}
             onEditData={handleEditFromResults}
+            onBack={handleBack}
           />
         )}
       </>
