@@ -38,7 +38,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   
-  const { addToCart, addMultipleToCart, cartCount, isLoading: cartLoading } = useCart();
+  const { addToCart, cartCount, isLoading: cartLoading } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -161,36 +161,42 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for buying all products - adds to local cart and redirects
+  // Handler for buying all products - redirects to e-commerce with product IDs
   const handleBuyAll = async () => {
     setIsCheckingOut(true);
     
     try {
-      // Add all products to local cart context
-      const cartProducts = products.map(p => ({
-        id: p.id,
-        name: p.name,
-        category: p.category,
-        price: p.price,
-        product_url: p.product_url,
-        image_url: p.image_url,
-        description_short: p.description_short,
-        brand: p.brand,
-      }));
+      // Extract product IDs from product URLs
+      // Alma products typically have URLs like: https://almanaturalbeauty.it/prodotto/nome-prodotto/
+      // We need to extract the product slug and pass it to WooCommerce
       
-      await addMultipleToCart(cartProducts);
+      // Build URL with multiple add-to-cart parameters
+      const baseUrl = 'https://almanaturalbeauty.it/carrello/';
+      const productParams = products
+        .map(p => {
+          // Extract product slug from URL
+          const urlParts = p.product_url.split('/');
+          const slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1];
+          return slug;
+        })
+        .filter(slug => slug && slug.trim() !== '')
+        .map(slug => `add-to-cart=${encodeURIComponent(slug)}`)
+        .join('&');
       
-      // Show success feedback
-      toast.success('Tutti i prodotti aggiunti al carrello!');
+      const fullUrl = productParams ? `${baseUrl}?${productParams}` : baseUrl;
       
-      // Brief delay then redirect to e-commerce cart
+      // Show feedback
+      toast.success('Reindirizzamento al carrello...');
+      
+      // Redirect to e-commerce cart with products
       setTimeout(() => {
-        window.location.href = 'https://almanaturalbeauty.it/carrello/';
-      }, 1200);
+        window.location.href = fullUrl;
+      }, 800);
       
     } catch (error) {
       setIsCheckingOut(false);
-      toast.error('Errore durante l\'aggiunta dei prodotti. Riprova.');
+      toast.error('Errore durante il reindirizzamento. Riprova.');
+      console.error('Error in handleBuyAll:', error);
     }
   };
 
