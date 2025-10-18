@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -156,39 +156,17 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   };
 
 
-  // Handler for adding single product to cart
-  const handleAddSingleProduct = async (product: Product) => {
-    try {
-      await addToCart({
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        price: product.price,
-        product_url: product.product_url,
-        image_url: product.image_url,
-        description_short: product.description_short,
-        brand: product.brand,
-      });
-      
-      // Visual feedback
-      setAddedProducts(prev => new Set(prev).add(product.id));
-      
-      // Redirect to external cart after brief delay
-      setTimeout(() => {
-        window.location.href = 'https://almanaturalbeauty.it/carrello/';
-      }, 800);
-      
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error('Errore nell\'aggiunta al carrello. Riprova.');
-    }
+  // Handler for redirecting to product page
+  const handleViewProduct = (productUrl: string) => {
+    window.open(productUrl, '_blank');
   };
 
-  // Handler for buying all products
+  // Handler for buying all products - adds to local cart and redirects
   const handleBuyAll = async () => {
     setIsCheckingOut(true);
     
     try {
+      // Add all products to local cart context
       const cartProducts = products.map(p => ({
         id: p.id,
         name: p.name,
@@ -202,11 +180,13 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       
       await addMultipleToCart(cartProducts);
       
-      // Brief delay for feedback
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Show success feedback
+      toast.success('Tutti i prodotti aggiunti al carrello!');
       
-      // Redirect to external cart
-      window.location.href = 'https://almanaturalbeauty.it/carrello/';
+      // Brief delay then redirect to e-commerce cart
+      setTimeout(() => {
+        window.location.href = 'https://almanaturalbeauty.it/carrello/';
+      }, 1200);
       
     } catch (error) {
       setIsCheckingOut(false);
@@ -214,24 +194,41 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     }
   };
 
-  const totalValue = products.reduce((sum, p) => sum + p.price, 0);
-  const discountedValue = totalValue * 0.85;
-  const savings = totalValue - discountedValue;
+  const totalValue = useMemo(() => 
+    products.reduce((sum, p) => sum + p.price, 0), 
+    [products]
+  );
+  
+  const discountedValue = useMemo(() => 
+    totalValue * 0.85, 
+    [totalValue]
+  );
+  
+  const savings = useMemo(() => 
+    totalValue - discountedValue, 
+    [totalValue, discountedValue]
+  );
 
-  const personalizedMessage = getPersonalizedMessage({
-    skinType: userData.skinType,
-    age: userData.age,
-    concerns: userData.concerns,
-    productType: userData.productTypes?.[0]
-  });
+  const personalizedMessage = useMemo(() => 
+    getPersonalizedMessage({
+      skinType: userData.skinType,
+      age: userData.age,
+      concerns: userData.concerns,
+      productType: userData.productTypes?.[0]
+    }),
+    [userData.skinType, userData.age, userData.concerns, userData.productTypes]
+  );
 
-  // Group products by category
-  const groupedProducts = products.reduce((acc, product) => {
-    const category = product.category || "Altri";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(product);
-    return acc;
-  }, {} as Record<string, Product[]>);
+  // Group products by category - memoized
+  const groupedProducts = useMemo(() => 
+    products.reduce((acc, product) => {
+      const category = product.category || "Altri";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(product);
+      return acc;
+    }, {} as Record<string, Product[]>),
+    [products]
+  );
 
   const categoryOrder = [
     "Detergente",
@@ -244,11 +241,14 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     "Altri"
   ];
 
-  const sortedCategories = Object.keys(groupedProducts).sort((a, b) => {
-    const indexA = categoryOrder.indexOf(a);
-    const indexB = categoryOrder.indexOf(b);
-    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
-  });
+  const sortedCategories = useMemo(() => 
+    Object.keys(groupedProducts).sort((a, b) => {
+      const indexA = categoryOrder.indexOf(a);
+      const indexB = categoryOrder.indexOf(b);
+      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+    }),
+    [groupedProducts]
+  );
 
   if (loading) {
     return (
@@ -544,39 +544,11 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                               
                               <div className="flex gap-2 pt-3">
                                 <Button
-                                  onClick={() => handleAddSingleProduct(product)}
-                                  disabled={cartLoading || addedProducts.has(product.id)}
-                                  className={`flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all ${
-                                    addedProducts.has(product.id)
-                                      ? 'bg-green-500 hover:bg-green-600'
-                                      : 'bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90'
-                                  }`}
+                                  onClick={() => handleViewProduct(product.product_url)}
+                                  className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
                                 >
-                                  {addedProducts.has(product.id) ? (
-                                    <>
-                                      <Check className="w-5 h-5" />
-                                      Aggiunto!
-                                    </>
-                                  ) : cartLoading ? (
-                                    <>
-                                      <div className="animate-spin">⏳</div>
-                                      Aggiungendo...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus className="w-5 h-5" />
-                                      Aggiungi al Carrello
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-11 w-11 border-2 border-primary/40 hover:bg-primary/10 hover:border-primary/60"
-                                  onClick={() => window.open(product.product_url, '_blank')}
-                                  title="Visualizza su sito"
-                                >
-                                  <ExternalLink className="w-5 h-5" />
+                                  <ShoppingCart className="w-5 h-5" />
+                                  Vai al Prodotto
                                 </Button>
                               </div>
                             </div>
@@ -591,66 +563,64 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
            </div>
          </div>
 
-         {/* Bulk Purchase Section */}
-         <Card className="p-6 sm:p-8 space-y-6 bg-gradient-to-br from-accent/20 via-primary/15 to-accent/20 backdrop-blur border-2 border-primary/30 shadow-2xl sticky top-4 z-10 animate-fade-in">
-           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-             <div className="text-center sm:text-left space-y-2 flex-1">
-               <div className="flex items-center justify-center sm:justify-start gap-2">
-                 <ShoppingCart className="w-6 h-6 text-primary" />
-                 <h3 className="text-xl sm:text-2xl font-bold text-primary">
-                   Acquista la Routine Completa
-                 </h3>
-               </div>
-               <p className="text-sm sm:text-base text-muted-foreground">
-                 {products.length} prodotti personalizzati • Sconto del 15%
-               </p>
-               <div className="flex items-center justify-center sm:justify-start gap-3 flex-wrap">
-                 <div className="flex items-baseline gap-2">
-                   <span className="text-sm text-muted-foreground line-through">
-                     €{totalValue.toFixed(2)}
-                   </span>
-                   <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                     €{discountedValue.toFixed(2)}
-                   </span>
-                 </div>
-                 <Badge className="bg-green-500 text-white border-0 shadow-md">
-                   Risparmi €{savings.toFixed(2)}
-                 </Badge>
-               </div>
-             </div>
-             
-             <div className="flex flex-col gap-3 w-full sm:w-auto">
-               <Button
-                 onClick={handleBuyAll}
-                 disabled={isCheckingOut || products.length === 0}
-                 size="lg"
-                 className="w-full sm:w-auto gap-3 h-14 px-8 text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 shadow-2xl hover:shadow-3xl transition-all animate-pulse hover:animate-none"
-               >
-                 {isCheckingOut ? (
-                   <>
-                     <div className="animate-spin">⏳</div>
-                     Aggiungendo al carrello...
-                   </>
-                 ) : (
-                   <>
-                     <ShoppingCart className="w-6 h-6" />
-                     Acquista Tutto - €{discountedValue.toFixed(2)}
-                   </>
-                 )}
-               </Button>
-               
-               {cartCount > 0 && (
-                 <Button
-                   onClick={() => navigate('/cart')}
-                   variant="outline"
-                   size="lg"
-                   className="w-full sm:w-auto gap-2 border-2 border-primary/40 hover:bg-primary/10"
-                 >
-                   Visualizza Carrello ({cartCount})
-                 </Button>
-               )}
-             </div>
-           </div>
+          {/* Bulk Purchase Section - Prominent CTA */}
+          <Card className="p-8 sm:p-10 space-y-6 bg-gradient-to-br from-green-50 via-primary/10 to-accent/10 backdrop-blur border-4 border-primary/40 shadow-2xl animate-fade-in">
+            <div className="text-center space-y-4">
+              <div className="inline-block">
+                <Badge className="text-base px-6 py-2 bg-green-500 text-white border-0 shadow-lg animate-pulse">
+                  🎁 OFFERTA SPECIALE - Sconto 15%
+                </Badge>
+              </div>
+              
+              <h2 className="text-3xl sm:text-4xl font-bold text-primary">
+                Acquista la Routine Completa
+              </h2>
+              
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Tutti i {products.length} prodotti personalizzati per la tua pelle, pronti da aggiungere al carrello
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-2xl text-muted-foreground line-through font-medium">
+                    €{totalValue.toFixed(2)}
+                  </span>
+                  <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-green-600 via-primary to-accent bg-clip-text text-transparent">
+                    €{discountedValue.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-center gap-2">
+                <Package className="w-5 h-5 text-green-600" />
+                <span className="text-lg font-semibold text-green-600">
+                  Risparmi €{savings.toFixed(2)} sull'acquisto completo!
+                </span>
+              </div>
+              
+              <Button
+                onClick={handleBuyAll}
+                disabled={isCheckingOut || products.length === 0}
+                size="lg"
+                className="w-full sm:w-auto gap-3 h-16 px-12 text-xl font-bold bg-gradient-to-r from-green-500 via-green-600 to-green-500 hover:from-green-600 hover:via-green-700 hover:to-green-600 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105"
+              >
+                {isCheckingOut ? (
+                  <>
+                    <div className="animate-spin">⏳</div>
+                    Preparando il tuo carrello...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-7 h-7" />
+                    ACQUISTA TUTTO ORA
+                  </>
+                )}
+              </Button>
+              
+              <p className="text-sm text-muted-foreground">
+                Verrai reindirizzato al carrello dell'e-commerce con tutti i prodotti già pronti
+              </p>
+            </div>
 
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs sm:text-sm">
              <div className="space-y-1 p-2 bg-white/50 rounded-lg">

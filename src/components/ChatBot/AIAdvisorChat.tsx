@@ -36,12 +36,12 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages(prev => [...prev, { role: 'user', content: textToSend }]);
     setIsLoading(true);
 
     try {
@@ -60,7 +60,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
 
       const { data, error } = await supabase.functions.invoke('chat-advisor', {
         body: {
-          message: userMessage,
+          message: textToSend,
           userData,
           recommendedProducts
         },
@@ -161,10 +161,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
                 key={idx}
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setInput(q);
-                  setTimeout(() => sendMessage(), 100);
-                }}
+                onClick={() => sendMessage(q)}
                 className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5 overflow-hidden"
                 disabled={isLoading}
               >
@@ -187,7 +184,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
           className="flex-1 border-primary/20 focus:border-primary text-xs sm:text-sm"
         />
         <Button
-          onClick={sendMessage}
+          onClick={() => sendMessage()}
           disabled={isLoading || !input.trim()}
           size="icon"
           className="hover-scale bg-primary hover:bg-primary/90 h-9 w-9 sm:h-10 sm:w-10"
