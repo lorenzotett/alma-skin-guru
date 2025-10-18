@@ -161,36 +161,17 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for buying all products - redirects to e-commerce with product IDs
+  // Handler for buying all products - redirects to shop homepage
   const handleBuyAll = async () => {
     setIsCheckingOut(true);
     
     try {
-      // Extract product IDs from product URLs
-      // Alma products typically have URLs like: https://almanaturalbeauty.it/prodotto/nome-prodotto/
-      // We need to extract the product slug and pass it to WooCommerce
-      
-      // Build URL with multiple add-to-cart parameters
-      const baseUrl = 'https://almanaturalbeauty.it/carrello/';
-      const productParams = products
-        .map(p => {
-          // Extract product slug from URL
-          const urlParts = p.product_url.split('/');
-          const slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1];
-          return slug;
-        })
-        .filter(slug => slug && slug.trim() !== '')
-        .map(slug => `add-to-cart=${encodeURIComponent(slug)}`)
-        .join('&');
-      
-      const fullUrl = productParams ? `${baseUrl}?${productParams}` : baseUrl;
-      
       // Show feedback
-      toast.success('Reindirizzamento al carrello...');
+      toast.success('Reindirizzamento allo shop...');
       
-      // Redirect to e-commerce cart with products
+      // Redirect to e-commerce homepage
       setTimeout(() => {
-        window.location.href = fullUrl;
+        window.location.href = 'https://almanaturalbeauty.it/';
       }, 800);
       
     } catch (error) {
