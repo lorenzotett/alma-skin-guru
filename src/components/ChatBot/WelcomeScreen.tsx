@@ -46,19 +46,20 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center p-0 sm:p-3 md:p-4 relative overflow-hidden"
       style={{
         backgroundImage: `url(${backgroundCream})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
       }}
     >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
+      {/* Subtle overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
 
       <Card 
-        className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in bg-white/80"
+        className="max-w-4xl w-full mx-3 sm:mx-auto p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl backdrop-blur-md border-2 border-primary/30 relative z-10 animate-fade-in bg-white/70"
       >
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
