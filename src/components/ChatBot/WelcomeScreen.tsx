@@ -59,11 +59,10 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
           <div className="relative group">
-            <div className="absolute inset-0 bg-white/40 rounded-full blur-2xl group-hover:blur-3xl transition-all"></div>
             <img 
               src={logoAlma} 
               alt="Alma Natural Beauty" 
-              className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-52 md:h-52 object-contain drop-shadow-2xl rounded-full ring-4 ring-white/70 group-hover:scale-105 transition-transform bg-white/80 p-2"
+              className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-52 md:h-52 object-contain drop-shadow-2xl rounded-full group-hover:scale-105 transition-transform"
             />
           </div>
         </div>
