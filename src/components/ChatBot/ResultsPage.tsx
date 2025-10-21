@@ -185,16 +185,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     products.reduce((sum, p) => sum + p.price, 0), 
     [products]
   );
-  
-  const discountedValue = useMemo(() => 
-    totalValue * 0.85, 
-    [totalValue]
-  );
-  
-  const savings = useMemo(() => 
-    totalValue - discountedValue, 
-    [totalValue, discountedValue]
-  );
 
   const personalizedMessage = useMemo(() => 
     getPersonalizedMessage({
@@ -551,37 +541,20 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
          </div>
 
           {/* Bulk Purchase Section - Prominent CTA */}
-          <Card className="p-8 sm:p-10 space-y-6 bg-gradient-to-br from-green-50 via-primary/10 to-accent/10 backdrop-blur border-4 border-primary/40 shadow-2xl animate-fade-in">
+          <Card className="p-8 sm:p-10 space-y-6 bg-gradient-to-br from-primary/10 via-white to-accent/10 backdrop-blur border-4 border-primary/40 shadow-2xl animate-fade-in">
             <div className="text-center space-y-4">
-              <div className="inline-block">
-                <Badge className="text-base px-6 py-2 bg-green-500 text-white border-0 shadow-lg animate-pulse">
-                  🎁 OFFERTA SPECIALE - Sconto 15%
-                </Badge>
-              </div>
-              
               <h2 className="text-3xl sm:text-4xl font-bold text-primary">
                 Acquista la Routine Completa
               </h2>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Tutti i {products.length} prodotti personalizzati per la tua pelle, pronti da aggiungere al carrello
+                Tutti i {products.length} prodotti personalizzati per la tua pelle
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl text-muted-foreground line-through font-medium">
-                    €{totalValue.toFixed(2)}
-                  </span>
-                  <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-green-600 via-primary to-accent bg-clip-text text-transparent">
-                    €{discountedValue.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-center gap-2">
-                <Package className="w-5 h-5 text-green-600" />
-                <span className="text-lg font-semibold text-green-600">
-                  Risparmi €{savings.toFixed(2)} sull'acquisto completo!
+              <div className="flex items-center justify-center gap-2 py-4">
+                <Package className="w-6 h-6 text-primary" />
+                <span className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  {products.length} Prodotti
                 </span>
               </div>
               
@@ -589,23 +562,23 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                 onClick={handleBuyAll}
                 disabled={isCheckingOut || products.length === 0}
                 size="lg"
-                className="w-full sm:w-auto gap-3 h-16 px-12 text-xl font-bold bg-gradient-to-r from-green-500 via-green-600 to-green-500 hover:from-green-600 hover:via-green-700 hover:to-green-600 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105"
+                className="w-full sm:w-auto gap-3 h-16 px-12 text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105"
               >
                 {isCheckingOut ? (
                   <>
                     <div className="animate-spin">⏳</div>
-                    Preparando il tuo carrello...
+                    Reindirizzamento...
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="w-7 h-7" />
-                    ACQUISTA TUTTO ORA
+                    ACQUISTA ORA
                   </>
                 )}
               </Button>
               
               <p className="text-sm text-muted-foreground">
-                Verrai reindirizzato al carrello dell'e-commerce con tutti i prodotti già pronti
+                Verrai reindirizzato al nostro shop online
               </p>
             </div>
 
@@ -635,10 +608,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         {/* CTA */}
         <Card className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 animate-fade-in border-2 border-primary/30 shadow-xl backdrop-blur">
           <div className="space-y-4">
-            <div className="inline-block bg-card/80 backdrop-blur px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-md">
-              <p className="text-base sm:text-lg font-semibold">💰 <strong>VALORE TOTALE ROUTINE:</strong> €{totalValue.toFixed(2)}</p>
-            </div>
-
             <div className="bg-card/80 backdrop-blur p-4 sm:p-6 rounded-xl shadow-md border-2 border-primary/20">
               <p className="text-sm font-semibold text-primary mb-2">🌸 La tua routine personalizzata</p>
               <p className="text-xs text-muted-foreground">

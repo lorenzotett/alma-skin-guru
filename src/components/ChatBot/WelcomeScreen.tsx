@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Brain, ShoppingBag, ChevronRight, Check } from "lucide-react";
 import logoAlma from "@/assets/logo-alma.jpg";
-import backgroundTexture from "@/assets/background-texture.png";
+import backgroundCream from "@/assets/background-cream.jpg";
 
 interface WelcomeScreenProps {
   onStart: () => void;
@@ -45,23 +45,20 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-[#f5ebe0] via-[#fdf6ed] to-[#f5ebe0] relative overflow-hidden">
-      {/* Enhanced animated background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-24 h-24 sm:w-40 sm:h-40 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-32 h-32 sm:w-48 sm:h-48 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-72 sm:h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/4 right-1/4 w-20 h-20 sm:w-32 sm:h-32 bg-accent/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
-      </div>
+    <div 
+      className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${backgroundCream})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
 
       <Card 
-        className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in"
-        style={{
-          backgroundImage: `url(${backgroundTexture})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-8 sm:space-y-10 shadow-2xl backdrop-blur-xl border-2 border-primary/20 relative z-10 animate-fade-in bg-white/80"
       >
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
