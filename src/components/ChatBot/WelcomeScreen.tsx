@@ -46,44 +46,37 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
 
   return (
     <div 
-      className="min-h-screen w-full flex items-center justify-center p-3 sm:p-4 relative overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
       style={{
         backgroundImage: `url(${backgroundCream})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        margin: 0,
-        padding: 0
+        backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Subtle overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent"></div>
-
-      <Card 
-        className="max-w-4xl w-full mx-3 sm:mx-4 my-3 sm:my-4 p-6 sm:p-10 md:p-12 text-center space-y-6 sm:space-y-8 md:space-y-10 shadow-2xl backdrop-blur-sm border-2 border-primary/30 relative z-10 animate-fade-in bg-white/60"
-      >
+      {/* Content wrapper without Card */}
+      <div className="max-w-4xl w-full p-6 sm:p-10 md:p-12 text-center space-y-6 sm:space-y-8 md:space-y-10 relative z-10 animate-fade-in">
         {/* Logo with enhanced styling */}
         <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-2xl group-hover:blur-3xl transition-all"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 bg-white/40 rounded-full blur-2xl group-hover:blur-3xl transition-all"></div>
             <img 
               src={logoAlma} 
               alt="Alma Natural Beauty" 
-              className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-52 md:h-52 object-contain drop-shadow-2xl rounded-full ring-4 ring-white/50 group-hover:scale-105 transition-transform"
+              className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-52 md:h-52 object-contain drop-shadow-2xl rounded-full ring-4 ring-white/70 group-hover:scale-105 transition-transform bg-white/80 p-2"
             />
           </div>
         </div>
         
-        {/* Enhanced title section */}
-        <div className="space-y-4 px-2">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in">
+        {/* Enhanced title section with better contrast */}
+        <div className="space-y-4 px-2 bg-white/60 backdrop-blur-sm rounded-2xl py-6 shadow-lg">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in drop-shadow-sm">
             Analisi Pelle AI
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary animate-fade-in drop-shadow-sm" style={{ animationDelay: '0.3s' }}>
             by Alma Natural Beauty
           </p>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <p className="text-base sm:text-lg md:text-xl text-foreground/90 max-w-2xl mx-auto leading-relaxed animate-fade-in font-medium" style={{ animationDelay: '0.4s' }}>
             Scopri la tua skincare routine personalizzata in pochi minuti grazie all'intelligenza artificiale
           </p>
         </div>
@@ -167,7 +160,7 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
             </div>
           ))}
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
