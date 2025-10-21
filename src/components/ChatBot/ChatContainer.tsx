@@ -20,21 +20,21 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
               variant="ghost" 
               size="icon" 
               onClick={onBack} 
-              className="h-9 w-9 sm:h-10 sm:w-10 hover:bg-primary/10 transition-colors"
+              className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:bg-primary/10 transition-colors flex-shrink-0"
             >
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </Button>
           )}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md flex-shrink-0">
-              <span className="text-2xl sm:text-3xl">🌸</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md flex-shrink-0">
+              <span className="text-xl sm:text-2xl md:text-3xl">🌸</span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="font-bold text-foreground text-base sm:text-lg md:text-xl truncate">
+              <h1 className="font-extrabold text-foreground text-sm sm:text-base md:text-lg lg:text-xl truncate">
                 Alma Beauty Assistant
               </h1>
-              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate flex items-center gap-1 font-semibold">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0"></span>
                 Online - Qui per aiutarti ✨
               </p>
             </div>
@@ -52,7 +52,7 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
       {/* Footer hint */}
       <div className="sticky bottom-0 bg-gradient-to-t from-[#f5ebe0]/90 to-transparent backdrop-blur-sm py-2 px-3 sm:px-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-[10px] sm:text-xs text-muted-foreground">
+          <p className="text-center text-[9px] sm:text-[10px] md:text-xs text-foreground/80 font-bold">
             Tutte le tue informazioni sono sicure e verranno utilizzate solo per consigliarti i prodotti migliori 🔒
           </p>
         </div>

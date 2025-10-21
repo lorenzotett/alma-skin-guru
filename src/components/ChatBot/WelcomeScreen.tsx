@@ -12,6 +12,20 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
+  const [clickedFeature, setClickedFeature] = useState<number | null>(null);
+
+  const handleStart = () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    onStart();
+  };
+
+  const handleFeatureClick = (type: 'analysis' | 'questions' | 'products', index: number) => {
+    if (clickedFeature !== null) return;
+    setClickedFeature(index);
+    onFeatureClick?.(type);
+  };
 
   const features = [
     {
@@ -68,14 +82,14 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
         </div>
         
         {/* Enhanced title section with better contrast */}
-        <div className="space-y-4 px-2 bg-white/60 backdrop-blur-sm rounded-2xl py-6 shadow-lg">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in drop-shadow-sm">
+        <div className="space-y-3 sm:space-y-4 px-3 sm:px-4 md:px-6 bg-white/70 backdrop-blur-sm rounded-2xl py-4 sm:py-6 shadow-lg">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold bg-gradient-to-r from-primary via-[#b55819] to-accent bg-clip-text text-transparent leading-tight animate-fade-in drop-shadow-sm">
             Analisi Pelle AI
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary animate-fade-in drop-shadow-sm" style={{ animationDelay: '0.3s' }}>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary animate-fade-in drop-shadow-sm" style={{ animationDelay: '0.3s' }}>
             by Alma Natural Beauty
           </p>
-          <p className="text-base sm:text-lg md:text-xl text-foreground/90 max-w-2xl mx-auto leading-relaxed animate-fade-in font-medium" style={{ animationDelay: '0.4s' }}>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in font-semibold" style={{ animationDelay: '0.4s' }}>
             Scopri la tua skincare routine personalizzata in pochi minuti grazie all'intelligenza artificiale
           </p>
         </div>
@@ -85,17 +99,17 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
           {features.map((feature, index) => (
             <div 
               key={index}
-              onClick={() => onFeatureClick?.(feature.type)}
+              onClick={() => handleFeatureClick(feature.type, index)}
               onMouseEnter={() => setHoveredFeature(index)}
               onMouseLeave={() => setHoveredFeature(null)}
-              className="relative flex flex-col items-center gap-4 p-6 rounded-2xl bg-gradient-to-br from-white to-white/80 border-2 border-primary/20 shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer group"
+              className={`relative flex flex-col items-center gap-3 sm:gap-4 p-4 sm:p-5 md:p-6 rounded-2xl bg-gradient-to-br from-white to-white/80 border-2 border-primary/20 shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer group ${clickedFeature === index ? 'opacity-70 pointer-events-none' : ''}`}
             >
-              <div className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl ring-4 ring-white/50 group-hover:ring-8 group-hover:ring-primary/20 transition-all ${hoveredFeature === index ? 'scale-110' : ''}`}>
-                <feature.icon className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-xl ring-4 ring-white/50 group-hover:ring-8 group-hover:ring-primary/20 transition-all ${hoveredFeature === index ? 'scale-110' : ''}`}>
+                <feature.icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-white" />
               </div>
-              <div className="text-center space-y-2">
-                <p className="font-bold text-base sm:text-lg text-primary group-hover:text-primary/80">{feature.title}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">{feature.description}</p>
+              <div className="text-center space-y-1 sm:space-y-2">
+                <p className="font-extrabold text-sm sm:text-base md:text-lg text-primary group-hover:text-primary/80">{feature.title}</p>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-semibold leading-relaxed">{feature.description}</p>
               </div>
               {hoveredFeature === index && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-scale-in">
@@ -107,55 +121,56 @@ export const WelcomeScreen = ({ onStart, onFeatureClick }: WelcomeScreenProps) =
         </div>
 
         {/* Benefits List */}
-        <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-6 border border-primary/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <h3 className="text-lg font-bold text-primary mb-4">✨ Cosa Ottieni:</h3>
-          <div className="grid sm:grid-cols-2 gap-3 text-left">
+        <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-4 sm:p-5 md:p-6 border border-primary/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <h3 className="text-base sm:text-lg md:text-xl font-extrabold text-primary mb-3 sm:mb-4">✨ Cosa Ottieni:</h3>
+          <div className="grid sm:grid-cols-2 gap-2 sm:gap-3 text-left">
             {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-3 group">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                  <Check className="w-4 h-4 text-white" />
+              <div key={index} className="flex items-start gap-2 sm:gap-3 group">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
-                <p className="text-sm text-muted-foreground font-medium group-hover:text-primary transition-colors">{benefit}</p>
+                <p className="text-xs sm:text-sm md:text-base text-foreground font-bold group-hover:text-primary transition-colors">{benefit}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Enhanced CTA */}
-        <div className="pt-6 space-y-4 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+        <div className="pt-4 sm:pt-6 space-y-3 sm:space-y-4 animate-fade-in" style={{ animationDelay: '0.7s' }}>
           <Button 
-            onClick={onStart}
+            onClick={handleStart}
+            disabled={isStarting}
             size="lg"
-            className="group relative text-lg px-12 py-7 sm:px-14 sm:py-8 bg-gradient-to-r from-primary via-[#b55819] to-accent hover:from-primary/90 hover:via-[#b55819]/90 hover:to-accent/90 text-white shadow-2xl hover:shadow-[0_20px_50px_rgba(154,74,19,0.4)] transition-all hover:scale-110 w-full sm:w-auto rounded-full font-bold overflow-hidden"
+            className="group relative text-base sm:text-lg md:text-xl px-8 py-6 sm:px-12 sm:py-7 md:px-14 md:py-8 bg-gradient-to-r from-primary via-[#b55819] to-accent hover:from-primary/90 hover:via-[#b55819]/90 hover:to-accent/90 text-white shadow-2xl hover:shadow-[0_20px_50px_rgba(154,74,19,0.4)] transition-all hover:scale-105 active:scale-95 w-full sm:w-auto rounded-full font-extrabold overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
-            <Sparkles className="w-6 h-6 mr-2 group-hover:rotate-12 transition-transform" />
-            <span className="relative">Inizia Subito l'Analisi</span>
-            <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 mr-2 group-hover:rotate-12 transition-transform" />
+            <span className="relative">{isStarting ? 'Avvio...' : 'Inizia Subito l\'Analisi'}</span>
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
           
-          <p className="text-xs text-muted-foreground">
-            ⚡ Richiede solo <span className="font-bold text-primary">3-5 minuti</span>
+          <p className="text-xs sm:text-sm text-foreground font-bold">
+            ⚡ Richiede solo <span className="font-extrabold text-primary">3-5 minuti</span>
           </p>
         </div>
 
         {/* Social Proof */}
-        <div className="pt-4 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-          <div className="inline-block px-6 py-3 bg-gradient-to-r from-green-500/10 to-green-600/10 border border-green-500/30 rounded-full hover:border-green-500/50 transition-all">
-            <p className="text-sm font-semibold text-green-700">
-              🎁 <span className="font-bold">Analisi gratuita</span> • Nessun impegno richiesto
+        <div className="pt-3 sm:pt-4 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <div className="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500/10 to-green-600/10 border border-green-500/30 rounded-full hover:border-green-500/50 transition-all">
+            <p className="text-xs sm:text-sm md:text-base font-extrabold text-green-700">
+              🎁 <span className="font-extrabold">Analisi gratuita</span> • Nessun impegno richiesto
             </p>
           </div>
         </div>
 
         {/* Trust badges enhanced */}
-        <div className="flex flex-wrap justify-center gap-6 pt-4 text-sm animate-fade-in" style={{ animationDelay: '0.9s' }}>
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 pt-3 sm:pt-4 text-xs sm:text-sm md:text-base animate-fade-in" style={{ animationDelay: '0.9s' }}>
           {["100% Naturale", "Cruelty Free", "Made in Italy"].map((badge, i) => (
-            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-primary/10 hover:border-primary/30 hover:bg-card/80 transition-all group">
-              <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Check className="w-3 h-3 text-white" />
+            <div key={i} className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/70 border border-primary/20 hover:border-primary/40 hover:bg-white/90 transition-all group">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </div>
-              <span className="text-muted-foreground font-medium group-hover:text-primary transition-colors">{badge}</span>
+              <span className="text-foreground font-extrabold group-hover:text-primary transition-colors">{badge}</span>
             </div>
           ))}
         </div>

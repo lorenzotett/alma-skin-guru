@@ -40,8 +40,10 @@ const concerns = [
 
 export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
   const [selected, setSelected] = useState<Concern[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleConcern = (concern: Concern) => {
+    if (isSubmitting) return;
     if (concern === "nessuna") {
       setSelected(selected.includes("nessuna") ? [] : ["nessuna"]);
     } else {
@@ -54,11 +56,18 @@ export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
     }
   };
 
+  const handleContinue = () => {
+    if (selected.length > 0 && !isSubmitting) {
+      setIsSubmitting(true);
+      onNext(selected);
+    }
+  };
+
   return (
-    <Card className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
+    <Card className="p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
       <div className="space-y-1.5 sm:space-y-2">
-        <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary">Quali sono le tue preoccupazioni? 💭</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground">
+        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-extrabold text-primary">Quali sono le tue preoccupazioni? 💭</h3>
+        <p className="text-xs sm:text-sm md:text-base text-foreground font-bold">
           Seleziona le tue problematiche (anche più di una):
         </p>
       </div>
@@ -71,7 +80,8 @@ export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
             className={cn(
               "flex items-start gap-2 p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-all bg-card/50",
               "hover:bg-primary/10 hover:border-primary hover:shadow-md active:scale-[0.98]",
-              selected.includes(concern.value) && "bg-primary/15 border-primary shadow-md"
+              selected.includes(concern.value) && "bg-primary/15 border-primary shadow-md",
+              isSubmitting && "opacity-70 pointer-events-none"
             )}
           >
             <Checkbox
@@ -79,12 +89,12 @@ export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
               className="mt-0.5 pointer-events-none"
             />
             <div className="flex-1">
-              <div className="font-medium flex items-center gap-1.5 text-xs sm:text-sm text-foreground">
-                <span className="text-sm sm:text-base">{concern.icon}</span>
+              <div className="font-extrabold flex items-center gap-1.5 text-xs sm:text-sm md:text-base text-foreground">
+                <span className="text-sm sm:text-base md:text-lg">{concern.icon}</span>
                 <span>{concern.title}</span>
               </div>
               {concern.description && (
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-[10px] sm:text-xs md:text-sm text-foreground/80 mt-0.5 font-semibold">
                   {concern.description}
                 </p>
               )}
@@ -99,18 +109,19 @@ export const ConcernsStep = ({ onNext, onBack }: ConcernsStepProps) => {
             onClick={onBack}
             variant="outline"
             size="lg"
-            className="w-32"
+            disabled={isSubmitting}
+            className="w-24 sm:w-32 text-xs sm:text-sm md:text-base font-bold"
           >
             ← Indietro
           </Button>
         )}
         <Button
-          onClick={() => onNext(selected)}
-          className="flex-1 text-sm sm:text-base"
+          onClick={handleContinue}
+          className="flex-1 text-xs sm:text-sm md:text-base font-bold"
           size="lg"
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || isSubmitting}
         >
-          Continua ({selected.length})
+          {isSubmitting ? 'Invio...' : `Continua (${selected.length})`}
         </Button>
       </div>
     </Card>
