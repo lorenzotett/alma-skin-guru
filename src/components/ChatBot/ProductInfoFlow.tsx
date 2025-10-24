@@ -27,6 +27,7 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingQuickMessage, setIsSendingQuickMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -38,9 +39,13 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async (messageText?: string) => {
+  const sendMessage = async (messageText?: string, isQuickMessage = false) => {
     const textToSend = messageText || input.trim();
-    if (!textToSend || isLoading) return;
+    if (!textToSend || isLoading || isSendingQuickMessage) return;
+
+    if (isQuickMessage) {
+      setIsSendingQuickMessage(true);
+    }
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: textToSend }]);
@@ -90,6 +95,7 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
       }]);
     } finally {
       setIsLoading(false);
+      setIsSendingQuickMessage(false);
     }
   };
 
@@ -107,6 +113,13 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
     "Vorrei una routine completa per pelle secca",
     "Dove posso comprare i prodotti Alma?",
     "Quali ingredienti naturali usate?"
+  ];
+
+  const followUpSuggestions = [
+    "Parlami di più di questo prodotto",
+    "Qual è il prezzo?",
+    "Dove posso comprarlo?",
+    "C'è un'altra opzione?"
   ];
 
   return (
@@ -129,16 +142,36 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
       {/* Messages */}
       <div className="space-y-3 sm:space-y-4">
         {messages.map((msg, idx) => (
-          <ChatMessage key={idx} sender={msg.role === 'user' ? 'user' : 'bot'}>
-            <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">{msg.content}</p>
-          </ChatMessage>
+          <div key={idx}>
+            <ChatMessage sender={msg.role === 'user' ? 'user' : 'bot'}>
+              <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm font-medium">{msg.content}</p>
+            </ChatMessage>
+            
+            {/* Follow-up buttons after bot messages (not on the first message) */}
+            {msg.role === 'assistant' && idx > 0 && idx === messages.length - 1 && !isLoading && (
+              <div className="mt-2 flex flex-wrap gap-2 ml-10 sm:ml-12 md:ml-14">
+                {followUpSuggestions.map((suggestion, suggestionIdx) => (
+                  <Button
+                    key={suggestionIdx}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => sendMessage(suggestion, true)}
+                    disabled={isSendingQuickMessage}
+                    className="text-[10px] sm:text-xs h-auto py-1.5 px-2.5 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-bold"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
         
         {isLoading && (
           <ChatMessage sender="bot">
             <div className="flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <p className="text-xs sm:text-sm">Sto pensando...</p>
+              <p className="text-xs sm:text-sm font-medium">Sto pensando...</p>
             </div>
           </ChatMessage>
         )}
@@ -158,12 +191,12 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
                 key={idx}
                 variant="outline"
                 size="sm"
-                onClick={() => sendMessage(q)}
-                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
-                disabled={isLoading}
+                onClick={() => sendMessage(q, true)}
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 text-left justify-start border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-bold overflow-hidden"
+                disabled={isLoading || isSendingQuickMessage}
               >
-                <span className="mr-2">→</span>
-                <span className="break-words">{q}</span>
+                <span className="mr-2 flex-shrink-0">→</span>
+                <span className="break-words overflow-hidden">{q}</span>
               </Button>
             ))}
           </div>

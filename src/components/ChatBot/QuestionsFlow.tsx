@@ -16,9 +16,11 @@ interface Message {
 interface QuestionsFlowProps {
   userName: string;
   onBack: () => void;
+  onStartAnalysis: () => void;
 }
 
-export const QuestionsFlow = ({ userName, onBack }: QuestionsFlowProps) => {
+export const QuestionsFlow = ({ userName, onBack, onStartAnalysis }: QuestionsFlowProps) => {
+  const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -100,6 +102,12 @@ export const QuestionsFlow = ({ userName, onBack }: QuestionsFlowProps) => {
     }
   };
 
+  const handleStartAnalysis = () => {
+    if (isStartingAnalysis) return;
+    setIsStartingAnalysis(true);
+    onStartAnalysis();
+  };
+
   const quickQuestions = [
     "Come capisco il mio tipo di pelle?",
     "Qual è l'ordine giusto per applicare i prodotti?",
@@ -176,8 +184,14 @@ export const QuestionsFlow = ({ userName, onBack }: QuestionsFlowProps) => {
         <p className="text-xs text-muted-foreground mb-3">
           Fai l'analisi completa della pelle per ricevere una routine su misura per te!
         </p>
-        <Button onClick={onBack} variant="default" size="sm" className="w-full sm:w-auto">
-          Inizia Analisi Pelle
+        <Button 
+          onClick={handleStartAnalysis} 
+          variant="default" 
+          size="sm" 
+          className="w-full sm:w-auto font-bold"
+          disabled={isStartingAnalysis}
+        >
+          {isStartingAnalysis ? 'Avvio...' : 'Inizia Analisi Pelle'}
         </Button>
       </Card>
 

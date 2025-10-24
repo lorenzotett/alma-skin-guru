@@ -270,7 +270,11 @@ const Index = () => {
           <ProductInfoFlow userName={userData.name} onBack={handleBack} />
         )}
         {step === "questions" && userData.name && (
-          <QuestionsFlow userName={userData.name} onBack={handleBack} />
+          <QuestionsFlow 
+            userName={userData.name} 
+            onBack={handleBack} 
+            onStartAnalysis={() => handleInitialChoice('analysis')}
+          />
         )}
         {step === "photo-upload" && <PhotoUploadStep onNext={handlePhotoUpload} onBack={handleBack} />}
         {step === "results" && userData.email && userData.skinType && userData.age && (
