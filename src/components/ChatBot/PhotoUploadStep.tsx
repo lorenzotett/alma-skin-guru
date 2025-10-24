@@ -12,7 +12,14 @@ interface PhotoUploadStepProps {
 export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const handleNext = () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    onNext(photo || undefined);
+  };
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,9 +136,10 @@ export const PhotoUploadStep = ({ onNext, onBack }: PhotoUploadStepProps) => {
             </Button>
           )}
           <Button
-            onClick={() => onNext(photo || undefined)}
+            onClick={handleNext}
             size="lg"
-            className="flex-1 text-base sm:text-lg font-semibold order-1 sm:order-2 py-6"
+            disabled={isSubmitting}
+            className="flex-1 text-base sm:text-lg font-bold order-1 sm:order-2 py-6"
           >
             {photo ? "Continua con la Foto ✓" : "⏭️ Salta questo passaggio"}
           </Button>

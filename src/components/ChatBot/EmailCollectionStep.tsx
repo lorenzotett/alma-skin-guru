@@ -17,14 +17,19 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
   const [phone, setPhone] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
     // Validate full name
     const trimmedName = fullName.trim();
     if (!trimmedName) {
+      setIsSubmitting(false);
       toast({
         title: "Nome richiesto",
         description: "Inserisci il tuo nome completo",
@@ -34,6 +39,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     }
 
     if (trimmedName.length > 100) {
+      setIsSubmitting(false);
       toast({
         title: "Nome troppo lungo",
         description: "Il nome deve essere al massimo 100 caratteri",
@@ -46,6 +52,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     const normalizedEmail = email.trim().toLowerCase();
     
     if (normalizedEmail.length > 255) {
+      setIsSubmitting(false);
       toast({
         title: "Email troppo lunga",
         description: "L'email deve essere al massimo 255 caratteri",
@@ -57,6 +64,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     // RFC 5322 simplified email regex - validazione base migliorata
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(normalizedEmail)) {
+      setIsSubmitting(false);
       toast({
         title: "Email non valida",
         description: "Inserisci un indirizzo email valido (es: nome@esempio.com)",
@@ -78,6 +86,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     // Check if it's a blocked temporary email domain
     const isBlockedDomain = blockedDomains.some(blocked => emailDomain.includes(blocked));
     if (isBlockedDomain) {
+      setIsSubmitting(false);
       toast({
         title: "Email non valida",
         description: "Non sono accettate email temporanee. Usa un'email reale.",
@@ -90,6 +99,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     if (phone && phone.trim()) {
       const trimmedPhone = phone.trim();
       if (trimmedPhone.length > 20) {
+        setIsSubmitting(false);
         toast({
           title: "Telefono troppo lungo",
           description: "Il numero di telefono deve essere al massimo 20 caratteri",
@@ -101,6 +111,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
       // Basic phone format validation
       const phoneRegex = /^[+\d\s()-]*$/;
       if (!phoneRegex.test(trimmedPhone)) {
+        setIsSubmitting(false);
         toast({
           title: "Telefono non valido",
           description: "Il numero di telefono contiene caratteri non validi",
@@ -111,6 +122,7 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
     }
 
     if (!privacyConsent) {
+      setIsSubmitting(false);
       toast({
         title: "Consenso richiesto",
         description: "Devi accettare l'informativa sulla privacy per continuare",
@@ -226,10 +238,10 @@ export const EmailCollectionStep = ({ onNext, onBack }: EmailCollectionStepProps
           )}
           <Button 
             type="submit" 
-            className="flex-1 bg-primary hover:bg-primary/90 text-sm sm:text-base order-1 sm:order-2"
-            disabled={!fullName || !email || !privacyConsent}
+            className="flex-1 bg-primary hover:bg-primary/90 text-sm sm:text-base font-bold order-1 sm:order-2"
+            disabled={!fullName || !email || !privacyConsent || isSubmitting}
           >
-            VISUALIZZA RISULTATI 🎁
+            {isSubmitting ? "Invio..." : "VISUALIZZA RISULTATI 🎁"}
           </Button>
         </div>
       </form>

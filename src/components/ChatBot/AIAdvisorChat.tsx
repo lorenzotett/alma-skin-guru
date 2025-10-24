@@ -36,9 +36,15 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async (messageText?: string) => {
+  const [isSendingQuick, setIsSendingQuick] = useState(false);
+
+  const sendMessage = async (messageText?: string, isQuick = false) => {
     const textToSend = messageText || input.trim();
-    if (!textToSend || isLoading) return;
+    if (!textToSend || isLoading || isSendingQuick) return;
+
+    if (isQuick) {
+      setIsSendingQuick(true);
+    }
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: textToSend }]);
@@ -88,6 +94,7 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
       }]);
     } finally {
       setIsLoading(false);
+      setIsSendingQuick(false);
     }
   };
 
@@ -161,9 +168,9 @@ export const AIAdvisorChat = ({ userData, recommendedProducts }: AIAdvisorChatPr
                 key={idx}
                 variant="outline"
                 size="sm"
-                onClick={() => sendMessage(q)}
-                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5 overflow-hidden"
-                disabled={isLoading}
+                onClick={() => sendMessage(q, true)}
+                className="text-[10px] sm:text-xs h-auto py-2 sm:py-3 hover-scale text-left justify-start border-primary/20 hover:border-primary/50 hover:bg-primary/5 overflow-hidden font-bold"
+                disabled={isLoading || isSendingQuick}
               >
                 <span className="mr-1 sm:mr-2 flex-shrink-0">→</span>
                 <span className="break-words overflow-hidden">{q}</span>

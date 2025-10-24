@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Package, MessageCircle } from "lucide-react";
@@ -9,6 +10,14 @@ interface InitialChoiceProps {
 }
 
 export const InitialChoice = ({ userName, onChoice, onBack }: InitialChoiceProps) => {
+  const [isSelecting, setIsSelecting] = useState(false);
+
+  const handleChoice = async (choice: 'analysis' | 'products' | 'questions') => {
+    if (isSelecting) return;
+    setIsSelecting(true);
+    onChoice(choice);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5ebe0]">
       <Card className="max-w-3xl w-full p-8 space-y-6 shadow-xl bg-[#f9f5f0]/95 backdrop-blur border-primary/20">
@@ -37,10 +46,11 @@ export const InitialChoice = ({ userName, onChoice, onBack }: InitialChoiceProps
 
         <div className="grid md:grid-cols-3 gap-4 pt-4">
           <Button
-            onClick={() => onChoice('analysis')}
+            onClick={() => handleChoice('analysis')}
             variant="default"
             size="lg"
-            className="h-auto py-6 flex flex-col gap-3 bg-primary hover:bg-primary/90"
+            disabled={isSelecting}
+            className="h-auto py-6 flex flex-col gap-3 bg-primary hover:bg-primary/90 font-bold"
           >
             <Sparkles className="w-8 h-8" />
             <div className="text-center">
@@ -50,10 +60,11 @@ export const InitialChoice = ({ userName, onChoice, onBack }: InitialChoiceProps
           </Button>
 
           <Button
-            onClick={() => onChoice('products')}
+            onClick={() => handleChoice('products')}
             variant="outline"
             size="lg"
-            className="h-auto py-6 flex flex-col gap-3 border-2"
+            disabled={isSelecting}
+            className="h-auto py-6 flex flex-col gap-3 border-2 font-bold"
           >
             <Package className="w-8 h-8" />
             <div className="text-center">
@@ -63,10 +74,11 @@ export const InitialChoice = ({ userName, onChoice, onBack }: InitialChoiceProps
           </Button>
 
           <Button
-            onClick={() => onChoice('questions')}
+            onClick={() => handleChoice('questions')}
             variant="outline"
             size="lg"
-            className="h-auto py-6 flex flex-col gap-3 border-2"
+            disabled={isSelecting}
+            className="h-auto py-6 flex flex-col gap-3 border-2 font-bold"
           >
             <MessageCircle className="w-8 h-8" />
             <div className="text-center">

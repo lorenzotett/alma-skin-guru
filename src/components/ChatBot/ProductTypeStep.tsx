@@ -39,8 +39,10 @@ const productTypes = [
 
 export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
   const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleType = (type: ProductType) => {
+    if (isSubmitting) return;
     // Routine completa is exclusive
     if (type === "routine_completa") {
       setSelectedTypes(["routine_completa"]);
@@ -59,7 +61,8 @@ export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
   };
 
   const handleContinue = () => {
-    if (selectedTypes.length > 0) {
+    if (selectedTypes.length > 0 && !isSubmitting) {
+      setIsSubmitting(true);
       onNext(selectedTypes);
     }
   };
@@ -78,17 +81,19 @@ export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
 
         {/* Routine Completa - Featured */}
         <div className="mb-4">
-          <button
-            onClick={() => toggleType("routine_completa")}
-            className={cn(
-              "w-full relative p-6 rounded-xl border-3 text-left transition-all",
-              "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl",
-              "bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20",
-              selectedTypes.includes("routine_completa")
-                ? "border-primary shadow-lg ring-2 ring-primary/50"
-                : "border-primary/40 hover:border-primary"
-            )}
-          >
+            <button
+              onClick={() => toggleType("routine_completa")}
+              disabled={isSubmitting}
+              className={cn(
+                "w-full relative p-6 rounded-xl border-3 text-left transition-all",
+                "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl",
+                "bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20",
+                selectedTypes.includes("routine_completa")
+                  ? "border-primary shadow-lg ring-2 ring-primary/50"
+                  : "border-primary/40 hover:border-primary",
+                isSubmitting && "opacity-50 cursor-not-allowed"
+              )}
+            >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -145,14 +150,14 @@ export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
               <button
                 key={type.value}
                 onClick={() => toggleType(type.value)}
-                disabled={isDisabled}
+                disabled={isDisabled || isSubmitting}
                 className={cn(
                   "relative p-4 rounded-lg border-2 text-left transition-all bg-card/50",
                   "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md",
                   isSelected
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50",
-                  isDisabled && "opacity-50 cursor-not-allowed"
+                  (isDisabled || isSubmitting) && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -184,7 +189,12 @@ export const ProductTypeStep = ({ onNext, onBack }: ProductTypeStepProps) => {
                   ← Indietro
                 </Button>
               )}
-              <Button onClick={handleContinue} size="lg" className="flex-1 bg-primary hover:bg-primary/90">
+              <Button 
+                onClick={handleContinue} 
+                size="lg" 
+                disabled={isSubmitting}
+                className="flex-1 bg-primary hover:bg-primary/90 font-bold"
+              >
                 Continua ✨
               </Button>
             </div>

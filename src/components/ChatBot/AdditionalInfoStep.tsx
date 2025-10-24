@@ -10,6 +10,13 @@ interface AdditionalInfoStepProps {
 
 export const AdditionalInfoStep = ({ onNext, onBack }: AdditionalInfoStepProps) => {
   const [info, setInfo] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNext = () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    onNext(info || undefined);
+  };
 
   return (
     <Card className="p-4 sm:p-6 space-y-4 bg-[#f9f5f0]/95 backdrop-blur border-primary/20 shadow-lg">
@@ -42,9 +49,10 @@ export const AdditionalInfoStep = ({ onNext, onBack }: AdditionalInfoStepProps) 
           </Button>
         )}
         <Button
-          onClick={() => onNext(info || undefined)}
-          className="flex-1"
+          onClick={handleNext}
+          className="flex-1 font-bold"
           size="lg"
+          disabled={isSubmitting}
         >
           {info ? "Invia ✨" : "Salta ⏭️"}
         </Button>
