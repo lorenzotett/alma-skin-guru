@@ -144,7 +144,7 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
         {messages.map((msg, idx) => (
           <div key={idx}>
             <ChatMessage sender={msg.role === 'user' ? 'user' : 'bot'}>
-              <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm font-medium">{msg.content}</p>
+              {msg.content}
             </ChatMessage>
             
             {/* Follow-up buttons after bot messages (not on the first message) */}

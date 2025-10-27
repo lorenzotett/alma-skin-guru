@@ -138,7 +138,7 @@ export const QuestionsFlow = ({ userName, onBack, onStartAnalysis }: QuestionsFl
       <div className="space-y-3 sm:space-y-4">
         {messages.map((msg, idx) => (
           <ChatMessage key={idx} sender={msg.role === 'user' ? 'user' : 'bot'}>
-            <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">{msg.content}</p>
+            {msg.content}
           </ChatMessage>
         ))}
         
