@@ -21,7 +21,7 @@ const renderTextWithLinks = (text: string) => {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary underline hover:text-primary/80 transition-colors font-medium"
+          className="text-primary underline decoration-2 underline-offset-4 hover:text-primary/80 hover:decoration-primary/80 transition-all duration-200 font-semibold break-all"
         >
           {part}
         </a>
@@ -51,27 +51,27 @@ export const ChatMessage = ({ sender, children, avatar }: ChatMessageProps) => {
   
   return (
     <div className={cn(
-      "flex gap-2 sm:gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700", 
+      "flex gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700", 
       !isBot && "flex-row-reverse"
     )}>
       {/* Avatar */}
       <div className={cn(
-        "w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md",
+        "w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg",
         isBot 
           ? "bg-gradient-to-br from-primary to-accent" 
           : "bg-gradient-to-br from-accent to-primary"
       )}>
-        <span className="text-base sm:text-lg md:text-xl">{isBot ? "🌸" : "👤"}</span>
+        <span className="text-lg sm:text-xl md:text-2xl">{isBot ? "🌸" : "👤"}</span>
       </div>
 
       {/* Message Bubble */}
       <div className={cn(
-        "max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 shadow-soft transition-all hover:shadow-md",
+        "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] rounded-2xl px-4 sm:px-5 md:px-6 py-3 sm:py-4 md:py-5 shadow-lg transition-all hover:shadow-xl",
         isBot 
           ? "bg-card border border-border rounded-tl-none animate-in slide-in-from-left-2" 
           : "bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-tr-none animate-in slide-in-from-right-2"
       )}>
-        <div className="text-sm sm:text-base whitespace-pre-wrap">
+        <div className="text-base sm:text-lg md:text-xl leading-relaxed whitespace-pre-wrap text-foreground">
           {processContent(children)}
         </div>
       </div>

@@ -30,11 +30,11 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
               <span className="text-xl sm:text-2xl md:text-3xl">🌸</span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="font-extrabold text-foreground text-sm sm:text-base md:text-lg lg:text-xl truncate">
+              <h1 className="font-extrabold text-foreground text-base sm:text-lg md:text-xl lg:text-2xl truncate">
                 Alma Beauty Assistant
               </h1>
-              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate flex items-center gap-1 font-semibold">
-                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0"></span>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground truncate flex items-center gap-1.5 font-semibold">
+                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-500 animate-pulse flex-shrink-0"></span>
                 Online - Qui per aiutarti ✨
               </p>
             </div>
@@ -44,15 +44,15 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
 
       {/* Chat Messages Area */}
       <ScrollArea className="flex-1">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8 space-y-4 sm:space-y-5">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
           {children}
         </div>
       </ScrollArea>
 
       {/* Footer hint */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-[#f5ebe0]/90 to-transparent backdrop-blur-sm py-2 px-3 sm:px-4">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-[9px] sm:text-[10px] md:text-xs text-foreground/80 font-bold">
+      <div className="sticky bottom-0 bg-gradient-to-t from-[#f5ebe0]/90 to-transparent backdrop-blur-sm py-3 px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto">
+          <p className="text-center text-xs sm:text-sm md:text-base text-foreground/80 font-semibold">
             Tutte le tue informazioni sono sicure e verranno utilizzate solo per consigliarti i prodotti migliori 🔒
           </p>
         </div>
