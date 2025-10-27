@@ -101,6 +101,11 @@ STILE:
 - Spiega termini tecnici in modo semplice
 - Brevi paragrafi, facili da leggere
 
+FORMATTAZIONE LINK (SE NECESSARIO):
+- Se devi inserire link esterni, usa SOLO il formato markdown: [Testo](URL)
+- Esempio: [Guida Skincare](https://esempio.com/guida)
+- NON usare URL nudi senza formattazione
+
 Rispondi sempre in italiano in modo professionale, competente e amichevole.`;
 
     const messages = [

@@ -111,6 +111,12 @@ STILE COMUNICAZIONE:
 - Consiglia 3-6 prodotti max per routine completa
 - Mostra sempre il match score
 
+FORMATTAZIONE LINK (IMPORTANTE):
+- Quando menzioni un prodotto con link, usa SOLO il formato: [Nome Prodotto](URL)
+- Esempio corretto: [Siero Acidi](https://almanaturalbeauty.it/prodotto/siero-acidi/)
+- NON usare formati diversi o URL nudi
+- Ogni link deve essere ben formato in markdown
+
 Rispondi in italiano come una vera consulente beauty esperta.`;
 
     const messages = [
