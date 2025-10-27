@@ -7,6 +7,45 @@ interface ChatMessageProps {
   avatar?: string;
 }
 
+// Funzione per rendere i link cliccabili nel testo
+const renderTextWithLinks = (text: string) => {
+  // Regex per trovare URL
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline hover:text-primary/80 transition-colors font-medium"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
+// Funzione per processare il contenuto e renderizzare con link cliccabili
+const processContent = (content: ReactNode): ReactNode => {
+  if (typeof content === 'string') {
+    // Split per righe per mantenere la formattazione
+    const lines = content.split('\n');
+    return lines.map((line, lineIndex) => (
+      <span key={lineIndex}>
+        {renderTextWithLinks(line)}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    ));
+  }
+  return content;
+};
+
 export const ChatMessage = ({ sender, children, avatar }: ChatMessageProps) => {
   const isBot = sender === "bot";
   
@@ -32,8 +71,8 @@ export const ChatMessage = ({ sender, children, avatar }: ChatMessageProps) => {
           ? "bg-card border border-border rounded-tl-none animate-in slide-in-from-left-2" 
           : "bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-tr-none animate-in slide-in-from-right-2"
       )}>
-        <div className="text-sm sm:text-base">
-          {children}
+        <div className="text-sm sm:text-base whitespace-pre-wrap">
+          {processContent(children)}
         </div>
       </div>
     </div>
