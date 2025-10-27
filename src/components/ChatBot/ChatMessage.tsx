@@ -9,11 +9,48 @@ interface ChatMessageProps {
 
 // Funzione per rendere i link cliccabili nel testo
 const renderTextWithLinks = (text: string) => {
-  // Regex per trovare URL
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
+  // Regex per trovare link in formato markdown [testo](url) o URL semplici
+  const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const urlRegex = /(https?:\/\/[^\s<>\[\]]+)/g;
+  
+  // Prima gestiamo i link markdown
+  let processedText = text;
+  const markdownLinks: { text: string; url: string; placeholder: string }[] = [];
+  let markdownMatch;
+  let markdownIndex = 0;
+  
+  while ((markdownMatch = markdownLinkRegex.exec(text)) !== null) {
+    const placeholder = `___MARKDOWN_LINK_${markdownIndex}___`;
+    markdownLinks.push({
+      text: markdownMatch[1],
+      url: markdownMatch[2],
+      placeholder
+    });
+    processedText = processedText.replace(markdownMatch[0], placeholder);
+    markdownIndex++;
+  }
+  
+  // Poi splittiamo per URL semplici
+  const parts = processedText.split(urlRegex);
   
   return parts.map((part, index) => {
+    // Controlla se è un placeholder per link markdown
+    const markdownLink = markdownLinks.find(ml => ml.placeholder === part);
+    if (markdownLink) {
+      return (
+        <a
+          key={index}
+          href={markdownLink.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline decoration-2 underline-offset-4 hover:text-primary/80 hover:decoration-primary/80 transition-all duration-200 font-semibold"
+        >
+          {markdownLink.text}
+        </a>
+      );
+    }
+    
+    // Controlla se è un URL semplice
     if (part.match(urlRegex)) {
       return (
         <a
@@ -27,6 +64,7 @@ const renderTextWithLinks = (text: string) => {
         </a>
       );
     }
+    
     return part;
   });
 };
