@@ -182,7 +182,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       });
       
       setTimeout(() => {
-        window.location.href = data.cartUrl;
+        window.open(data.cartUrl, '_blank');
       }, 800);
       
     } catch (error) {
@@ -191,7 +191,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         id: `product-${product.id}`
       });
       setTimeout(() => {
-        window.location.href = product.product_url;
+        window.open(product.product_url, '_blank');
       }, 1000);
     }
   };
@@ -236,7 +236,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       
       // Redirect to WooCommerce cart URL with all products
       setTimeout(() => {
-        window.location.href = data.cartUrl;
+        window.open(data.cartUrl, '_blank');
       }, 1000);
       
     } catch (error) {
@@ -249,7 +249,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       });
       
       setTimeout(() => {
-        window.location.href = 'https://almanaturalbeauty.it/';
+        window.open('https://almanaturalbeauty.it/', '_blank');
       }, 1500);
     }
   };
