@@ -1,7 +1,7 @@
 project_id = "ndgnwsayjcptaodefzlx"
 
 [functions.add-to-woo-cart]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-skin]
 verify_jwt = true

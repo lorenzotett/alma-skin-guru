@@ -161,6 +161,41 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
+  // Handler for buying a single product
+  const handleBuySingle = async (product: Product) => {
+    if (!product.woocommerce_id) {
+      toast.error('Prodotto non disponibile per l\'acquisto automatico');
+      return;
+    }
+    
+    try {
+      toast.loading('Aggiunta al carrello...', { id: `product-${product.id}` });
+      
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: { productIds: [product.woocommerce_id] }
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Prodotto aggiunto! Apertura carrello...', { 
+        id: `product-${product.id}` 
+      });
+      
+      setTimeout(() => {
+        window.open(data.cartUrl, '_blank');
+      }, 800);
+      
+    } catch (error) {
+      console.error('Error adding single product:', error);
+      toast.error('Errore. Apertura pagina prodotto...', {
+        id: `product-${product.id}`
+      });
+      setTimeout(() => {
+        window.open(product.product_url, '_blank');
+      }, 1000);
+    }
+  };
+
   // Handler for buying all products - integrates with WooCommerce
   const handleBuyAll = async () => {
     setIsCheckingOut(true);
@@ -565,13 +600,32 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                               )}
                               
                               <div className="flex gap-2 pt-3">
-                                <Button
-                                  onClick={() => handleViewProduct(product.product_url)}
-                                  className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
-                                >
-                                  <ShoppingCart className="w-5 h-5" />
-                                  Vai al Prodotto
-                                </Button>
+                                {product.woocommerce_id ? (
+                                  <>
+                                    <Button
+                                      onClick={() => handleBuySingle(product)}
+                                      className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
+                                    >
+                                      <ShoppingCart className="w-5 h-5" />
+                                      Aggiungi al Carrello
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleViewProduct(product.product_url)}
+                                      variant="outline"
+                                      className="gap-2 h-11 text-base font-semibold border-2 border-primary/30 hover:border-primary/60"
+                                    >
+                                      <ExternalLink className="w-5 h-5" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    onClick={() => handleViewProduct(product.product_url)}
+                                    className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
+                                  >
+                                    <ExternalLink className="w-5 h-5" />
+                                    Vai al Prodotto
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </div>
