@@ -69,15 +69,14 @@ serve(async (req) => {
       // Continue anyway - product might exist but API might have issues
     }
 
-    // Build WooCommerce cart URL with redirect to cart page
-    // Format: https://example.com/carrello/?add-to-cart=123&add-to-cart=456
-    const cartParams = validProductIds
-      .map(id => `add-to-cart=${id}`)
-      .join('&');
+    // Build WooCommerce cart URL using comma-separated product IDs
+    // Format: https://example.com/?add-to-cart=123,456,789
+    // This is the correct WooCommerce format for multiple products
+    const productIdsString = validProductIds.join(',');
     
     // Remove trailing slash from storeUrl to avoid double slashes
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
-    const cartUrl = `${baseUrl}/carrello/?${cartParams}`;
+    const cartUrl = `${baseUrl}/?add-to-cart=${productIdsString}`;
     
     console.log('Generated cart URL:', cartUrl);
 
