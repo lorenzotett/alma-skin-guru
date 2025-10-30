@@ -511,7 +511,14 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                             <div className="flex-1 min-w-0 space-y-3">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-lg sm:text-xl text-primary break-words leading-tight">{product.name}</h4>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-bold text-lg sm:text-xl text-primary break-words leading-tight">{product.name}</h4>
+                                    {product.woocommerce_id && (
+                                      <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">
+                                        ✓ Disponibile
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <p className="text-sm text-muted-foreground font-medium">{product.brand}</p>
                                 </div>
                                 <div className="text-right flex-shrink-0">
@@ -605,19 +612,24 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                 {isCheckingOut ? (
                   <>
                     <div className="animate-spin">⏳</div>
-                    Reindirizzamento...
+                    Preparazione carrello...
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="w-7 h-7" />
-                    ACQUISTA ORA
+                    ACQUISTA TUTTO ADESSO
                   </>
                 )}
               </Button>
               
-              <p className="text-sm text-muted-foreground">
-                Verrai reindirizzato al nostro shop online
-              </p>
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-sm font-medium text-primary">
+                  🛒 {products.filter(p => p.woocommerce_id).length} prodotti verranno aggiunti automaticamente al carrello
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Verrai reindirizzato al nostro shop online con tutti i prodotti già nel carrello
+                </p>
+              </div>
             </div>
 
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs sm:text-sm">
