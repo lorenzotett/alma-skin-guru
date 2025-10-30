@@ -17,6 +17,7 @@ export interface Product {
   how_to_use?: string;
   inci?: string;
   brand?: string;
+  woocommerce_id?: number;
 }
 
 export interface UserProfile {

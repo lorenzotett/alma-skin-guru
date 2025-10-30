@@ -161,23 +161,61 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for buying all products - redirects to shop homepage
+  // Handler for buying all products - integrates with WooCommerce
   const handleBuyAll = async () => {
     setIsCheckingOut(true);
     
     try {
-      // Show feedback
-      toast.success('Reindirizzamento allo shop...');
+      // Extract WooCommerce IDs from recommended products
+      const woocommerceIds = products
+        .filter(p => p.woocommerce_id)
+        .map(p => p.woocommerce_id);
       
-      // Redirect to e-commerce homepage
+      console.log('Products with WooCommerce IDs:', woocommerceIds);
+      
+      if (woocommerceIds.length === 0) {
+        toast.error('Nessun prodotto disponibile per l\'acquisto automatico');
+        setIsCheckingOut(false);
+        return;
+      }
+      
+      // Show loading feedback
+      toast.loading('Preparazione del carrello...', { id: 'woo-cart' });
+      
+      // Call edge function to generate cart URL
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: { productIds: woocommerceIds }
+      });
+      
+      if (error) {
+        console.error('Error calling add-to-woo-cart:', error);
+        throw error;
+      }
+      
+      console.log('Cart URL generated:', data);
+      
+      // Show success feedback
+      toast.success(`${data.productsAdded} prodotti aggiunti al carrello! Reindirizzamento...`, { 
+        id: 'woo-cart' 
+      });
+      
+      // Redirect to WooCommerce cart URL with all products
       setTimeout(() => {
-        window.location.href = 'https://almanaturalbeauty.it/';
-      }, 800);
+        window.location.href = data.cartUrl;
+      }, 1000);
       
     } catch (error) {
       setIsCheckingOut(false);
-      toast.error('Errore durante il reindirizzamento. Riprova.');
       console.error('Error in handleBuyAll:', error);
+      
+      // Fallback: redirect to shop homepage
+      toast.error('Errore durante l\'aggiunta al carrello. Reindirizzamento allo shop...', {
+        id: 'woo-cart'
+      });
+      
+      setTimeout(() => {
+        window.location.href = 'https://almanaturalbeauty.it/';
+      }, 1500);
     }
   };
 

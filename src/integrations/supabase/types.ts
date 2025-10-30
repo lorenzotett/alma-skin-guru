@@ -21,7 +21,7 @@ export type Database = {
           admin_user_id: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           record_id: string | null
           table_name: string
           user_agent: string | null
@@ -32,7 +32,7 @@ export type Database = {
           admin_user_id: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name: string
           user_agent?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           admin_user_id?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name?: string
           user_agent?: string | null
@@ -55,21 +55,21 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           success: boolean | null
         }
         Insert: {
           created_at?: string | null
           email: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean | null
         }
         Update: {
           created_at?: string | null
           email?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean | null
         }
         Relationships: []
@@ -265,6 +265,7 @@ export type Database = {
           step: string | null
           times_clicked: number | null
           times_recommended: number | null
+          woocommerce_id: number | null
         }
         Insert: {
           active?: boolean | null
@@ -286,6 +287,7 @@ export type Database = {
           step?: string | null
           times_clicked?: number | null
           times_recommended?: number | null
+          woocommerce_id?: number | null
         }
         Update: {
           active?: boolean | null
@@ -307,6 +309,7 @@ export type Database = {
           step?: string | null
           times_clicked?: number | null
           times_recommended?: number | null
+          woocommerce_id?: number | null
         }
         Relationships: []
       }
