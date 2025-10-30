@@ -177,21 +177,21 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       
       if (error) throw error;
       
-      toast.success('Prodotto aggiunto! Apertura carrello...', { 
+      toast.success('Prodotto aggiunto! Reindirizzamento al carrello...', { 
         id: `product-${product.id}` 
       });
       
       setTimeout(() => {
-        window.open(data.cartUrl, '_blank');
+        window.location.href = data.cartUrl;
       }, 800);
       
     } catch (error) {
       console.error('Error adding single product:', error);
-      toast.error('Errore. Apertura pagina prodotto...', {
+      toast.error('Errore. Reindirizzamento alla pagina prodotto...', {
         id: `product-${product.id}`
       });
       setTimeout(() => {
-        window.open(product.product_url, '_blank');
+        window.location.href = product.product_url;
       }, 1000);
     }
   };
