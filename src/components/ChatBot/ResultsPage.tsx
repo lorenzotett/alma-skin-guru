@@ -182,7 +182,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       });
       
       setTimeout(() => {
-        window.open(data.cartUrl, '_blank');
+        window.open(data.cartUrl, 'alma_cart');
       }, 800);
       
     } catch (error) {
@@ -236,7 +236,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       
       // Redirect to WooCommerce cart URL with all products
       setTimeout(() => {
-        window.open(data.cartUrl, '_blank');
+        window.open(data.cartUrl, 'alma_cart');
       }, 1000);
       
     } catch (error) {
