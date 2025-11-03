@@ -41,6 +41,28 @@ function validateQuestionsInput(data: any): { valid: boolean; error?: string } {
   return { valid: true };
 }
 
+// Rate limiting: Track requests per IP
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(clientIP: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  const limit = rateLimitMap.get(clientIP);
+  
+  if (!limit || now > limit.resetAt) {
+    // Reset or create new limit: 20 requests per hour
+    rateLimitMap.set(clientIP, { count: 1, resetAt: now + 3600000 });
+    return { allowed: true };
+  }
+  
+  if (limit.count >= 20) {
+    const retryAfter = Math.ceil((limit.resetAt - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+  
+  limit.count++;
+  return { allowed: true };
+}
+
 serve(async (req) => {
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
@@ -50,6 +72,28 @@ serve(async (req) => {
   }
 
   try {
+    // Rate limiting check
+    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const rateLimitCheck = checkRateLimit(clientIP);
+    
+    if (!rateLimitCheck.allowed) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({
+          error: 'Rate limit exceeded',
+          message: 'Troppi messaggi. Riprova tra un\'ora.'
+        }),
+        {
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Retry-After': String(rateLimitCheck.retryAfter || 3600)
+          },
+          status: 429,
+        }
+      );
+    }
+
     const requestData = await req.json();
     
     // Validate input

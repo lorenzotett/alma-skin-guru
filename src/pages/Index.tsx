@@ -62,19 +62,7 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData>({});
   const [stepHistory, setStepHistory] = useState<StepHistoryItem[]>([]);
 
-  // Initialize anonymous session for public chatbot
-  useEffect(() => {
-    const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Sign in anonymously to get a valid JWT for edge functions
-        await supabase.auth.signInAnonymously();
-      }
-    };
-    
-    initSession();
-  }, []);
+  // Anonymous authentication removed for security - edge functions are now public with rate limiting
 
   const navigateToStep = (newStep: Step, newData: Partial<UserData> = {}) => {
     setStepHistory(prev => [...prev, { step, data: userData }]);
