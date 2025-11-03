@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,6 +90,31 @@ serve(async (req) => {
 
     console.log('Valid product IDs:', validProductIds);
 
+    // Verify products exist in our database and are active
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data: validProducts, error: dbError } = await supabase
+      .from('products')
+      .select('woocommerce_id')
+      .in('woocommerce_id', validProductIds)
+      .eq('active', true);
+
+    if (dbError) {
+      console.error('Database error verifying products:', dbError);
+      throw new Error('Errore durante la verifica dei prodotti');
+    }
+
+    if (!validProducts || validProducts.length === 0) {
+      console.warn('No valid products found in database for IDs:', validProductIds);
+      throw new Error('Nessun prodotto valido trovato');
+    }
+
+    // Only use verified product IDs
+    const verifiedProductIds = validProducts.map(p => p.woocommerce_id);
+    console.log('Verified product IDs from database:', verifiedProductIds);
+
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
     // WooCommerce doesn't handle multiple add-to-cart parameters well in URL
@@ -100,11 +126,11 @@ serve(async (req) => {
     // with instructions to manually add products
     
     // Best approach: Create URL with product IDs that can be handled by a custom page
-    const productIdsParam = validProductIds.join(',');
+    const productIdsParam = verifiedProductIds.join(',');
     const cartUrl = `${baseUrl}/carrello/?alma_products=${productIdsParam}`;
     
-    console.log('Generated cart URL with product IDs:', cartUrl);
-    console.log('Product IDs to add:', productIdsParam);
+    console.log('Generated cart URL with verified product IDs:', cartUrl);
+    console.log('Verified product IDs to add:', productIdsParam);
 
     // Log action for analytics (optional)
     // You could save this to a 'cart_actions' table if needed
@@ -113,8 +139,8 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         cartUrl,
-        productsAdded: validProductIds.length,
-        message: `${validProductIds.length} prodotti pronti per essere aggiunti al carrello`
+        productsAdded: verifiedProductIds.length,
+        message: `${verifiedProductIds.length} prodotti pronti per essere aggiunti al carrello`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
