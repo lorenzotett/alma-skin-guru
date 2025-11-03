@@ -60,7 +60,7 @@ serve(async (req) => {
 
     const { productIds } = await req.json();
     
-    console.log('Received request to add to WooCommerce cart:', { productIds });
+    
 
     // Validate input
     if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
@@ -77,9 +77,9 @@ serve(async (req) => {
       throw new Error('WooCommerce credentials not configured');
     }
 
-    console.log('WooCommerce store URL:', storeUrl);
+    
 
-    // Validate that all product IDs are integers
+    // Quick validation: filter valid product IDs
     const validProductIds = productIds.filter(id => 
       typeof id === 'number' && Number.isInteger(id) && id > 0
     );
@@ -87,8 +87,6 @@ serve(async (req) => {
     if (validProductIds.length === 0) {
       throw new Error('No valid product IDs provided');
     }
-
-    console.log('Valid product IDs:', validProductIds);
 
     // Verify products exist in our database and are active
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -107,26 +105,22 @@ serve(async (req) => {
     }
 
     if (!validProducts || validProducts.length === 0) {
-      console.warn('No valid products found in database for IDs:', validProductIds);
       throw new Error('Nessun prodotto valido trovato');
     }
 
     // Only use verified product IDs
     const verifiedProductIds = validProducts.map(p => p.woocommerce_id);
-    console.log('Verified product IDs from database:', verifiedProductIds);
 
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // WooCommerce standard format: multiple add-to-cart parameters
-    // Format: ?add-to-cart=123&add-to-cart=456&add-to-cart=789
+    // WooCommerce format with explicit quantity=1 for each product
     const addToCartParams = verifiedProductIds
-      .map(id => `add-to-cart=${id}`)
+      .map(id => `add-to-cart=${id}&quantity=1`)
       .join('&');
     
     const cartUrl = `${baseUrl}/carrello/?${addToCartParams}`;
     
-    console.log('Generated WooCommerce cart URL with verified product IDs:', cartUrl);
-    console.log('Verified product IDs to add:', verifiedProductIds.join(','));
+    console.log('Generated cart URL:', cartUrl);
 
     // Log action for analytics (optional)
     // You could save this to a 'cart_actions' table if needed
