@@ -36,7 +36,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   
   const { addToCart, cartCount, isLoading: cartLoading } = useCart();
   const navigate = useNavigate();
@@ -161,98 +160,31 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for buying a single product
-  const handleBuySingle = async (product: Product) => {
+  // Handler for adding a single product to local cart
+  const handleAddToCart = async (product: Product) => {
     if (!product.woocommerce_id) {
-      toast.error('Prodotto non disponibile per l\'acquisto automatico');
+      toast.error('Prodotto non disponibile');
       return;
     }
     
     try {
-      toast.loading('Aggiunta al carrello...', { id: `product-${product.id}` });
-      
-      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
-        body: { productIds: [product.woocommerce_id] }
+      await addToCart({
+        id: product.woocommerce_id.toString(),
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        product_url: product.product_url,
+        image_url: product.image_url,
+        description_short: product.description_short,
+        brand: product.brand
       });
       
-      if (error) throw error;
-      
-      toast.success('Prodotto aggiunto! Reindirizzamento al carrello...', { 
-        id: `product-${product.id}` 
-      });
-      
-      setTimeout(() => {
-        window.open(data.cartUrl, 'alma_cart');
-      }, 800);
-      
+      setAddedProducts(prev => new Set(prev).add(product.id));
     } catch (error) {
-      console.error('Error adding single product:', error);
-      toast.error('Errore. Reindirizzamento alla pagina prodotto...', {
-        id: `product-${product.id}`
-      });
-      setTimeout(() => {
-        window.open(product.product_url, '_blank');
-      }, 1000);
+      console.error('Error adding product to cart:', error);
     }
   };
 
-  // Handler for buying all products - integrates with WooCommerce
-  const handleBuyAll = async () => {
-    setIsCheckingOut(true);
-    
-    try {
-      // Extract WooCommerce IDs from recommended products
-      const woocommerceIds = products
-        .filter(p => p.woocommerce_id)
-        .map(p => p.woocommerce_id);
-      
-      console.log('Products with WooCommerce IDs:', woocommerceIds);
-      
-      if (woocommerceIds.length === 0) {
-        toast.error('Nessun prodotto disponibile per l\'acquisto automatico');
-        setIsCheckingOut(false);
-        return;
-      }
-      
-      // Show loading feedback
-      toast.loading('Preparazione del carrello...', { id: 'woo-cart' });
-      
-      // Call edge function to generate cart URL
-      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
-        body: { productIds: woocommerceIds }
-      });
-      
-      if (error) {
-        console.error('Error calling add-to-woo-cart:', error);
-        throw error;
-      }
-      
-      console.log('Cart URL generated:', data);
-      
-      // Show success feedback
-      toast.success(`${data.productsAdded} prodotti aggiunti al carrello! Reindirizzamento...`, { 
-        id: 'woo-cart' 
-      });
-      
-      // Redirect to WooCommerce cart URL with all products
-      setTimeout(() => {
-        window.open(data.cartUrl, 'alma_cart');
-      }, 1000);
-      
-    } catch (error) {
-      setIsCheckingOut(false);
-      console.error('Error in handleBuyAll:', error);
-      
-      // Fallback: redirect to shop homepage
-      toast.error('Errore durante l\'aggiunta al carrello. Reindirizzamento allo shop...', {
-        id: 'woo-cart'
-      });
-      
-      setTimeout(() => {
-        window.open('https://almanaturalbeauty.it/', '_blank');
-      }, 1500);
-    }
-  };
 
   const totalValue = useMemo(() => 
     products.reduce((sum, p) => sum + p.price, 0), 
@@ -599,34 +531,44 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                                 </div>
                               )}
                               
-                              <div className="flex gap-2 pt-3">
-                                {product.woocommerce_id ? (
-                                  <>
-                                    <Button
-                                      onClick={() => handleBuySingle(product)}
-                                      className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
-                                    >
-                                      <ShoppingCart className="w-5 h-5" />
-                                      Aggiungi al Carrello
-                                    </Button>
-                                    <Button
-                                      onClick={() => handleViewProduct(product.product_url)}
-                                      variant="outline"
-                                      className="gap-2 h-11 text-base font-semibold border-2 border-primary/30 hover:border-primary/60"
-                                    >
-                                      <ExternalLink className="w-5 h-5" />
-                                    </Button>
-                                  </>
-                                ) : (
-                                  <Button
-                                    onClick={() => handleViewProduct(product.product_url)}
-                                    className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
-                                  >
-                                    <ExternalLink className="w-5 h-5" />
-                                    Vai al Prodotto
-                                  </Button>
-                                )}
-                              </div>
+                               <div className="flex gap-2 pt-3">
+                                 {product.woocommerce_id ? (
+                                   <>
+                                     <Button
+                                       onClick={() => handleAddToCart(product)}
+                                       disabled={cartLoading || addedProducts.has(product.id)}
+                                       className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 disabled:opacity-60"
+                                     >
+                                       {addedProducts.has(product.id) ? (
+                                         <>
+                                           <Check className="w-5 h-5" />
+                                           Aggiunto
+                                         </>
+                                       ) : (
+                                         <>
+                                           <Plus className="w-5 h-5" />
+                                           Aggiungi al Carrello
+                                         </>
+                                       )}
+                                     </Button>
+                                     <Button
+                                       onClick={() => handleViewProduct(product.product_url)}
+                                       variant="outline"
+                                       className="gap-2 h-11 text-base font-semibold border-2 border-primary/30 hover:border-primary/60"
+                                     >
+                                       <ExternalLink className="w-5 h-5" />
+                                     </Button>
+                                   </>
+                                 ) : (
+                                   <Button
+                                     onClick={() => handleViewProduct(product.product_url)}
+                                     className="flex-1 gap-2 h-11 text-base font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90"
+                                   >
+                                     <ExternalLink className="w-5 h-5" />
+                                     Vai al Prodotto
+                                   </Button>
+                                 )}
+                               </div>
                             </div>
                           </div>
                         </div>
@@ -639,72 +581,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
            </div>
          </div>
 
-          {/* Bulk Purchase Section - Prominent CTA */}
-          <Card className="p-8 sm:p-10 space-y-6 bg-gradient-to-br from-primary/10 via-white to-accent/10 backdrop-blur border-4 border-primary/40 shadow-2xl animate-fade-in">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-bold text-primary">
-                Acquista la Routine Completa
-              </h2>
-              
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Tutti i {products.length} prodotti personalizzati per la tua pelle
-              </p>
-              
-              <div className="flex items-center justify-center gap-2 py-4">
-                <Package className="w-6 h-6 text-primary" />
-                <span className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                  {products.length} Prodotti
-                </span>
-              </div>
-              
-              <Button
-                onClick={handleBuyAll}
-                disabled={isCheckingOut || products.length === 0}
-                size="lg"
-                className="w-full sm:w-auto gap-3 h-16 px-12 text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105"
-              >
-                {isCheckingOut ? (
-                  <>
-                    <div className="animate-spin">⏳</div>
-                    Preparazione carrello...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-7 h-7" />
-                    ACQUISTA TUTTO ADESSO
-                  </>
-                )}
-              </Button>
-              
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-sm font-medium text-primary">
-                  🛒 {products.filter(p => p.woocommerce_id).length} prodotti verranno aggiunti automaticamente al carrello
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Verrai reindirizzato al nostro shop online con tutti i prodotti già nel carrello
-                </p>
-              </div>
-            </div>
-
-           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs sm:text-sm">
-             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
-               <div className="text-xl">🔒</div>
-               <p className="font-semibold">Pagamento Sicuro</p>
-             </div>
-             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
-               <div className="text-xl">🚚</div>
-               <p className="font-semibold">Spedizione Gratuita</p>
-             </div>
-             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
-               <div className="text-xl">↩️</div>
-               <p className="font-semibold">Reso Entro 30gg</p>
-             </div>
-             <div className="space-y-1 p-2 bg-white/50 rounded-lg">
-               <div className="text-xl">💚</div>
-               <p className="font-semibold">100% Naturale</p>
-             </div>
-           </div>
-         </Card>
 
          {/* AI Advisor Chat */}
          <AIAdvisorChat userData={userData} recommendedProducts={products} />
