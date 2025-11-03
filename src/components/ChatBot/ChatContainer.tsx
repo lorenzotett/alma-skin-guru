@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FloatingCart } from "./FloatingCart";
 
 interface ChatContainerProps {
   children: ReactNode;
@@ -59,8 +58,6 @@ export const ChatContainer = ({ children, onBack, showBack = true }: ChatContain
         </div>
       </div>
 
-      {/* Floating Cart */}
-      <FloatingCart />
     </div>
   );
 };

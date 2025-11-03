@@ -11,6 +11,7 @@ import { AIAdvisorChat } from "./AIAdvisorChat";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { FloatingCart } from "./FloatingCart";
 
 interface ResultsPageProps {
   userData: {
@@ -112,7 +113,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
 
   const saveAnalysis = async (recommendedProducts: Product[]) => {
     try {
-      // Create contact silently
+      // Create contact without authentication (RLS policies allow public insert)
       const { data: contact, error: contactError } = await supabase
         .from('contacts')
         .insert({
@@ -123,17 +124,27 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
           age: userData.age,
           concerns: userData.concerns,
           product_type: userData.productTypes?.join(', '),
-          additional_info: userData.additionalInfo
+          additional_info: userData.additionalInfo,
         })
         .select()
         .single();
 
       if (contactError) {
-        logError(contactError, 'saveAnalysis-contact');
-        return; // Fail silently
+        console.error('Error saving contact:', contactError);
+        // Check for specific error codes
+        if (contactError.code === '23505') {
+          // Duplicate entry - this is OK, user might have done analysis before
+          console.log('Contact already exists, continuing...');
+        } else if (contactError.message?.includes('rate limit')) {
+          toast.error('Troppi tentativi. Riprova tra un\'ora.');
+        } else {
+          // Other errors - fail silently but log
+          logError(contactError, 'saveAnalysis-contact');
+        }
+        return;
       }
 
-      // Link products to contact
+      // Link products to contact if contact was created successfully
       if (contact && recommendedProducts.length > 0) {
         const contactProducts = recommendedProducts.map(p => ({
           contact_id: contact.id,
@@ -145,12 +156,14 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
           .insert(contactProducts);
 
         if (productsError) {
+          console.error('Error linking products:', productsError);
           logError(productsError, 'saveAnalysis-products');
         }
       }
     } catch (error: any) {
+      console.error('Error in saveAnalysis:', error);
       logError(error, 'saveAnalysis');
-      // Fail silently, don't show error to user
+      // Fail silently - don't disrupt user experience
     }
   };
 
@@ -618,6 +631,9 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
           </Button>
         </Card>
       </div>
+
+      {/* Floating Cart - visible only on results page */}
+      <FloatingCart />
     </div>
   );
 };
