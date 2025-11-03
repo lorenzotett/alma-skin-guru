@@ -37,9 +37,13 @@ export const FloatingCart = () => {
       if (error) throw error;
 
       if (data.success) {
-        toast.success('Reindirizzamento al carrello...', {
-          duration: 1500,
+        toast.success('Apertura carrello WooCommerce...', {
+          description: 'I prodotti selezionati verranno aggiunti',
+          duration: 2000,
         });
+        
+        // Clear local cart after successful checkout
+        clearCart();
         
         setTimeout(() => {
           window.open(data.cartUrl, '_blank');

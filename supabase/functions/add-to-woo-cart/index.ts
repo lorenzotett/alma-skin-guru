@@ -114,14 +114,15 @@ serve(async (req) => {
       // Continue anyway - product might exist but API might have issues
     }
 
-    // Build WooCommerce cart URL for multiple products
-    // Using /carrello/ directly - this works if WooCommerce is configured to process
-    // add-to-cart parameters on the cart page
-    const productParams = validProductIds.map(id => `add-to-cart[]=${id}`).join('&');
-    
-    // Remove trailing slash from storeUrl to avoid double slashes
+    // Build WooCommerce cart URL
+    // For multiple products, redirect to first product page with all products as query params
+    // This ensures the cart is properly managed
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
-    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
+    
+    // Create URL that redirects to shop and adds products one by one
+    // This is more reliable than trying to add all at once
+    const productParams = validProductIds.map(id => `add-to-cart=${id}`).join('&');
+    const cartUrl = `${baseUrl}/?${productParams}`;
     
     console.log('Generated cart URL:', cartUrl);
 
