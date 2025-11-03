@@ -117,20 +117,16 @@ serve(async (req) => {
 
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // WooCommerce doesn't handle multiple add-to-cart parameters well in URL
-    // Instead, we'll create a single redirect URL that goes to a custom page
-    // that will add all products using WooCommerce's JavaScript API
+    // WooCommerce standard format: multiple add-to-cart parameters
+    // Format: ?add-to-cart=123&add-to-cart=456&add-to-cart=789
+    const addToCartParams = verifiedProductIds
+      .map(id => `add-to-cart=${id}`)
+      .join('&');
     
-    // For now, create a URL with encoded product IDs as a single parameter
-    // The site will need a custom handler page, OR we use the direct cart link
-    // with instructions to manually add products
+    const cartUrl = `${baseUrl}/carrello/?${addToCartParams}`;
     
-    // Best approach: Create URL with product IDs that can be handled by a custom page
-    const productIdsParam = verifiedProductIds.join(',');
-    const cartUrl = `${baseUrl}/carrello/?alma_products=${productIdsParam}`;
-    
-    console.log('Generated cart URL with verified product IDs:', cartUrl);
-    console.log('Verified product IDs to add:', productIdsParam);
+    console.log('Generated WooCommerce cart URL with verified product IDs:', cartUrl);
+    console.log('Verified product IDs to add:', verifiedProductIds.join(','));
 
     // Log action for analytics (optional)
     // You could save this to a 'cart_actions' table if needed
