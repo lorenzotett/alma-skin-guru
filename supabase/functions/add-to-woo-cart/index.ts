@@ -89,40 +89,22 @@ serve(async (req) => {
 
     console.log('Valid product IDs:', validProductIds);
 
-    // Optional: Verify products exist in WooCommerce
-    // This step can be skipped for performance if you trust the product IDs
-    const auth = btoa(`${consumerKey}:${consumerSecret}`);
-    const headers = {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/json',
-    };
-
-    // Verify first product exists (quick validation)
-    try {
-      const verifyResponse = await fetch(
-        `${storeUrl}/wp-json/wc/v3/products/${validProductIds[0]}`,
-        { headers }
-      );
-      
-      if (!verifyResponse.ok) {
-        console.warn('Product verification failed:', await verifyResponse.text());
-      } else {
-        console.log('Product verification successful');
-      }
-    } catch (error) {
-      console.warn('Error verifying product:', error);
-      // Continue anyway - product might exist but API might have issues
-    }
-
-    // Build WooCommerce cart URL
-    // Redirect directly to cart page with products
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // Create URL that adds products and shows cart page
-    const productParams = validProductIds.map(id => `add-to-cart=${id}`).join('&');
-    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
+    // WooCommerce doesn't handle multiple add-to-cart parameters well in URL
+    // Instead, we'll create a single redirect URL that goes to a custom page
+    // that will add all products using WooCommerce's JavaScript API
     
-    console.log('Generated cart URL:', cartUrl);
+    // For now, create a URL with encoded product IDs as a single parameter
+    // The site will need a custom handler page, OR we use the direct cart link
+    // with instructions to manually add products
+    
+    // Best approach: Create URL with product IDs that can be handled by a custom page
+    const productIdsParam = validProductIds.join(',');
+    const cartUrl = `${baseUrl}/carrello/?alma_products=${productIdsParam}`;
+    
+    console.log('Generated cart URL with product IDs:', cartUrl);
+    console.log('Product IDs to add:', productIdsParam);
 
     // Log action for analytics (optional)
     // You could save this to a 'cart_actions' table if needed
