@@ -115,14 +115,12 @@ serve(async (req) => {
     }
 
     // Build WooCommerce cart URL
-    // For multiple products, redirect to first product page with all products as query params
-    // This ensures the cart is properly managed
+    // Redirect directly to cart page with products
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // Create URL that redirects to shop and adds products one by one
-    // This is more reliable than trying to add all at once
+    // Create URL that adds products and shows cart page
     const productParams = validProductIds.map(id => `add-to-cart=${id}`).join('&');
-    const cartUrl = `${baseUrl}/?${productParams}`;
+    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
     
     console.log('Generated cart URL:', cartUrl);
 
