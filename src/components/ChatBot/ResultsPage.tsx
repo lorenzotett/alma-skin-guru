@@ -182,14 +182,15 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     
     try {
       await addToCart({
-        id: product.woocommerce_id.toString(),
+        id: product.id,
         name: product.name,
         category: product.category,
         price: product.price,
         product_url: product.product_url,
         image_url: product.image_url,
         description_short: product.description_short,
-        brand: product.brand
+        brand: product.brand,
+        woocommerce_id: product.woocommerce_id
       });
       
       setAddedProducts(prev => new Set(prev).add(product.id));

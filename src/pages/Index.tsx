@@ -18,6 +18,7 @@ import { ChatContainer } from "@/components/ChatBot/ChatContainer";
 import { ChatMessage } from "@/components/ChatBot/ChatMessage";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 type Step = 
   | "welcome"
@@ -61,6 +62,7 @@ const Index = () => {
   const [step, setStep] = useState<Step>("welcome");
   const [userData, setUserData] = useState<UserData>({});
   const [stepHistory, setStepHistory] = useState<StepHistoryItem[]>([]);
+  const { clearCart } = useCart();
 
   // Anonymous authentication removed for security - edge functions are now public with rate limiting
 
@@ -82,7 +84,10 @@ const Index = () => {
     }
   };
 
-  const handleStart = () => navigateToStep("name");
+  const handleStart = () => {
+    clearCart();
+    navigateToStep("name");
+  };
 
   const handleFeatureClick = (featureType: 'analysis' | 'products' | 'questions') => {
     setUserData(prev => ({ ...prev, choice: featureType }));
@@ -199,6 +204,7 @@ const Index = () => {
   };
 
   const handleRestart = () => {
+    clearCart();
     setUserData({});
     setStep("welcome");
     setStepHistory([]);

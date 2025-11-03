@@ -10,6 +10,7 @@ export interface CartProduct {
   image_url?: string;
   description_short?: string;
   brand?: string;
+  woocommerce_id?: number;
 }
 
 interface CartContextType {

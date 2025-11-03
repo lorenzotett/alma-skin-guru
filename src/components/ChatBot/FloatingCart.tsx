@@ -20,8 +20,16 @@ export const FloatingCart = () => {
     setIsCheckingOut(true);
 
     try {
-      const productIds = cartItems.map(item => parseInt(item.id));
+      // Filter products that have a valid woocommerce_id
+      const productIds = cartItems
+        .filter(item => item.woocommerce_id)
+        .map(item => item.woocommerce_id!);
       
+      if (productIds.length === 0) {
+        toast.error('Nessun prodotto disponibile per il checkout');
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
         body: { productIds }
       });
@@ -34,7 +42,7 @@ export const FloatingCart = () => {
         });
         
         setTimeout(() => {
-          window.open(data.cartUrl, 'alma_cart');
+          window.open(data.cartUrl, '_blank');
         }, 800);
       }
     } catch (error) {
