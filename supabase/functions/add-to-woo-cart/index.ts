@@ -70,13 +70,13 @@ serve(async (req) => {
     }
 
     // Build WooCommerce cart URL for multiple products
-    // IMPORTANT: Use homepage (not /carrello/) because WooCommerce processes add-to-cart
-    // parameters on any page and then can auto-redirect to cart (if configured in WooCommerce settings)
+    // Using /carrello/ directly - this works if WooCommerce is configured to process
+    // add-to-cart parameters on the cart page
     const productParams = validProductIds.map(id => `add-to-cart[]=${id}`).join('&');
     
     // Remove trailing slash from storeUrl to avoid double slashes
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
-    const cartUrl = `${baseUrl}?${productParams}`;
+    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
     
     console.log('Generated cart URL:', cartUrl);
 
