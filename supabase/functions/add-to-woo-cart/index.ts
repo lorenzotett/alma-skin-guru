@@ -113,16 +113,10 @@ serve(async (req) => {
 
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // Use array format for multiple products - compatible with WooCommerce plugins
-    // Format: ?add-to-cart[]=123&quantity[]=1&add-to-cart[]=456&quantity[]=1
-    const addToCartParams = verifiedProductIds
-      .map(id => `add-to-cart[]=${id}&quantity[]=1`)
-      .join('&');
-    
-    const cartUrl = `${baseUrl}/carrello/?${addToCartParams}`;
-    
-    console.log('Generated cart URL with array format:', cartUrl);
-    console.log('Products to add:', verifiedProductIds);
+    // Use intermediate page to add products sequentially
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://almanaturalbeauty-advisor.lovable.app';
+    const productsParam = verifiedProductIds.join(',');
+    const cartUrl = `${frontendUrl}/add-to-woo-cart?products=${productsParam}&store=${encodeURIComponent(baseUrl)}`;
 
     // Log action for analytics (optional)
     // You could save this to a 'cart_actions' table if needed
