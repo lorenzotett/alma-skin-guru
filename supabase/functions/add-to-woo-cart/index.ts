@@ -118,9 +118,9 @@ serve(async (req) => {
     console.log('Base URL:', baseUrl);
     
     // Generate WooCommerce cart URL with products
-    // Using standard WooCommerce cart page with add-to-cart parameters
+    // Using Italian cart page URL: /carrello/
     const productParams = verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&');
-    const cartUrl = `${baseUrl}/cart/?${productParams}`;
+    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
     
     console.log('Generated cart URL:', cartUrl);
     console.log('Product count:', verifiedProductIds.length);
