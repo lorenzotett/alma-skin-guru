@@ -114,31 +114,28 @@ serve(async (req) => {
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
     console.log('Creating WooCommerce cart with products:', verifiedProductIds);
+    console.log('Store URL from env:', storeUrl);
+    console.log('Base URL:', baseUrl);
     
-    // Create a WooCommerce cart session using REST API
-    // Note: Standard WooCommerce doesn't have a built-in cart session API
-    // So we'll generate a direct URL to the shop with products pre-added
+    // Generate WooCommerce cart URL with products
+    // Using standard WooCommerce cart page with add-to-cart parameters
+    const productParams = verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&');
+    const cartUrl = `${baseUrl}/cart/?${productParams}`;
     
-    // Option 1: Generate individual product URLs (most reliable)
-    const productUrls = verifiedProductIds.map(id => 
-      `${baseUrl}/?add-to-cart=${id}`
-    );
-    
-    // Option 2: Try array format for plugins that support it
-    const bulkAddUrl = `${baseUrl}/carrello/?${verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&')}`;
-    
-    console.log('Generated bulk add URL:', bulkAddUrl);
+    console.log('Generated cart URL:', cartUrl);
     console.log('Product count:', verifiedProductIds.length);
     
     // Return the cart URL - the client will handle the redirect
-    // We'll use the bulk URL and fallback to sequential if needed
     return new Response(
       JSON.stringify({
         success: true,
-        cartUrl: bulkAddUrl,
-        productUrls: productUrls, // Individual URLs as fallback
+        cartUrl: cartUrl,
         productsAdded: verifiedProductIds.length,
-        message: `${verifiedProductIds.length} prodotti verranno aggiunti al carrello`
+        message: `${verifiedProductIds.length} prodotti verranno aggiunti al carrello`,
+        debug: {
+          storeUrl: baseUrl,
+          productIds: verifiedProductIds
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
