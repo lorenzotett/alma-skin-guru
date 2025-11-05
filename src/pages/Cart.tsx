@@ -170,16 +170,6 @@ export default function Cart() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-3">
-                      {item.woocommerce_id && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleAddToWooCommerce(item.woocommerce_id!)}
-                          className="gap-2"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          Aggiungi al Carrello
-                        </Button>
-                      )}
                       <Button
                         size="sm"
                         variant="outline"
