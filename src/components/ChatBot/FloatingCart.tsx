@@ -21,12 +21,16 @@ export const FloatingCart = () => {
   }, [shouldOpenCart, cartCount, setShouldOpenCart]);
 
   const handleCheckout = async () => {
+    console.log('🛒 CHECKOUT STARTED');
+    console.log('Cart items:', cartItems);
+    
     if (cartItems.length === 0) {
       toast.error('Il carrello è vuoto');
       return;
     }
 
     const productsWithWooId = cartItems.filter(item => item.woocommerce_id);
+    console.log('Products with WooCommerce ID:', productsWithWooId);
     
     if (productsWithWooId.length === 0) {
       toast.error('Nessun prodotto disponibile per il checkout');
@@ -37,13 +41,14 @@ export const FloatingCart = () => {
     
     try {
       const productIds = productsWithWooId.map(item => item.woocommerce_id!);
-      console.log('Sending to WooCommerce:', productIds);
+      console.log('🚀 Calling edge function with product IDs:', productIds);
       
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
         body: { productIds }
       });
 
-      console.log('WooCommerce response:', data, error);
+      console.log('📦 Edge function response - data:', data);
+      console.log('📦 Edge function response - error:', error);
 
       if (error) {
         console.error('Edge function error:', error);
@@ -58,12 +63,12 @@ export const FloatingCart = () => {
       }
 
       if (data?.success && data?.cartUrl) {
-        console.log('Cart URL received:', data.cartUrl);
-        console.log('Debug info:', data.debug);
+        console.log('✅ SUCCESS! Cart URL received:', data.cartUrl);
+        console.log('🔍 Debug info:', data.debug);
         
         // Validate that URL is absolute
         if (!data.cartUrl.startsWith('http://') && !data.cartUrl.startsWith('https://')) {
-          console.error('Invalid cart URL - not absolute:', data.cartUrl);
+          console.error('❌ Invalid cart URL - not absolute:', data.cartUrl);
           toast.error('Errore: URL del carrello non valido');
           return;
         }
@@ -73,11 +78,13 @@ export const FloatingCart = () => {
         });
         
         // Open WooCommerce cart in new tab
-        console.log('Opening URL:', data.cartUrl);
+        console.log('🌐 Opening URL in new window:', data.cartUrl);
         const newWindow = window.open(data.cartUrl, '_blank', 'noopener,noreferrer');
         
+        console.log('🪟 Window opened:', !!newWindow);
+        
         if (!newWindow) {
-          console.error('Failed to open window - popup may be blocked');
+          console.error('❌ Failed to open window - popup may be blocked');
           toast.error('Impossibile aprire il carrello. Verifica che i popup non siano bloccati.');
           return;
         }
@@ -88,8 +95,8 @@ export const FloatingCart = () => {
           setIsOpen(false);
         }, 2000);
       } else {
-        console.error('Invalid response:', data);
-        throw new Error('Errore nella risposta del server');
+        console.error('❌ Invalid response - no success or cartUrl:', data);
+        toast.error(data?.message || 'Errore: risposta non valida dal server');
       }
     } catch (error) {
       console.error('Errore checkout:', error);
