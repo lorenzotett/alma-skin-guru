@@ -11,7 +11,6 @@ import { AIAdvisorChat } from "./AIAdvisorChat";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { FloatingCart } from "./FloatingCart";
 
 interface ResultsPageProps {
   userData: {
@@ -632,9 +631,6 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
           </Button>
         </Card>
       </div>
-
-      {/* Floating Cart - visible only on results page */}
-      <FloatingCart />
     </div>
   );
 };
