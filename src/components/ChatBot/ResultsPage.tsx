@@ -37,14 +37,16 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const [loading, setLoading] = useState(true);
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   
-  const { addToCart, cartCount, isLoading: cartLoading } = useCart();
+  const { addToCart, cartCount, isLoading: cartLoading, setShowCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Simple scroll to top on mount
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Show the cart when results page loads
+    setShowCart(true);
     loadRecommendations();
-  }, []);
+  }, [setShowCart]);
 
   const loadRecommendations = async () => {
     try {

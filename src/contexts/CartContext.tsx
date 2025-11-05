@@ -24,6 +24,8 @@ interface CartContextType {
   getTotalPrice: () => number;
   shouldOpenCart: boolean;
   setShouldOpenCart: (value: boolean) => void;
+  showCart: boolean;
+  setShowCart: (value: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -34,6 +36,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [cartItems, setCartItems] = useState<CartProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldOpenCart, setShouldOpenCart] = useState(false);
+  const [showCart, setShowCart] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -152,6 +155,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         getTotalPrice,
         shouldOpenCart,
         setShouldOpenCart,
+        showCart,
+        setShowCart,
       }}
     >
       {children}

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
 export const FloatingCart = () => {
-  const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart, shouldOpenCart, setShouldOpenCart } = useCart();
+  const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart, shouldOpenCart, setShouldOpenCart, showCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
 
   // Auto-open cart when products are added
@@ -40,7 +40,7 @@ export const FloatingCart = () => {
     }, 1500);
   };
 
-  if (cartCount === 0) return null;
+  if (cartCount === 0 || !showCart) return null;
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
