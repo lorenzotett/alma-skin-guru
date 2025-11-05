@@ -72,9 +72,20 @@ serve(async (req) => {
     const consumerKey = Deno.env.get('WOOCOMMERCE_CONSUMER_KEY');
     const consumerSecret = Deno.env.get('WOOCOMMERCE_CONSUMER_SECRET');
 
+    console.log('WooCommerce credentials check:', {
+      hasStoreUrl: !!storeUrl,
+      hasConsumerKey: !!consumerKey,
+      hasConsumerSecret: !!consumerSecret,
+      storeUrlValue: storeUrl // Log the actual URL to help debug
+    });
+
     if (!storeUrl || !consumerKey || !consumerSecret) {
-      console.error('Missing WooCommerce credentials');
-      throw new Error('WooCommerce credentials not configured');
+      console.error('Missing WooCommerce credentials:', {
+        storeUrl: !!storeUrl,
+        consumerKey: !!consumerKey,
+        consumerSecret: !!consumerSecret
+      });
+      throw new Error('Configurazione WooCommerce mancante. Verifica le credenziali nel pannello segreti.');
     }
 
     

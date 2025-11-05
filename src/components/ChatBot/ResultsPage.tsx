@@ -41,36 +41,9 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Force immediate and persistent scroll to top
-    const scrollToTop = () => {
-      // Multiple scroll methods for maximum compatibility
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      
-      // Also try scrolling to the header element
-      const headerElement = document.getElementById('results-header');
-      if (headerElement) {
-        headerElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-      }
-    };
-    
-    // Immediate scroll
-    scrollToTop();
-    
-    // Multiple aggressive checks to ensure scroll happens
-    const timeouts = [0, 10, 50, 100, 150, 200, 300, 500, 800, 1000];
-    const intervals: NodeJS.Timeout[] = [];
-    timeouts.forEach(delay => {
-      intervals.push(setTimeout(scrollToTop, delay));
-    });
-    
+    // Simple scroll to top on mount
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     loadRecommendations();
-    
-    return () => {
-      intervals.forEach(interval => clearTimeout(interval));
-    };
   }, []);
 
   const loadRecommendations = async () => {

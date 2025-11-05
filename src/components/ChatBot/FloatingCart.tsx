@@ -47,7 +47,14 @@ export const FloatingCart = () => {
 
       if (error) {
         console.error('Edge function error:', error);
-        throw error;
+        toast.error(error.message || 'Errore durante la preparazione del carrello');
+        return;
+      }
+
+      if (!data?.success) {
+        console.error('Operation failed:', data);
+        toast.error(data?.message || 'Errore durante la preparazione del carrello');
+        return;
       }
 
       if (data?.success && data?.cartUrl) {
