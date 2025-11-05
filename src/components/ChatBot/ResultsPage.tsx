@@ -41,14 +41,21 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Force scroll to top with multiple attempts to ensure it works
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    setTimeout(() => {
+    // Aggressive scroll to top with multiple attempts
+    const scrollToTop = () => {
       window.scrollTo({ top: 0, behavior: 'instant' });
-    }, 100);
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 300);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    
+    // Immediate scroll
+    scrollToTop();
+    
+    // Multiple retry attempts to ensure it works
+    setTimeout(scrollToTop, 50);
+    setTimeout(scrollToTop, 100);
+    setTimeout(scrollToTop, 200);
+    setTimeout(scrollToTop, 500);
     
     // Show the cart when results page loads
     setShowCart(true);

@@ -54,12 +54,23 @@ export const FloatingCart = () => {
         return;
       }
 
-      toast.success('Apertura carrello WooCommerce...', {
-        duration: 1500,
-      });
+      // Show warning if using fallback
+      if (data.warning) {
+        console.warn('WooCommerce warning:', data.warning);
+        toast.warning('Apertura carrello...', {
+          duration: 2000,
+        });
+      } else {
+        toast.success('Apertura carrello WooCommerce...', {
+          duration: 1500,
+        });
+      }
       
-      // Open WooCommerce cart with products in new tab
-      window.open(data.cartUrl, '_blank', 'noopener,noreferrer');
+      console.log('Opening cart URL:', data.cartUrl);
+      
+      // Open WooCommerce cart - try in same window first
+      // Using _blank can sometimes cause "Project Not Found" issues
+      window.location.href = data.cartUrl;
       
       // Clear cart after successful checkout
       setTimeout(() => {
