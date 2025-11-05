@@ -1,21 +1,73 @@
-import { ShoppingCart, X, ArrowRight } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
 
 export const FloatingCart = () => {
-  const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart } = useCart();
+  const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart, shouldOpenCart, setShouldOpenCart } = useCart();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleCheckout = () => {
-    // Simply navigate to cart page
-    window.location.href = '/cart';
+  // Auto-open cart when products are added
+  useEffect(() => {
+    if (shouldOpenCart && cartCount > 0) {
+      setIsOpen(true);
+      setShouldOpenCart(false);
+    }
+  }, [shouldOpenCart, cartCount, setShouldOpenCart]);
+
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      toast.error('Il carrello è vuoto');
+      return;
+    }
+
+    const productsWithWooId = cartItems.filter(item => item.woocommerce_id);
+    
+    if (productsWithWooId.length === 0) {
+      toast.error('Nessun prodotto disponibile per il checkout');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    
+    try {
+      const productIds = productsWithWooId.map(item => item.woocommerce_id!);
+      
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: { productIds }
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.cartUrl) {
+        toast.success('Reindirizzamento al carrello WooCommerce...', {
+          duration: 2000,
+        });
+        
+        // Redirect to WooCommerce cart with all products
+        setTimeout(() => {
+          window.open(data.cartUrl, '_blank');
+        }, 500);
+      } else {
+        throw new Error('Errore nella risposta del server');
+      }
+    } catch (error) {
+      console.error('Errore checkout:', error);
+      toast.error('Errore durante il checkout. Riprova.');
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   if (cartCount === 0) return null;
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
           size="lg"
@@ -92,15 +144,16 @@ export const FloatingCart = () => {
                   onClick={handleCheckout}
                   className="w-full h-12 text-lg font-semibold"
                   size="lg"
+                  disabled={isCheckingOut}
                 >
-                  Vai al Carrello
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  {isCheckingOut ? 'Preparazione...' : 'Acquista Ora'}
                 </Button>
 
                 <Button
                   onClick={clearCart}
                   variant="outline"
                   className="w-full mt-2"
+                  disabled={isCheckingOut}
                 >
                   Svuota Carrello
                 </Button>

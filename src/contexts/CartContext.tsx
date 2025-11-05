@@ -22,6 +22,8 @@ interface CartContextType {
   clearCart: () => void;
   isLoading: boolean;
   getTotalPrice: () => number;
+  shouldOpenCart: boolean;
+  setShouldOpenCart: (value: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -31,6 +33,7 @@ const CART_STORAGE_KEY = 'alma_cart_items';
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldOpenCart, setShouldOpenCart] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -72,6 +75,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           duration: 2000,
         });
         
+        setShouldOpenCart(true);
         return [...prev, product];
       });
       
@@ -104,6 +108,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           duration: 2000,
         });
         
+        setShouldOpenCart(true);
         return [...prev, ...newProducts];
       });
       
@@ -145,6 +150,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clearCart,
         isLoading,
         getTotalPrice,
+        shouldOpenCart,
+        setShouldOpenCart,
       }}
     >
       {children}
