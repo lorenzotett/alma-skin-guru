@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,29 +10,39 @@ import { toast } from "sonner";
 export default function Cart() {
   const { cartItems, removeFromCart, clearCart, getTotalPrice } = useCart();
   const navigate = useNavigate();
-  const [redirecting, setRedirecting] = useState(false);
 
-  const handleCheckout = () => {
+  const handleAddToWooCommerce = (woocommerceId: number) => {
+    const baseUrl = 'https://www.almanaturalbeauty.it';
+    const addToCartUrl = `${baseUrl}/?add-to-cart=${woocommerceId}`;
+    window.open(addToCartUrl, '_blank');
+    toast.success('Prodotto aggiunto al carrello!', {
+      description: 'Si è aperta una nuova scheda con il carrello WooCommerce'
+    });
+  };
+
+  const handleAddAllToWooCommerce = () => {
     if (cartItems.length === 0) {
       toast.error('Il carrello è vuoto');
       return;
     }
 
-    setRedirecting(true);
+    const productsWithWooId = cartItems.filter(item => item.woocommerce_id);
     
-    // Show loading toast
-    toast.loading('Preparazione checkout...', { duration: 1000 });
-    
-    // If products have external URLs, redirect to first product's shop
-    // In a real scenario, you'd have a unified checkout URL
-    setTimeout(() => {
-      if (cartItems[0]?.product_url) {
-        window.location.href = cartItems[0].product_url;
-      } else {
-        toast.error('Impossibile procedere al checkout');
-        setRedirecting(false);
-      }
-    }, 1000);
+    if (productsWithWooId.length === 0) {
+      toast.error('Nessun prodotto disponibile per il checkout');
+      return;
+    }
+
+    toast.success(`Apertura di ${productsWithWooId.length} prodotti...`, {
+      description: 'I prodotti verranno aggiunti al carrello WooCommerce'
+    });
+
+    // Open each product add-to-cart link with a small delay
+    productsWithWooId.forEach((item, index) => {
+      setTimeout(() => {
+        handleAddToWooCommerce(item.woocommerce_id!);
+      }, index * 500); // 500ms delay between each
+    });
   };
 
   const totalPrice = getTotalPrice();
@@ -160,7 +169,17 @@ export default function Cart() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {item.woocommerce_id && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleAddToWooCommerce(item.woocommerce_id!)}
+                          className="gap-2"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          Aggiungi al Carrello
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
@@ -213,29 +232,19 @@ export default function Cart() {
             </div>
           </div>
 
-          {/* Checkout Button */}
+          {/* Checkout Buttons */}
           <div className="mt-8 space-y-4">
             <Button
-              onClick={handleCheckout}
-              disabled={redirecting}
+              onClick={handleAddAllToWooCommerce}
               size="lg"
               className="w-full gap-2 text-lg h-14 bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90 shadow-lg hover:shadow-xl"
             >
-              {redirecting ? (
-                <>
-                  <span className="animate-spin">⏳</span>
-                  Reindirizzamento...
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="w-5 h-5" />
-                  Procedi al Checkout - €{discountedPrice.toFixed(2)}
-                </>
-              )}
+              <ShoppingCart className="w-5 h-5" />
+              Aggiungi Tutto al Carrello WooCommerce
             </Button>
 
             <p className="text-sm text-center text-muted-foreground">
-              Sarai reindirizzato al nostro shop online per completare l'acquisto in sicurezza
+              I prodotti verranno aggiunti al carrello del nostro shop online, dove potrai completare l'acquisto
             </p>
           </div>
         </Card>

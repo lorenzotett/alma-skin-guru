@@ -3,59 +3,13 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useState } from 'react';
 
 export const FloatingCart = () => {
   const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleCheckout = async () => {
-    if (cartItems.length === 0) {
-      toast.error('Il carrello è vuoto');
-      return;
-    }
-
-    setIsCheckingOut(true);
-
-    try {
-      // Filter products that have a valid woocommerce_id
-      const productIds = cartItems
-        .filter(item => item.woocommerce_id)
-        .map(item => item.woocommerce_id!);
-      
-      if (productIds.length === 0) {
-        toast.error('Nessun prodotto disponibile per il checkout');
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
-        body: { productIds }
-      });
-
-      if (error) throw error;
-
-      if (data.success) {
-        toast.success('Reindirizzamento al carrello...', {
-          description: `${data.productsAdded} prodotti verranno aggiunti`,
-          duration: 2000,
-        });
-        
-        // Clear local cart after successful response
-        clearCart();
-        
-        // Open WooCommerce cart directly
-        setTimeout(() => {
-          window.location.href = data.cartUrl;
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error('Errore durante il checkout. Riprova.');
-    } finally {
-      setIsCheckingOut(false);
-    }
+  const handleCheckout = () => {
+    // Simply navigate to cart page
+    window.location.href = '/cart';
   };
 
   if (cartCount === 0) return null;
@@ -136,18 +90,11 @@ export const FloatingCart = () => {
 
                 <Button
                   onClick={handleCheckout}
-                  disabled={isCheckingOut}
                   className="w-full h-12 text-lg font-semibold"
                   size="lg"
                 >
-                  {isCheckingOut ? (
-                    'Reindirizzamento...'
-                  ) : (
-                    <>
-                      Vai al Checkout
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
+                  Vai al Carrello
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
 
                 <Button
