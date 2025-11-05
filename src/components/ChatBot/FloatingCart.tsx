@@ -37,17 +37,18 @@ export const FloatingCart = () => {
       if (error) throw error;
 
       if (data.success) {
-        toast.success('Apertura carrello WooCommerce...', {
-          description: 'I prodotti selezionati verranno aggiunti',
+        toast.success('Reindirizzamento al carrello...', {
+          description: `${data.productsAdded} prodotti verranno aggiunti`,
           duration: 2000,
         });
         
-        // Clear local cart after successful checkout
+        // Clear local cart after successful response
         clearCart();
         
+        // Open WooCommerce cart directly
         setTimeout(() => {
-          window.open(data.cartUrl, '_blank');
-        }, 800);
+          window.location.href = data.cartUrl;
+        }, 1000);
       }
     } catch (error) {
       console.error('Checkout error:', error);

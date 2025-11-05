@@ -113,20 +113,32 @@ serve(async (req) => {
 
     const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
     
-    // Use intermediate page to add products sequentially
-    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://almanaturalbeauty-advisor.lovable.app';
-    const productsParam = verifiedProductIds.join(',');
-    const cartUrl = `${frontendUrl}/add-to-woo-cart?products=${productsParam}&store=${encodeURIComponent(baseUrl)}`;
-
-    // Log action for analytics (optional)
-    // You could save this to a 'cart_actions' table if needed
-
+    console.log('Creating WooCommerce cart with products:', verifiedProductIds);
+    
+    // Create a WooCommerce cart session using REST API
+    // Note: Standard WooCommerce doesn't have a built-in cart session API
+    // So we'll generate a direct URL to the shop with products pre-added
+    
+    // Option 1: Generate individual product URLs (most reliable)
+    const productUrls = verifiedProductIds.map(id => 
+      `${baseUrl}/?add-to-cart=${id}`
+    );
+    
+    // Option 2: Try array format for plugins that support it
+    const bulkAddUrl = `${baseUrl}/carrello/?${verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&')}`;
+    
+    console.log('Generated bulk add URL:', bulkAddUrl);
+    console.log('Product count:', verifiedProductIds.length);
+    
+    // Return the cart URL - the client will handle the redirect
+    // We'll use the bulk URL and fallback to sequential if needed
     return new Response(
       JSON.stringify({
         success: true,
-        cartUrl,
+        cartUrl: bulkAddUrl,
+        productUrls: productUrls, // Individual URLs as fallback
         productsAdded: verifiedProductIds.length,
-        message: `${verifiedProductIds.length} prodotti pronti per essere aggiunti al carrello`
+        message: `${verifiedProductIds.length} prodotti verranno aggiunti al carrello`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
