@@ -3,14 +3,12 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
 export const FloatingCart = () => {
   const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart, shouldOpenCart, setShouldOpenCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Auto-open cart when products are added
   useEffect(() => {
@@ -21,89 +19,25 @@ export const FloatingCart = () => {
   }, [shouldOpenCart, cartCount, setShouldOpenCart]);
 
   const handleCheckout = async () => {
-    console.log('🛒 CHECKOUT STARTED');
-    console.log('Cart items:', cartItems);
-    
     if (cartItems.length === 0) {
       toast.error('Il carrello è vuoto');
       return;
     }
 
-    const productsWithWooId = cartItems.filter(item => item.woocommerce_id);
-    console.log('Products with WooCommerce ID:', productsWithWooId);
+    // Open WooCommerce cart directly
+    const cartUrl = 'https://almanaturalbeauty.it/carrello/';
     
-    if (productsWithWooId.length === 0) {
-      toast.error('Nessun prodotto disponibile per il checkout');
-      return;
-    }
-
-    setIsCheckingOut(true);
+    toast.success('Apertura carrello WooCommerce...', {
+      duration: 1500,
+    });
     
-    try {
-      const productIds = productsWithWooId.map(item => item.woocommerce_id!);
-      console.log('🚀 Calling edge function with product IDs:', productIds);
-      
-      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
-        body: { productIds }
-      });
-
-      console.log('📦 Edge function response - data:', data);
-      console.log('📦 Edge function response - error:', error);
-
-      if (error) {
-        console.error('Edge function error:', error);
-        toast.error(error.message || 'Errore durante la preparazione del carrello');
-        return;
-      }
-
-      if (!data?.success) {
-        console.error('Operation failed:', data);
-        toast.error(data?.message || 'Errore durante la preparazione del carrello');
-        return;
-      }
-
-      if (data?.success && data?.cartUrl) {
-        console.log('✅ SUCCESS! Cart URL received:', data.cartUrl);
-        console.log('🔍 Debug info:', data.debug);
-        
-        // Validate that URL is absolute
-        if (!data.cartUrl.startsWith('http://') && !data.cartUrl.startsWith('https://')) {
-          console.error('❌ Invalid cart URL - not absolute:', data.cartUrl);
-          toast.error('Errore: URL del carrello non valido');
-          return;
-        }
-        
-        toast.success('Reindirizzamento al carrello WooCommerce...', {
-          duration: 2000,
-        });
-        
-        // Open WooCommerce cart in new tab
-        console.log('🌐 Opening URL in new window:', data.cartUrl);
-        const newWindow = window.open(data.cartUrl, '_blank', 'noopener,noreferrer');
-        
-        console.log('🪟 Window opened:', !!newWindow);
-        
-        if (!newWindow) {
-          console.error('❌ Failed to open window - popup may be blocked');
-          toast.error('Impossibile aprire il carrello. Verifica che i popup non siano bloccati.');
-          return;
-        }
-        
-        // Clear cart after successful checkout
-        setTimeout(() => {
-          clearCart();
-          setIsOpen(false);
-        }, 2000);
-      } else {
-        console.error('❌ Invalid response - no success or cartUrl:', data);
-        toast.error(data?.message || 'Errore: risposta non valida dal server');
-      }
-    } catch (error) {
-      console.error('Errore checkout:', error);
-      toast.error('Errore durante il checkout. Riprova.');
-    } finally {
-      setIsCheckingOut(false);
-    }
+    // Open in new tab
+    window.open(cartUrl, '_blank', 'noopener,noreferrer');
+    
+    // Close the floating cart
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 1500);
   };
 
   if (cartCount === 0) return null;
@@ -186,16 +120,14 @@ export const FloatingCart = () => {
                   onClick={handleCheckout}
                   className="w-full h-12 text-lg font-semibold"
                   size="lg"
-                  disabled={isCheckingOut}
                 >
-                  {isCheckingOut ? 'Preparazione...' : 'Acquista Ora'}
+                  Acquista Ora
                 </Button>
 
                 <Button
                   onClick={clearCart}
                   variant="outline"
                   className="w-full mt-2"
-                  disabled={isCheckingOut}
                 >
                   Svuota Carrello
                 </Button>
