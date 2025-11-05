@@ -51,13 +51,29 @@ export const FloatingCart = () => {
       }
 
       if (data?.success && data?.cartUrl) {
-        console.log('Opening cart URL:', data.cartUrl);
+        console.log('Cart URL received:', data.cartUrl);
+        console.log('Debug info:', data.debug);
+        
+        // Validate that URL is absolute
+        if (!data.cartUrl.startsWith('http://') && !data.cartUrl.startsWith('https://')) {
+          console.error('Invalid cart URL - not absolute:', data.cartUrl);
+          toast.error('Errore: URL del carrello non valido');
+          return;
+        }
+        
         toast.success('Reindirizzamento al carrello WooCommerce...', {
           duration: 2000,
         });
         
-        // Open WooCommerce cart immediately
-        window.open(data.cartUrl, '_blank');
+        // Open WooCommerce cart in new tab
+        console.log('Opening URL:', data.cartUrl);
+        const newWindow = window.open(data.cartUrl, '_blank', 'noopener,noreferrer');
+        
+        if (!newWindow) {
+          console.error('Failed to open window - popup may be blocked');
+          toast.error('Impossibile aprire il carrello. Verifica che i popup non siano bloccati.');
+          return;
+        }
         
         // Clear cart after successful checkout
         setTimeout(() => {
