@@ -3,12 +3,14 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
 export const FloatingCart = () => {
   const { cartItems, cartCount, removeFromCart, getTotalPrice, clearCart, shouldOpenCart, setShouldOpenCart, showCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Auto-open cart when products are added
   useEffect(() => {
@@ -24,20 +26,52 @@ export const FloatingCart = () => {
       return;
     }
 
-    // Open WooCommerce cart directly
-    const cartUrl = 'https://almanaturalbeauty.it/carrello/';
+    const productsWithWooId = cartItems.filter(item => item.woocommerce_id);
     
-    toast.success('Apertura carrello WooCommerce...', {
-      duration: 1500,
-    });
+    if (productsWithWooId.length === 0) {
+      toast.error('Nessun prodotto disponibile per il checkout');
+      return;
+    }
+
+    setIsCheckingOut(true);
     
-    // Open in new tab
-    window.open(cartUrl, '_blank', 'noopener,noreferrer');
-    
-    // Close the floating cart
-    setTimeout(() => {
-      setIsOpen(false);
-    }, 1500);
+    try {
+      const productIds = productsWithWooId.map(item => item.woocommerce_id!);
+      
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: { productIds }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        toast.error('Errore durante la preparazione del carrello');
+        return;
+      }
+
+      if (!data?.success || !data?.cartUrl) {
+        console.error('Invalid response:', data);
+        toast.error(data?.message || 'Errore durante la preparazione del carrello');
+        return;
+      }
+
+      toast.success('Apertura carrello WooCommerce...', {
+        duration: 1500,
+      });
+      
+      // Open WooCommerce cart with products in new tab
+      window.open(data.cartUrl, '_blank', 'noopener,noreferrer');
+      
+      // Clear cart after successful checkout
+      setTimeout(() => {
+        clearCart();
+        setIsOpen(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Errore checkout:', error);
+      toast.error('Errore durante il checkout. Riprova.');
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   if (cartCount === 0 || !showCart) return null;
@@ -120,14 +154,16 @@ export const FloatingCart = () => {
                   onClick={handleCheckout}
                   className="w-full h-12 text-lg font-semibold"
                   size="lg"
+                  disabled={isCheckingOut}
                 >
-                  Acquista Ora
+                  {isCheckingOut ? 'Preparazione...' : 'Acquista Ora'}
                 </Button>
 
                 <Button
                   onClick={clearCart}
                   variant="outline"
                   className="w-full mt-2"
+                  disabled={isCheckingOut}
                 >
                   Svuota Carrello
                 </Button>
