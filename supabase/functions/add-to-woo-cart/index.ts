@@ -111,19 +111,27 @@ serve(async (req) => {
     // Only use verified product IDs
     const verifiedProductIds = validProducts.map(p => p.woocommerce_id);
 
-    const baseUrl = storeUrl.endsWith('/') ? storeUrl.slice(0, -1) : storeUrl;
+    // Validate and normalize store URL
+    let baseUrl = storeUrl.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
     
     console.log('Creating WooCommerce cart with products:', verifiedProductIds);
     console.log('Store URL from env:', storeUrl);
-    console.log('Base URL:', baseUrl);
+    console.log('Normalized base URL:', baseUrl);
     
-    // Generate WooCommerce cart URL with products
-    // Using Italian cart page URL: /carrello/
-    const productParams = verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&');
+    // Generate WooCommerce cart URL with multiple products
+    // WooCommerce accepts multiple add-to-cart parameters
+    const productParams = verifiedProductIds.map(id => `add-to-cart=${id}`).join('&');
     const cartUrl = `${baseUrl}/carrello/?${productParams}`;
     
     console.log('Generated cart URL:', cartUrl);
     console.log('Product count:', verifiedProductIds.length);
+    console.log('Product IDs being added:', verifiedProductIds);
     
     // Return the cart URL - the client will handle the redirect
     return new Response(
