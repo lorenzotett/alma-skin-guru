@@ -201,11 +201,17 @@ const Index = () => {
 
       toast.success('Dati salvati con successo!');
       
+      // Navigate to results and ensure we stay on the page
       navigateToStep("results", { 
         fullName: data.fullName,
         email: data.email,
         phone: data.phone
       });
+      
+      // Force scroll to top after navigation
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }, 100);
     } catch (error) {
       console.error('Errore:', error);
       toast.error('Si è verificato un errore. Riprova.');

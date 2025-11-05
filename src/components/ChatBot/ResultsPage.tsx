@@ -41,8 +41,15 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simple scroll to top on mount
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Force scroll to top with multiple attempts to ensure it works
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 100);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
+    
     // Show the cart when results page loads
     setShowCart(true);
     loadRecommendations();

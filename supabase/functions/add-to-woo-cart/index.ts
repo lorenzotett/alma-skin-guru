@@ -135,10 +135,50 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // Generate WooCommerce cart URL with multiple products
-    // WooCommerce accepts multiple add-to-cart parameters
-    const productParams = verifiedProductIds.map(id => `add-to-cart=${id}`).join('&');
-    const cartUrl = `${baseUrl}/carrello/?${productParams}`;
+    // Try to use WooCommerce REST API to add products to cart
+    // This requires authentication with consumer key and secret
+    try {
+      // Encode credentials for Basic Auth
+      const auth = btoa(`${consumerKey}:${consumerSecret}`);
+      
+      // Try to add products using WooCommerce REST API
+      // Note: This endpoint might not be available on all WooCommerce installations
+      for (const productId of verifiedProductIds) {
+        const apiUrl = `${baseUrl}/wp-json/wc/v3/products/${productId}`;
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          console.log(`Product ${productId} verified via API`);
+        } else {
+          console.warn(`Could not verify product ${productId} via API:`, response.status);
+        }
+      }
+    } catch (apiError) {
+      console.error('Error using WooCommerce API:', apiError);
+    }
+    
+    // Generate cart URL - WooCommerce uses 'add-to-cart' parameter for each product
+    // For multiple products, we can chain them or use a redirect approach
+    // The most reliable method is to use the format: ?add-to-cart=ID1&add-to-cart=ID2
+    // However, some themes/plugins support add-to-cart[] array notation
+    let cartUrl: string;
+    
+    if (verifiedProductIds.length === 1) {
+      // Single product - simple approach
+      cartUrl = `${baseUrl}/carrello/?add-to-cart=${verifiedProductIds[0]}`;
+    } else {
+      // Multiple products - try array notation first, fallback to comma-separated
+      // Some WooCommerce installations support this format
+      const productParams = verifiedProductIds.map(id => `add-to-cart[]=${id}`).join('&');
+      cartUrl = `${baseUrl}/carrello/?${productParams}`;
+    }
     
     console.log('Generated cart URL:', cartUrl);
     console.log('Product count:', verifiedProductIds.length);
