@@ -89,7 +89,16 @@ const Index = () => {
     navigateToStep("name");
   };
 
+  const handleRestart = () => {
+    clearCart();
+    setUserData({});
+    setStepHistory([]);
+    setStep("welcome");
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   const handleFeatureClick = (featureType: 'analysis' | 'products' | 'questions') => {
+    clearCart();
     setUserData(prev => ({ ...prev, choice: featureType }));
     navigateToStep("name");
   };
@@ -201,14 +210,6 @@ const Index = () => {
       console.error('Errore:', error);
       toast.error('Si è verificato un errore. Riprova.');
     }
-  };
-
-  const handleRestart = () => {
-    clearCart();
-    setUserData({});
-    setStep("welcome");
-    setStepHistory([]);
-    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleEditFromResults = (stepToEdit: string) => {

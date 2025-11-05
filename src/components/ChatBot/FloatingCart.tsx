@@ -37,23 +37,35 @@ export const FloatingCart = () => {
     
     try {
       const productIds = productsWithWooId.map(item => item.woocommerce_id!);
+      console.log('Sending to WooCommerce:', productIds);
       
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
         body: { productIds }
       });
 
-      if (error) throw error;
+      console.log('WooCommerce response:', data, error);
 
-      if (data.success && data.cartUrl) {
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (data?.success && data?.cartUrl) {
+        console.log('Opening cart URL:', data.cartUrl);
         toast.success('Reindirizzamento al carrello WooCommerce...', {
           duration: 2000,
         });
         
-        // Redirect to WooCommerce cart with all products
+        // Open WooCommerce cart immediately
+        window.open(data.cartUrl, '_blank');
+        
+        // Clear cart after successful checkout
         setTimeout(() => {
-          window.open(data.cartUrl, '_blank');
-        }, 500);
+          clearCart();
+          setIsOpen(false);
+        }, 2000);
       } else {
+        console.error('Invalid response:', data);
         throw new Error('Errore nella risposta del server');
       }
     } catch (error) {
