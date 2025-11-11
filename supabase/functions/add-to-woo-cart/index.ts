@@ -135,97 +135,51 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // WooCommerce does NOT support add-to-cart[] natively
-    // We need to use WooCommerce Store API to add items to cart
-    // Then redirect to the cart page
+    // Build cart URL with add-to-cart parameters
+    // WooCommerce supports adding multiple products via URL:
+    // For single: ?add-to-cart=123
+    // For multiple: ?add-to-cart=123,456,789
     
-    try {
-      // Try to use WooCommerce Store API (WooCommerce Blocks)
-      // This is the modern way to interact with WooCommerce cart
-      const storeApiUrl = `${baseUrl}/wp-json/wc/store/v1/cart`;
-      
-      console.log('Attempting to use WooCommerce Store API:', storeApiUrl);
-      
-      // First, try to clear any existing cart
-      try {
-        await fetch(`${storeApiUrl}/items`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-      } catch (e) {
-        console.log('Could not clear cart (may not exist):', e);
-      }
-      
-      // Add each product to cart using Store API
-      for (const productId of verifiedProductIds) {
-        try {
-          const addResponse = await fetch(`${storeApiUrl}/add-item`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id: productId,
-              quantity: 1
-            })
-          });
-          
-          if (addResponse.ok) {
-            console.log(`Product ${productId} added to cart via Store API`);
-          } else {
-            const errorText = await addResponse.text();
-            console.warn(`Could not add product ${productId} via Store API:`, addResponse.status, errorText);
-          }
-        } catch (addError) {
-          console.error(`Error adding product ${productId}:`, addError);
-        }
-      }
-      
-      // After adding products, redirect to cart page
-      const cartUrl = `${baseUrl}/carrello/`;
-      
-      console.log('Generated cart URL:', cartUrl);
-      console.log('Product count:', verifiedProductIds.length);
-      console.log('Product IDs attempted to add:', verifiedProductIds);
-      
-      return new Response(
-        JSON.stringify({
-          success: true,
-          cartUrl: cartUrl,
-          productsAdded: verifiedProductIds.length,
-          message: `${verifiedProductIds.length} prodotti aggiunti al carrello`,
-          note: 'Using WooCommerce Store API'
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
-    } catch (apiError) {
-      console.error('Error using WooCommerce Store API:', apiError);
-      
-      // Fallback: Generate simple URL redirect to cart
-      // At minimum, this will take user to the cart page
-      const cartUrl = `${baseUrl}/carrello/`;
-      
-      console.log('Fallback: redirecting to cart page:', cartUrl);
+    let cartUrl = `${baseUrl}/carrello/`;
     
-      return new Response(
-        JSON.stringify({
-          success: true,
-          cartUrl: cartUrl,
-          productsAdded: verifiedProductIds.length,
-          message: `Reindirizzamento al carrello (fallback)`,
-          warning: 'Could not use Store API, redirecting to empty cart'
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
+    if (verifiedProductIds.length === 1) {
+      // Single product - use simple add-to-cart parameter
+      cartUrl = `${baseUrl}/?add-to-cart=${verifiedProductIds[0]}`;
+      console.log('Single product cart URL:', cartUrl);
+    } else if (verifiedProductIds.length > 1) {
+      // Multiple products - try comma-separated list
+      // Some WooCommerce versions support this
+      const productIdsString = verifiedProductIds.join(',');
+      cartUrl = `${baseUrl}/?add-to-cart=${productIdsString}`;
+      console.log('Multiple products cart URL:', cartUrl);
+      
+      // Alternative: Add multiple products with separate parameters
+      // This is more reliable for standard WooCommerce
+      const params = new URLSearchParams();
+      verifiedProductIds.forEach(id => {
+        params.append('add-to-cart', String(id));
+      });
+      cartUrl = `${baseUrl}/?${params.toString()}`;
+      console.log('Multiple products cart URL (alternative):', cartUrl);
     }
+    
+    console.log('Final cart URL:', cartUrl);
+    console.log('Product count:', verifiedProductIds.length);
+    console.log('Product IDs to add:', verifiedProductIds);
+    
+    return new Response(
+      JSON.stringify({
+        success: true,
+        cartUrl: cartUrl,
+        productsAdded: verifiedProductIds.length,
+        productIds: verifiedProductIds,
+        message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} in aggiunta al carrello`
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
 
   } catch (error) {
     console.error('Error in add-to-woo-cart function:', error);
