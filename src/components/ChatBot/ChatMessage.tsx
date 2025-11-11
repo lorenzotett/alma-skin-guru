@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 interface ChatMessageProps {
   sender: "bot" | "user";
@@ -69,17 +70,37 @@ const renderTextWithLinks = (text: string) => {
   });
 };
 
-// Funzione per processare il contenuto e renderizzare con link cliccabili
+// Funzione per processare il contenuto e renderizzare markdown formattato
 const processContent = (content: ReactNode): ReactNode => {
   if (typeof content === 'string') {
-    // Split per righe per mantenere la formattazione
-    const lines = content.split('\n');
-    return lines.map((line, lineIndex) => (
-      <span key={lineIndex}>
-        {renderTextWithLinks(line)}
-        {lineIndex < lines.length - 1 && <br />}
-      </span>
-    ));
+    return (
+      <ReactMarkdown
+        components={{
+          // Stili personalizzati per gli elementi markdown
+          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+          em: ({ children }) => <em className="italic">{children}</em>,
+          h1: ({ children }) => <h1 className="text-2xl font-bold mb-2">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-xl font-bold mb-2">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-lg font-semibold mb-1">{children}</h3>,
+          p: ({ children }) => <p className="mb-2">{children}</p>,
+          ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+          li: ({ children }) => <li className="mb-1">{children}</li>,
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline decoration-2 underline-offset-4 hover:text-primary/80 hover:decoration-primary/80 transition-all duration-200 font-semibold"
+            >
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
   }
   return content;
 };
