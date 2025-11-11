@@ -34,6 +34,7 @@ export const FloatingCart = () => {
     }
 
     setIsCheckingOut(true);
+    toast.loading('Preparazione carrello...', { id: 'checkout' });
     
     try {
       const productIds = productsWithWooId.map(item => item.woocommerce_id!);
@@ -44,43 +45,28 @@ export const FloatingCart = () => {
 
       if (error) {
         console.error('Edge function error:', error);
-        toast.error('Errore durante la preparazione del carrello');
+        toast.error('Errore durante la preparazione del carrello', { id: 'checkout' });
+        setIsCheckingOut(false);
         return;
       }
 
-      if (!data?.success || !data?.cartUrl) {
-        console.error('Invalid response:', data);
-        toast.error(data?.message || 'Errore durante la preparazione del carrello');
-        return;
-      }
-
-      // Show warning if using fallback
-      if (data.warning) {
-        console.warn('WooCommerce warning:', data.warning);
-        toast.warning('Apertura carrello...', {
-          duration: 2000,
-        });
-      } else {
-        toast.success('Apertura carrello WooCommerce...', {
-          duration: 1500,
-        });
-      }
-      
-      console.log('Opening cart URL:', data.cartUrl);
-      
-      // Open WooCommerce cart - try in same window first
-      // Using _blank can sometimes cause "Project Not Found" issues
-      window.location.href = data.cartUrl;
-      
-      // Clear cart after successful checkout
-      setTimeout(() => {
+      if (data?.success && data?.productIds && data?.storeUrl) {
+        // Clear local cart
         clearCart();
         setIsOpen(false);
-      }, 1500);
+        
+        toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
+        
+        // Redirect to our cart redirect page which will add products from the browser
+        const redirectUrl = `/cart-redirect?products=${data.productIds.join(',')}&store=${encodeURIComponent(data.storeUrl)}`;
+        window.location.href = redirectUrl;
+      } else {
+        toast.error('Errore durante la preparazione del carrello', { id: 'checkout' });
+        setIsCheckingOut(false);
+      }
     } catch (error) {
       console.error('Errore checkout:', error);
-      toast.error('Errore durante il checkout. Riprova.');
-    } finally {
+      toast.error('Errore durante il checkout. Riprova.', { id: 'checkout' });
       setIsCheckingOut(false);
     }
   };
