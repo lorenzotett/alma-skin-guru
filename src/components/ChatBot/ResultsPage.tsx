@@ -37,7 +37,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
   const [loading, setLoading] = useState(true);
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   
-  const { addToCart, cartCount, isLoading: cartLoading, setShowCart } = useCart();
+  const { addToCart, cartCount, cartItems, clearCart, isLoading: cartLoading, setShowCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -161,39 +161,23 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for adding a single product to local cart and redirecting to WooCommerce
+  // Handler for adding a single product to local cart
   const handleAddToCart = async (product: Product) => {
-    if (!product.woocommerce_id) {
-      toast.error('Prodotto non disponibile');
-      return;
-    }
-    
     try {
-      // Call edge function to get add-to-cart URL
-      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
-        body: {
-          productIds: [product.woocommerce_id]
-        }
+      await addToCart({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        product_url: product.product_url,
+        image_url: product.image_url,
+        description_short: product.description_short,
+        brand: product.brand,
+        woocommerce_id: product.woocommerce_id
       });
-
-      if (error) {
-        console.error('Error calling edge function:', error);
-        toast.error('Errore durante l\'aggiunta al carrello');
-        return;
-      }
-
-      if (data?.success && data?.productUrls && data.productUrls.length > 0) {
-        setAddedProducts(prev => new Set(prev).add(product.id));
-        toast.success('Prodotto aggiunto al carrello!');
-        
-        // Redirect directly to add-to-cart URL
-        window.open(data.productUrls[0].addUrl, '_blank');
-      } else {
-        toast.error('Errore durante l\'aggiunta al carrello');
-      }
+      setAddedProducts(prev => new Set(prev).add(product.id));
     } catch (error) {
-      console.error('Error adding product to cart:', error);
-      toast.error('Errore durante l\'aggiunta al carrello');
+      console.error('Error adding to local cart:', error);
     }
   };
 
@@ -206,9 +190,9 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       return;
     }
 
-    try {
-      toast.loading('Aggiunta prodotti al carrello...', { id: 'buy-all' });
+    toast.loading('Preparazione carrello...', { id: 'buy-all' });
 
+    try {
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
         body: {
           productIds: productsWithWoo.map(p => p.woocommerce_id)
@@ -216,41 +200,63 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       });
 
       if (error) {
-        console.error('Error calling edge function:', error);
+        console.error('Error calling add-to-woo-cart function:', error);
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
         return;
       }
 
-      if (data?.success && data?.productUrls && data.productUrls.length > 0) {
-        // Use hidden iframes to add products sequentially
-        const iframes: HTMLIFrameElement[] = [];
+      if (data?.success && data?.addAllUrl) {
+        toast.success(`Apertura carrello con ${productsWithWoo.length} prodotti...`, { id: 'buy-all' });
         
-        data.productUrls.forEach((urlData: { productId: number; addUrl: string }) => {
-          const iframe = document.createElement('iframe');
-          iframe.style.display = 'none';
-          iframe.src = urlData.addUrl;
-          document.body.appendChild(iframe);
-          iframes.push(iframe);
-        });
-
-        // Wait for products to be added (2 seconds should be enough)
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Clean up iframes
-        iframes.forEach(iframe => document.body.removeChild(iframe));
-
-        toast.success(`${productsWithWoo.length} prodotti aggiunti al carrello!`, { id: 'buy-all' });
-        
-        // Redirect to WooCommerce cart page
-        setTimeout(() => {
-          window.open(data.cartUrl, '_blank');
-        }, 500);
+        // Redirect to WooCommerce with all products
+        window.open(data.addAllUrl, '_blank');
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
       }
     } catch (error) {
-      console.error('Error buying all products:', error);
+      console.error('Error in buy all:', error);
       toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
+    }
+  };
+
+  // Handler for checking out with selected products from local cart
+  const handleCheckoutFromLocalCart = async () => {
+    const cartProductsWithWoo = cartItems.filter(p => p.woocommerce_id);
+    
+    if (cartProductsWithWoo.length === 0) {
+      toast.error('Nessun prodotto nel carrello');
+      return;
+    }
+
+    toast.loading('Preparazione carrello...', { id: 'checkout' });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: {
+          productIds: cartProductsWithWoo.map(p => p.woocommerce_id)
+        }
+      });
+
+      if (error) {
+        console.error('Error calling add-to-woo-cart function:', error);
+        toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
+        return;
+      }
+
+      if (data?.success && data?.addAllUrl) {
+        toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
+        
+        // Clear local cart
+        clearCart();
+        
+        // Redirect to WooCommerce with selected products
+        window.open(data.addAllUrl, '_blank');
+      } else {
+        toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
+      }
+    } catch (error) {
+      console.error('Error in checkout:', error);
+      toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
     }
   };
 
@@ -513,14 +519,27 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
                 </span>
               </div>
             </div>
-            <Button 
-              onClick={handleBuyAllNow}
-              size="lg" 
-              className="w-full sm:w-auto px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl font-bold hover-scale bg-gradient-to-r from-primary via-accent to-primary shadow-2xl hover:shadow-3xl transition-all"
-            >
-              <ShoppingCart className="w-6 h-6 mr-3" />
-              ACQUISTA TUTTO ORA 🛍️✨
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={handleBuyAllNow}
+                size="lg" 
+                className="flex-1 sm:w-auto px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl font-bold hover-scale bg-gradient-to-r from-primary via-accent to-primary shadow-2xl hover:shadow-3xl transition-all"
+              >
+                <ShoppingCart className="w-6 h-6 mr-3" />
+                ACQUISTA TUTTO ORA 🛍️✨
+              </Button>
+              
+              {cartCount > 0 && (
+                <Button
+                  onClick={handleCheckoutFromLocalCart}
+                  size="lg"
+                  className="flex-1 sm:w-auto px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl font-bold hover-scale bg-accent hover:bg-accent/90 shadow-2xl hover:shadow-3xl transition-all"
+                >
+                  <ShoppingCart className="w-6 h-6 mr-3" />
+                  VAI AL CARRELLO ({cartCount})
+                </Button>
+              )}
+            </div>
           </Card>
         )}
 

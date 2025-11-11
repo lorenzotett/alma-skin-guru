@@ -127,6 +127,8 @@ serve(async (req) => {
     if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
       baseUrl = `https://${baseUrl}`;
     }
+    // Remove /carrello/ or /cart/ from the end if present
+    baseUrl = baseUrl.replace(/\/(carrello|cart)\/?$/, '');
     if (baseUrl.endsWith('/')) {
       baseUrl = baseUrl.slice(0, -1);
     }
@@ -136,29 +138,27 @@ serve(async (req) => {
     console.log('Normalized base URL:', baseUrl);
     
     // Build cart URL with add-to-cart parameters
-    // WooCommerce supports adding multiple products via URL:
-    // For single: ?add-to-cart=123
-    // For multiple: ?add-to-cart=123,456,789
+    // WooCommerce supports adding multiple products via URL
+    // We construct a single URL with multiple add-to-cart parameters
+    const params = new URLSearchParams();
+    verifiedProductIds.forEach(id => {
+      params.append('add-to-cart', String(id));
+    });
     
-    // WooCommerce doesn't support multiple add-to-cart parameters in one URL
-    // We'll return individual URLs for each product so the frontend can add them sequentially
-    const productUrls = verifiedProductIds.map(id => ({
-      productId: id,
-      addUrl: `${baseUrl}/?add-to-cart=${id}`
-    }));
-    
+    const addAllUrl = `${baseUrl}/?${params.toString()}`;
     const cartUrl = `${baseUrl}/carrello/`;
     
-    console.log('Generated product URLs for sequential addition:', productUrls);
+    console.log('Generated add-all URL:', addAllUrl);
+    console.log('Cart URL:', cartUrl);
     
     return new Response(
       JSON.stringify({
         success: true,
+        addAllUrl: addAllUrl,
         cartUrl: cartUrl,
-        productUrls: productUrls,
         productsAdded: verifiedProductIds.length,
         productIds: verifiedProductIds,
-        message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} in aggiunta al carrello`
+        message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} pronti per l'aggiunta al carrello`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
