@@ -122,6 +122,43 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
     "C'è un'altra opzione?"
   ];
 
+  // Parse product links from format: Product Name (https://url)
+  const parseProductLinks = (text: string) => {
+    const linkRegex = /([^()]+)\s+\((https?:\/\/[^)]+)\)/g;
+    const parts: Array<{ type: string; content?: string; text?: string; url?: string }> = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = linkRegex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: text.substring(lastIndex, match.index)
+        });
+      }
+
+      // Add the link
+      parts.push({
+        type: 'link',
+        text: match[1].trim(),
+        url: match[2]
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push({
+        type: 'text',
+        content: text.substring(lastIndex)
+      });
+    }
+
+    return parts.length > 0 ? parts : [{ type: 'text', content: text }];
+  };
+
   return (
     <ChatContainer onBack={onBack} showBack={true}>
       {/* Header Info */}
@@ -141,31 +178,52 @@ export const ProductInfoFlow = ({ userName, onBack }: ProductInfoFlowProps) => {
 
       {/* Messages */}
       <div className="space-y-3 sm:space-y-4">
-        {messages.map((msg, idx) => (
-          <div key={idx}>
-            <ChatMessage sender={msg.role === 'user' ? 'user' : 'bot'}>
-              {msg.content}
-            </ChatMessage>
+        {messages.map((msg, idx) => {
+          const contentParts = msg.role === 'assistant' ? parseProductLinks(msg.content) : [{ type: 'text', content: msg.content }];
+
+          return (
+            <div key={idx}>
+              <ChatMessage sender={msg.role === 'user' ? 'user' : 'bot'}>
+                <div className="whitespace-pre-wrap">
+                  {contentParts.map((part, i) => {
+                    if (part.type === 'link') {
+                      return (
+                        <a
+                          key={i}
+                          href={part.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary font-bold underline hover:text-primary/80 transition-colors"
+                        >
+                          {part.text}
+                        </a>
+                      );
+                    }
+                    return <span key={i}>{part.content}</span>;
+                  })}
+                </div>
+              </ChatMessage>
             
-            {/* Follow-up buttons after bot messages (not on the first message) */}
-            {msg.role === 'assistant' && idx > 0 && idx === messages.length - 1 && !isLoading && (
-              <div className="mt-2 flex flex-wrap gap-2 ml-10 sm:ml-12 md:ml-14">
-                {followUpSuggestions.map((suggestion, suggestionIdx) => (
-                  <Button
-                    key={suggestionIdx}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => sendMessage(suggestion, true)}
-                    disabled={isSendingQuickMessage}
-                    className="text-[10px] sm:text-xs h-auto py-1.5 px-2.5 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-bold"
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+              {/* Follow-up buttons after bot messages (not on the first message) */}
+              {msg.role === 'assistant' && idx > 0 && idx === messages.length - 1 && !isLoading && (
+                <div className="mt-2 flex flex-wrap gap-2 ml-10 sm:ml-12 md:ml-14">
+                  {followUpSuggestions.map((suggestion, suggestionIdx) => (
+                    <Button
+                      key={suggestionIdx}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => sendMessage(suggestion, true)}
+                      disabled={isSendingQuickMessage}
+                      className="text-[10px] sm:text-xs h-auto py-1.5 px-2.5 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all font-bold"
+                    >
+                      {suggestion}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
         
         {isLoading && (
           <ChatMessage sender="bot">

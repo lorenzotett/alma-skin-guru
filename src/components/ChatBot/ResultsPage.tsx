@@ -161,7 +161,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     window.open(productUrl, '_blank');
   };
 
-  // Handler for adding a single product to local cart
+  // Handler for adding a single product to local cart and redirecting to WooCommerce
   const handleAddToCart = async (product: Product) => {
     if (!product.woocommerce_id) {
       toast.error('Prodotto non disponibile');
@@ -169,21 +169,73 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     }
     
     try {
-      await addToCart({
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        price: product.price,
-        product_url: product.product_url,
-        image_url: product.image_url,
-        description_short: product.description_short,
-        brand: product.brand,
-        woocommerce_id: product.woocommerce_id
+      // Call edge function to add to WooCommerce cart
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: {
+          productIds: [product.woocommerce_id]
+        }
       });
-      
-      setAddedProducts(prev => new Set(prev).add(product.id));
+
+      if (error) {
+        console.error('Error calling edge function:', error);
+        toast.error('Errore durante l\'aggiunta al carrello');
+        return;
+      }
+
+      if (data?.success && data?.cartUrl) {
+        setAddedProducts(prev => new Set(prev).add(product.id));
+        toast.success('Prodotto aggiunto al carrello!');
+        
+        // Redirect to WooCommerce cart
+        setTimeout(() => {
+          window.location.href = data.cartUrl;
+        }, 1000);
+      } else {
+        toast.error('Errore durante l\'aggiunta al carrello');
+      }
     } catch (error) {
       console.error('Error adding product to cart:', error);
+      toast.error('Errore durante l\'aggiunta al carrello');
+    }
+  };
+
+  // Handler for buying all products at once
+  const handleBuyAllNow = async () => {
+    const productsWithWoo = products.filter(p => p.woocommerce_id);
+    
+    if (productsWithWoo.length === 0) {
+      toast.error('Nessun prodotto disponibile per l\'acquisto');
+      return;
+    }
+
+    try {
+      toast.loading('Aggiunta prodotti al carrello...', { id: 'buy-all' });
+
+      const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
+        body: {
+          productIds: productsWithWoo.map(p => p.woocommerce_id)
+        }
+      });
+
+      if (error) {
+        console.error('Error calling edge function:', error);
+        toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
+        return;
+      }
+
+      if (data?.success && data?.cartUrl) {
+        toast.success(`${productsWithWoo.length} prodotti aggiunti al carrello!`, { id: 'buy-all' });
+        
+        // Redirect to WooCommerce cart
+        setTimeout(() => {
+          window.location.href = data.cartUrl;
+        }, 1500);
+      } else {
+        toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
+      }
+    } catch (error) {
+      console.error('Error buying all products:', error);
+      toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
     }
   };
 
@@ -424,6 +476,38 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
             </div>
           </Card>
         </Card>
+
+        {/* Buy All Button */}
+        {products.filter(p => p.woocommerce_id).length > 0 && (
+          <Card className="p-6 sm:p-8 text-center space-y-4 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 animate-fade-in border-2 border-primary/40 shadow-2xl backdrop-blur">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
+                <Package className="w-5 h-5 text-primary" />
+                <span className="text-sm font-bold text-primary">Routine Completa</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary">
+                Acquista tutti i prodotti consigliati
+              </h3>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+                Aggiungi tutti i {products.filter(p => p.woocommerce_id).length} prodotti al carrello in un clic e completa il tuo acquisto su almanaturalbeauty.it
+              </p>
+              <div className="flex items-center justify-center gap-2 text-lg sm:text-xl font-bold text-primary pt-2">
+                <span>Valore totale:</span>
+                <span className="text-2xl sm:text-3xl bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+                  €{totalValue.toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <Button 
+              onClick={handleBuyAllNow}
+              size="lg" 
+              className="w-full sm:w-auto px-8 sm:px-12 py-6 sm:py-7 text-lg sm:text-xl font-bold hover-scale bg-gradient-to-r from-primary via-accent to-primary shadow-2xl hover:shadow-3xl transition-all"
+            >
+              <ShoppingCart className="w-6 h-6 mr-3" />
+              ACQUISTA TUTTO ORA 🛍️✨
+            </Button>
+          </Card>
+        )}
 
         {/* Products Grouped by Category */}
         <div className="space-y-4">

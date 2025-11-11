@@ -127,7 +127,7 @@ serve(async (req) => {
     }
 
     const productsContext = products?.map(p => 
-      `- ${p.name} (€${p.price}): ${p.description_short || ''}\n  Categoria: ${p.category}\n  Step: ${p.step || 'N/A'}\n  Problemi trattati: ${p.concerns_treated?.join(', ') || 'N/A'}\n  Tipo di pelle: ${p.skin_types?.join(', ') || 'N/A'}\n  Ingredienti chiave: ${p.key_ingredients?.slice(0, 3).join(', ') || 'N/A'}\n  Link: ${p.product_url}`
+      `Prodotto: ${p.name}\nPrezzo: €${p.price}\nDescrizione: ${p.description_short || ''}\nCategoria: ${p.category}\nStep: ${p.step || 'N/A'}\nProblemi trattati: ${p.concerns_treated?.join(', ') || 'N/A'}\nTipo di pelle: ${p.skin_types?.join(', ') || 'N/A'}\nIngredienti chiave: ${p.key_ingredients?.slice(0, 3).join(', ') || 'N/A'}\nURL_PRODOTTO: ${p.product_url}`
     ).join('\n\n') || 'Nessun prodotto disponibile';
 
     const systemPrompt = `Sei un'esperta consulente di bellezza AI per Alma Natural Beauty, un brand italiano di cosmetica naturale.
@@ -149,19 +149,30 @@ REGOLE DI MATCHING OBBLIGATORIE:
    - Calcola un MATCH SCORE (0-100) basato su problematiche (50%), tipo pelle (35%), età (15%)
 
 STILE COMUNICAZIONE:
-- Amichevole e professionale con emoji 🌸✨💚
+- Amichevole e professionale, usa emoticon in modo naturale
 - Paragrafi brevi e chiari
 - Spiega il PERCHÉ di ogni scelta
 - Consiglia 3-6 prodotti max per routine completa
 - Mostra sempre il match score
 
-FORMATTAZIONE LINK (IMPORTANTE):
-- Quando menzioni un prodotto con link, usa SOLO il formato: [Nome Prodotto](URL)
-- Esempio corretto: [Siero Acidi](https://almanaturalbeauty.it/prodotto/siero-acidi/)
-- NON usare formati diversi o URL nudi
-- Ogni link deve essere ben formato in markdown
+FORMATTAZIONE PRODOTTI (MOLTO IMPORTANTE):
+- NON usare markdown per i link (NO [Nome](url))
+- NON usare asterischi, cancelletti o altri simboli markdown
+- Per ogni prodotto menzionato, scrivi SOLO il nome seguito dall'URL tra parentesi
+- Formato ESATTO: Nome Prodotto (https://url-completo)
+- Esempio: Mousse Detergente Viso (https://almanaturalbeauty.it/prodotto/mousse-detergente/)
+- NON scrivere "Detergente:" o altri prefissi, usa solo il numero della lista
 
-Rispondi in italiano come una vera consulente beauty esperta.`;
+ESEMPIO DI RISPOSTA CORRETTA:
+Ciao [Nome]! Ecco la tua routine personalizzata per pelle grassa:
+
+1) Mousse Detergente Viso (https://almanaturalbeauty.it/prodotto/mousse-detergente/) - Perfetta per purificare la pelle grassa grazie alla sua azione sebo-regolatrice
+2) Tonico Spray Viso (https://almanaturalbeauty.it/prodotto/tonico-spray/) - Riequilibra il pH e minimizza i pori
+3) Crema Giorno Rosa Canina (https://almanaturalbeauty.it/prodotto/crema-giorno-rosa-canina/) - Idrata senza ungere
+
+Match Score: 95/100
+
+Rispondi in italiano come una vera consulente beauty esperta, SENZA usare markdown.`;
 
     const messages = [
       { role: 'system', content: systemPrompt },
