@@ -137,41 +137,76 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // Build a chain of redirects to add products sequentially
-    // WooCommerce uses redirect_to parameter to chain multiple add-to-cart operations
-    const cartUrl = `${baseUrl}/carrello/`;
+    // Use WooCommerce REST API to add products to cart
+    // We'll use the Store API (WooCommerce Blocks) which supports cart operations
+    const auth = btoa(`${consumerKey}:${consumerSecret}`);
     
-    // Build redirect chain from last to first product
-    let redirectChain = encodeURIComponent(cartUrl);
-    
-    for (let i = verifiedProductIds.length - 1; i >= 0; i--) {
-      const productId = verifiedProductIds[i];
-      if (i === 0) {
-        // First product in chain - this is the URL we'll navigate to
-        redirectChain = `${baseUrl}/?add-to-cart=${productId}&redirect_to=${redirectChain}`;
-      } else {
-        // Middle products - encode and continue building chain
-        redirectChain = encodeURIComponent(`${baseUrl}/?add-to-cart=${productId}&redirect_to=${redirectChain}`);
+    try {
+      // Add each product to cart using WooCommerce Store API
+      const cartUrl = `${baseUrl}/wp-json/wc/store/v1/cart/add-item`;
+      
+      console.log('Adding products via Store API:', cartUrl);
+      
+      for (const productId of verifiedProductIds) {
+        const response = await fetch(cartUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${auth}`,
+          },
+          body: JSON.stringify({
+            id: productId,
+            quantity: 1,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Failed to add product ${productId}:`, response.status, errorText);
+          // Continue with other products even if one fails
+        } else {
+          console.log(`Successfully added product ${productId}`);
+        }
       }
+      
+      // Redirect to cart page
+      const checkoutUrl = `${baseUrl}/carrello/`;
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          redirectUrl: checkoutUrl,
+          cartUrl: checkoutUrl,
+          productsAdded: verifiedProductIds.length,
+          productIds: verifiedProductIds,
+          message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o aggiunto' : 'i aggiunti'} al carrello`
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    } catch (apiError) {
+      console.error('WooCommerce API error:', apiError);
+      
+      // Fallback: generate simple add-to-cart links
+      const checkoutUrl = `${baseUrl}/carrello/?${verifiedProductIds.map(id => `add-to-cart=${id}`).join('&')}`;
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          redirectUrl: checkoutUrl,
+          cartUrl: `${baseUrl}/carrello/`,
+          productsAdded: verifiedProductIds.length,
+          productIds: verifiedProductIds,
+          message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} pronti per l'aggiunta al carrello`
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
     }
-    
-    console.log('Generated redirect chain URL:', redirectChain);
-    console.log('Cart URL:', cartUrl);
-    
-    return new Response(
-      JSON.stringify({
-        success: true,
-        redirectUrl: redirectChain,
-        cartUrl: cartUrl,
-        productsAdded: verifiedProductIds.length,
-        productIds: verifiedProductIds,
-        message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} pronti per l'aggiunta al carrello`
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
 
   } catch (error) {
     console.error('Error in add-to-woo-cart function:', error);
