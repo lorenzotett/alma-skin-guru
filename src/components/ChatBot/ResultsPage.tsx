@@ -169,7 +169,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
     }
     
     try {
-      // Call edge function to add to WooCommerce cart
+      // Call edge function to get add-to-cart URL
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
         body: {
           productIds: [product.woocommerce_id]
@@ -182,14 +182,12 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.cartUrl) {
+      if (data?.success && data?.productUrls && data.productUrls.length > 0) {
         setAddedProducts(prev => new Set(prev).add(product.id));
         toast.success('Prodotto aggiunto al carrello!');
         
-        // Redirect to WooCommerce cart
-        setTimeout(() => {
-          window.location.href = data.cartUrl;
-        }, 1000);
+        // Redirect directly to add-to-cart URL
+        window.open(data.productUrls[0].addUrl, '_blank');
       } else {
         toast.error('Errore durante l\'aggiunta al carrello');
       }
@@ -223,13 +221,30 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.cartUrl) {
+      if (data?.success && data?.productUrls && data.productUrls.length > 0) {
+        // Use hidden iframes to add products sequentially
+        const iframes: HTMLIFrameElement[] = [];
+        
+        data.productUrls.forEach((urlData: { productId: number; addUrl: string }) => {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = urlData.addUrl;
+          document.body.appendChild(iframe);
+          iframes.push(iframe);
+        });
+
+        // Wait for products to be added (2 seconds should be enough)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Clean up iframes
+        iframes.forEach(iframe => document.body.removeChild(iframe));
+
         toast.success(`${productsWithWoo.length} prodotti aggiunti al carrello!`, { id: 'buy-all' });
         
-        // Redirect to WooCommerce cart
+        // Redirect to WooCommerce cart page
         setTimeout(() => {
-          window.location.href = data.cartUrl;
-        }, 1500);
+          window.open(data.cartUrl, '_blank');
+        }, 500);
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
       }

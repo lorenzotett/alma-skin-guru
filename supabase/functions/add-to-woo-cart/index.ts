@@ -140,37 +140,22 @@ serve(async (req) => {
     // For single: ?add-to-cart=123
     // For multiple: ?add-to-cart=123,456,789
     
-    let cartUrl = `${baseUrl}/carrello/`;
+    // WooCommerce doesn't support multiple add-to-cart parameters in one URL
+    // We'll return individual URLs for each product so the frontend can add them sequentially
+    const productUrls = verifiedProductIds.map(id => ({
+      productId: id,
+      addUrl: `${baseUrl}/?add-to-cart=${id}`
+    }));
     
-    if (verifiedProductIds.length === 1) {
-      // Single product - use simple add-to-cart parameter
-      cartUrl = `${baseUrl}/?add-to-cart=${verifiedProductIds[0]}`;
-      console.log('Single product cart URL:', cartUrl);
-    } else if (verifiedProductIds.length > 1) {
-      // Multiple products - try comma-separated list
-      // Some WooCommerce versions support this
-      const productIdsString = verifiedProductIds.join(',');
-      cartUrl = `${baseUrl}/?add-to-cart=${productIdsString}`;
-      console.log('Multiple products cart URL:', cartUrl);
-      
-      // Alternative: Add multiple products with separate parameters
-      // This is more reliable for standard WooCommerce
-      const params = new URLSearchParams();
-      verifiedProductIds.forEach(id => {
-        params.append('add-to-cart', String(id));
-      });
-      cartUrl = `${baseUrl}/?${params.toString()}`;
-      console.log('Multiple products cart URL (alternative):', cartUrl);
-    }
+    const cartUrl = `${baseUrl}/carrello/`;
     
-    console.log('Final cart URL:', cartUrl);
-    console.log('Product count:', verifiedProductIds.length);
-    console.log('Product IDs to add:', verifiedProductIds);
+    console.log('Generated product URLs for sequential addition:', productUrls);
     
     return new Response(
       JSON.stringify({
         success: true,
         cartUrl: cartUrl,
+        productUrls: productUrls,
         productsAdded: verifiedProductIds.length,
         productIds: verifiedProductIds,
         message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} in aggiunta al carrello`
