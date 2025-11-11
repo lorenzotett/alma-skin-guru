@@ -8,6 +8,7 @@ import { FloatingCart } from "@/components/ChatBot/FloatingCart";
 import Index from "./pages/Index";
 import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
+import { CartRedirect } from "./components/CartRedirect";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/cart-redirect" element={<CartRedirect />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route
               path="/admin"

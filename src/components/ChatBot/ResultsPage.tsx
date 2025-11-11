@@ -205,11 +205,12 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.redirectUrl) {
+      if (data?.success && data?.productIds && data?.storeUrl) {
         toast.success('Reindirizzamento al carrello...', { id: 'buy-all' });
         
-        // Redirect directly using the redirect chain URL
-        window.location.href = data.redirectUrl;
+        // Redirect to our cart redirect page which will add products from the browser
+        const redirectUrl = `/cart-redirect?products=${data.productIds.join(',')}&store=${encodeURIComponent(data.storeUrl)}`;
+        window.location.href = redirectUrl;
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
       }
@@ -243,14 +244,15 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.redirectUrl) {
+      if (data?.success && data?.productIds && data?.storeUrl) {
         // Clear local cart
         clearCart();
         
         toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
         
-        // Redirect directly using the redirect chain URL
-        window.location.href = data.redirectUrl;
+        // Redirect to our cart redirect page
+        const redirectUrl = `/cart-redirect?products=${data.productIds.join(',')}&store=${encodeURIComponent(data.storeUrl)}`;
+        window.location.href = redirectUrl;
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
       }

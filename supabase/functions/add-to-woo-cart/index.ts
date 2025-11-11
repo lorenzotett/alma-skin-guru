@@ -137,76 +137,24 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // Use WooCommerce REST API to add products to cart
-    // We'll use the Store API (WooCommerce Blocks) which supports cart operations
-    const auth = btoa(`${consumerKey}:${consumerSecret}`);
+    // Return the product IDs so the frontend can add them via AJAX from the user's browser
+    // This way the browser will have the correct WooCommerce session cookies
+    console.log('Returning product IDs for client-side cart addition');
     
-    try {
-      // Add each product to cart using WooCommerce Store API
-      const cartUrl = `${baseUrl}/wp-json/wc/store/v1/cart/add-item`;
-      
-      console.log('Adding products via Store API:', cartUrl);
-      
-      for (const productId of verifiedProductIds) {
-        const response = await fetch(cartUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${auth}`,
-          },
-          body: JSON.stringify({
-            id: productId,
-            quantity: 1,
-          }),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Failed to add product ${productId}:`, response.status, errorText);
-          // Continue with other products even if one fails
-        } else {
-          console.log(`Successfully added product ${productId}`);
-        }
+    return new Response(
+      JSON.stringify({
+        success: true,
+        productIds: verifiedProductIds,
+        storeUrl: baseUrl,
+        cartUrl: `${baseUrl}/carrello/`,
+        productsAdded: verifiedProductIds.length,
+        message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} pronti per l'aggiunta al carrello`
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
       }
-      
-      // Redirect to cart page
-      const checkoutUrl = `${baseUrl}/carrello/`;
-      
-      return new Response(
-        JSON.stringify({
-          success: true,
-          redirectUrl: checkoutUrl,
-          cartUrl: checkoutUrl,
-          productsAdded: verifiedProductIds.length,
-          productIds: verifiedProductIds,
-          message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o aggiunto' : 'i aggiunti'} al carrello`
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
-    } catch (apiError) {
-      console.error('WooCommerce API error:', apiError);
-      
-      // Fallback: generate simple add-to-cart links
-      const checkoutUrl = `${baseUrl}/carrello/?${verifiedProductIds.map(id => `add-to-cart=${id}`).join('&')}`;
-      
-      return new Response(
-        JSON.stringify({
-          success: true,
-          redirectUrl: checkoutUrl,
-          cartUrl: `${baseUrl}/carrello/`,
-          productsAdded: verifiedProductIds.length,
-          productIds: verifiedProductIds,
-          message: `${verifiedProductIds.length} prodott${verifiedProductIds.length === 1 ? 'o' : 'i'} pronti per l'aggiunta al carrello`
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
-    }
+    );
 
   } catch (error) {
     console.error('Error in add-to-woo-cart function:', error);
