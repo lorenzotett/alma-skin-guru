@@ -137,23 +137,31 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // Build individual URLs for each product
-    // WooCommerce does NOT support multiple add-to-cart parameters in the same URL
-    // We need to add products sequentially
-    const productUrls = verifiedProductIds.map(id => ({
-      productId: id,
-      url: `${baseUrl}/?add-to-cart=${id}`
-    }));
-    
+    // Build a chain of redirects to add products sequentially
+    // WooCommerce uses redirect_to parameter to chain multiple add-to-cart operations
     const cartUrl = `${baseUrl}/carrello/`;
     
-    console.log('Generated product URLs:', productUrls);
+    // Build redirect chain from last to first product
+    let redirectChain = encodeURIComponent(cartUrl);
+    
+    for (let i = verifiedProductIds.length - 1; i >= 0; i--) {
+      const productId = verifiedProductIds[i];
+      if (i === 0) {
+        // First product in chain - this is the URL we'll navigate to
+        redirectChain = `${baseUrl}/?add-to-cart=${productId}&redirect_to=${redirectChain}`;
+      } else {
+        // Middle products - encode and continue building chain
+        redirectChain = encodeURIComponent(`${baseUrl}/?add-to-cart=${productId}&redirect_to=${redirectChain}`);
+      }
+    }
+    
+    console.log('Generated redirect chain URL:', redirectChain);
     console.log('Cart URL:', cartUrl);
     
     return new Response(
       JSON.stringify({
         success: true,
-        productUrls: productUrls,
+        redirectUrl: redirectChain,
         cartUrl: cartUrl,
         productsAdded: verifiedProductIds.length,
         productIds: verifiedProductIds,

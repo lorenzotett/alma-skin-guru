@@ -205,15 +205,11 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.productUrls && data?.productUrls.length > 0) {
-        // Create a URL with all products concatenated using commas
-        const allProductIds = productsWithWoo.map(p => p.woocommerce_id).join(',');
-        const bulkAddUrl = `${data.productUrls[0].url.split('?')[0]}?add-to-cart=${allProductIds}`;
-        
+      if (data?.success && data?.redirectUrl) {
         toast.success('Reindirizzamento al carrello...', { id: 'buy-all' });
         
-        // Open directly - WooCommerce will handle the comma-separated IDs
-        window.open(bulkAddUrl, '_blank');
+        // Redirect directly using the redirect chain URL
+        window.location.href = data.redirectUrl;
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
       }
@@ -247,18 +243,14 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.productUrls && data?.productUrls.length > 0) {
-        // Create a URL with all products concatenated using commas
-        const allProductIds = cartProductsWithWoo.map(p => p.woocommerce_id).join(',');
-        const bulkAddUrl = `${data.productUrls[0].url.split('?')[0]}?add-to-cart=${allProductIds}`;
-        
+      if (data?.success && data?.redirectUrl) {
         // Clear local cart
         clearCart();
         
         toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
         
-        // Open directly - WooCommerce will handle the comma-separated IDs
-        window.open(bulkAddUrl, '_blank');
+        // Redirect directly using the redirect chain URL
+        window.location.href = data.redirectUrl;
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
       }
