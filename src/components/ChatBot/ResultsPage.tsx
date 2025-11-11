@@ -190,7 +190,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       return;
     }
 
-    toast.loading('Preparazione carrello...', { id: 'buy-all' });
+    toast.loading('Aggiunta prodotti al carrello...', { id: 'buy-all' });
 
     try {
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
@@ -205,11 +205,41 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.addAllUrl) {
-        toast.success(`Apertura carrello con ${productsWithWoo.length} prodotti...`, { id: 'buy-all' });
+      if (data?.success && data?.productUrls && data?.productUrls.length > 0) {
+        toast.success(`Aggiunta ${productsWithWoo.length} prodotti...`, { id: 'buy-all' });
         
-        // Redirect to WooCommerce with all products
-        window.open(data.addAllUrl, '_blank');
+        // Add products sequentially using hidden iframes
+        let completedCount = 0;
+        const iframes: HTMLIFrameElement[] = [];
+        
+        for (const { url } of data.productUrls) {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = url;
+          document.body.appendChild(iframe);
+          iframes.push(iframe);
+          
+          completedCount++;
+          if (completedCount < data.productUrls.length) {
+            toast.loading(`Aggiunta prodotto ${completedCount}/${data.productUrls.length}...`, { id: 'buy-all' });
+          }
+          
+          // Wait 800ms between requests to avoid overwhelming WooCommerce
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
+        
+        // Wait an additional 1.5 seconds for all products to be processed
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Clean up iframes
+        iframes.forEach(iframe => document.body.removeChild(iframe));
+        
+        toast.success('Reindirizzamento al carrello...', { id: 'buy-all' });
+        
+        // Redirect to cart page
+        setTimeout(() => {
+          window.open(data.cartUrl, '_blank');
+        }, 500);
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'buy-all' });
       }
@@ -228,7 +258,7 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
       return;
     }
 
-    toast.loading('Preparazione carrello...', { id: 'checkout' });
+    toast.loading('Aggiunta prodotti al carrello...', { id: 'checkout' });
 
     try {
       const { data, error } = await supabase.functions.invoke('add-to-woo-cart', {
@@ -243,14 +273,44 @@ export const ResultsPage = ({ userData, onRestart, onEditData, onBack }: Results
         return;
       }
 
-      if (data?.success && data?.addAllUrl) {
-        toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
+      if (data?.success && data?.productUrls && data?.productUrls.length > 0) {
+        toast.success(`Aggiunta ${cartProductsWithWoo.length} prodotti...`, { id: 'checkout' });
+        
+        // Add products sequentially using hidden iframes
+        let completedCount = 0;
+        const iframes: HTMLIFrameElement[] = [];
+        
+        for (const { url } of data.productUrls) {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = url;
+          document.body.appendChild(iframe);
+          iframes.push(iframe);
+          
+          completedCount++;
+          if (completedCount < data.productUrls.length) {
+            toast.loading(`Aggiunta prodotto ${completedCount}/${data.productUrls.length}...`, { id: 'checkout' });
+          }
+          
+          // Wait 800ms between requests to avoid overwhelming WooCommerce
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
+        
+        // Wait an additional 1.5 seconds for all products to be processed
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Clean up iframes
+        iframes.forEach(iframe => document.body.removeChild(iframe));
         
         // Clear local cart
         clearCart();
         
-        // Redirect to WooCommerce with selected products
-        window.open(data.addAllUrl, '_blank');
+        toast.success('Reindirizzamento al carrello...', { id: 'checkout' });
+        
+        // Redirect to cart page
+        setTimeout(() => {
+          window.open(data.cartUrl, '_blank');
+        }, 500);
       } else {
         toast.error('Errore durante l\'aggiunta al carrello', { id: 'checkout' });
       }

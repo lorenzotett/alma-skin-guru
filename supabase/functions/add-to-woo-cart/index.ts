@@ -137,24 +137,23 @@ serve(async (req) => {
     console.log('Store URL from env:', storeUrl);
     console.log('Normalized base URL:', baseUrl);
     
-    // Build cart URL with add-to-cart parameters
-    // WooCommerce supports adding multiple products via URL
-    // We construct a single URL with multiple add-to-cart parameters
-    const params = new URLSearchParams();
-    verifiedProductIds.forEach(id => {
-      params.append('add-to-cart', String(id));
-    });
+    // Build individual URLs for each product
+    // WooCommerce does NOT support multiple add-to-cart parameters in the same URL
+    // We need to add products sequentially
+    const productUrls = verifiedProductIds.map(id => ({
+      productId: id,
+      url: `${baseUrl}/?add-to-cart=${id}`
+    }));
     
-    const addAllUrl = `${baseUrl}/?${params.toString()}`;
     const cartUrl = `${baseUrl}/carrello/`;
     
-    console.log('Generated add-all URL:', addAllUrl);
+    console.log('Generated product URLs:', productUrls);
     console.log('Cart URL:', cartUrl);
     
     return new Response(
       JSON.stringify({
         success: true,
-        addAllUrl: addAllUrl,
+        productUrls: productUrls,
         cartUrl: cartUrl,
         productsAdded: verifiedProductIds.length,
         productIds: verifiedProductIds,
